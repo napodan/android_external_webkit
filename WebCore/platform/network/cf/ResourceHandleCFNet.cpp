@@ -130,7 +130,7 @@ CFURLRequestRef willSendRequest(CFURLConnectionRef conn, CFURLRequestRef cfReque
         return cfRequest;
     }
 
-    LOG(Network, "CFNet - willSendRequest(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - willSendRequest(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
 
     ResourceRequest request;
     if (cfRedirectResponse) {
@@ -177,7 +177,7 @@ void didReceiveResponse(CFURLConnectionRef conn, CFURLResponseRef cfResponse, co
 {
     ResourceHandle* handle = static_cast<ResourceHandle*>(const_cast<void*>(clientInfo));
 
-    LOG(Network, "CFNet - didReceiveResponse(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - didReceiveResponse(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
 
     if (!handle->client())
         return;
@@ -197,7 +197,7 @@ void didReceiveData(CFURLConnectionRef conn, CFDataRef data, CFIndex originalLen
     const UInt8* bytes = CFDataGetBytePtr(data);
     CFIndex length = CFDataGetLength(data);
 
-    LOG(Network, "CFNet - didReceiveData(conn=%p, handle=%p, bytes=%d) (%s)", conn, handle, length, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - didReceiveData(conn=%p, handle=%p, bytes=%d) (%s)", conn, handle, length, handle->request().url().string().utf8().data());
 
     if (handle->client())
         handle->client()->didReceiveData(handle, (const char*)bytes, length, originalLength);
@@ -215,7 +215,7 @@ static Boolean shouldUseCredentialStorageCallback(CFURLConnectionRef conn, const
 {
     ResourceHandle* handle = const_cast<ResourceHandle*>(static_cast<const ResourceHandle*>(clientInfo));
 
-    LOG(Network, "CFNet - shouldUseCredentialStorage(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - shouldUseCredentialStorage(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
 
     if (!handle)
         return false;
@@ -227,7 +227,7 @@ void didFinishLoading(CFURLConnectionRef conn, const void* clientInfo)
 {
     ResourceHandle* handle = static_cast<ResourceHandle*>(const_cast<void*>(clientInfo));
 
-    LOG(Network, "CFNet - didFinishLoading(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - didFinishLoading(conn=%p, handle=%p) (%s)", conn, handle, handle->request().url().string().utf8().data());
 
     if (handle->client())
         handle->client()->didFinishLoading(handle);
@@ -237,7 +237,7 @@ void didFail(CFURLConnectionRef conn, CFErrorRef error, const void* clientInfo)
 {
     ResourceHandle* handle = static_cast<ResourceHandle*>(const_cast<void*>(clientInfo));
 
-    LOG(Network, "CFNet - didFail(conn=%p, handle=%p, error = %p) (%s)", conn, handle, error, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - didFail(conn=%p, handle=%p, error = %p) (%s)", conn, handle, error, handle->request().url().string().utf8().data());
 
     if (handle->client())
         handle->client()->didFail(handle, ResourceError(error));
@@ -270,7 +270,7 @@ void didReceiveChallenge(CFURLConnectionRef conn, CFURLAuthChallengeRef challeng
 {
     ResourceHandle* handle = static_cast<ResourceHandle*>(const_cast<void*>(clientInfo));
     ASSERT(handle);
-    LOG(Network, "CFNet - didReceiveChallenge(conn=%p, handle=%p (%s)", conn, handle, handle->request().url().string().utf8().data());
+    ALOG(Network, "CFNet - didReceiveChallenge(conn=%p, handle=%p (%s)", conn, handle, handle->request().url().string().utf8().data());
 
     handle->didReceiveAuthenticationChallenge(AuthenticationChallenge(challenge, handle));
 }
@@ -293,14 +293,14 @@ void addHeadersFromHashMap(CFMutableURLRequestRef request, const HTTPHeaderMap& 
 ResourceHandleInternal::~ResourceHandleInternal()
 {
     if (m_connection) {
-        LOG(Network, "CFNet - Cancelling connection %p (%s)", m_connection, m_request.url().string().utf8().data());
+        ALOG(Network, "CFNet - Cancelling connection %p (%s)", m_connection, m_request.url().string().utf8().data());
         CFURLConnectionCancel(m_connection.get());
     }
 }
 
 ResourceHandle::~ResourceHandle()
 {
-    LOG(Network, "CFNet - Destroying job %p (%s)", this, d->m_request.url().string().utf8().data());
+    ALOG(Network, "CFNet - Destroying job %p (%s)", this, d->m_request.url().string().utf8().data());
 }
 
 CFArrayRef arrayFromFormData(const FormData& d)
@@ -403,7 +403,7 @@ bool ResourceHandle::start(Frame* frame)
     CFURLConnectionScheduleDownloadWithRunLoop(d->m_connection.get(), loaderRunLoop(), kCFRunLoopDefaultMode);
     CFURLConnectionStart(d->m_connection.get());
 
-    LOG(Network, "CFNet - Starting URL %s (handle=%p, conn=%p)", d->m_request.url().string().utf8().data(), this, d->m_connection);
+    ALOG(Network, "CFNet - Starting URL %s (handle=%p, conn=%p)", d->m_request.url().string().utf8().data(), this, d->m_connection);
 
     return true;
 }
@@ -439,7 +439,7 @@ void ResourceHandle::willSendRequest(ResourceRequest& request, const ResourceRes
 
 bool ResourceHandle::shouldUseCredentialStorage()
 {
-    LOG(Network, "CFNet - shouldUseCredentialStorage()");
+    ALOG(Network, "CFNet - shouldUseCredentialStorage()");
     if (client())
         return client()->shouldUseCredentialStorage(this);
 
@@ -448,7 +448,7 @@ bool ResourceHandle::shouldUseCredentialStorage()
 
 void ResourceHandle::didReceiveAuthenticationChallenge(const AuthenticationChallenge& challenge)
 {
-    LOG(Network, "CFNet - didReceiveAuthenticationChallenge()");
+    ALOG(Network, "CFNet - didReceiveAuthenticationChallenge()");
     ASSERT(d->m_currentWebChallenge.isNull());
     // Since CFURLConnection networking relies on keeping a reference to the original CFURLAuthChallengeRef,
     // we make sure that is actually present
@@ -491,7 +491,7 @@ void ResourceHandle::didReceiveAuthenticationChallenge(const AuthenticationChall
 
 void ResourceHandle::receivedCredential(const AuthenticationChallenge& challenge, const Credential& credential)
 {
-    LOG(Network, "CFNet - receivedCredential()");
+    ALOG(Network, "CFNet - receivedCredential()");
     ASSERT(!challenge.isNull());
     ASSERT(challenge.cfURLAuthChallengeRef());
     if (challenge != d->m_currentWebChallenge)
@@ -519,7 +519,7 @@ void ResourceHandle::receivedCredential(const AuthenticationChallenge& challenge
 
 void ResourceHandle::receivedRequestToContinueWithoutCredential(const AuthenticationChallenge& challenge)
 {
-    LOG(Network, "CFNet - receivedRequestToContinueWithoutCredential()");
+    ALOG(Network, "CFNet - receivedRequestToContinueWithoutCredential()");
     ASSERT(!challenge.isNull());
     ASSERT(challenge.cfURLAuthChallengeRef());
     if (challenge != d->m_currentWebChallenge)
@@ -532,7 +532,7 @@ void ResourceHandle::receivedRequestToContinueWithoutCredential(const Authentica
 
 void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challenge)
 {
-    LOG(Network, "CFNet - receivedCancellation()");
+    ALOG(Network, "CFNet - receivedCancellation()");
     if (challenge != d->m_currentWebChallenge)
         return;
 
@@ -547,7 +547,7 @@ CFURLConnectionRef ResourceHandle::connection() const
 
 CFURLConnectionRef ResourceHandle::releaseConnectionForDownload()
 {
-    LOG(Network, "CFNet - Job %p releasing connection %p for download", this, d->m_connection.get());
+    ALOG(Network, "CFNet - Job %p releasing connection %p for download", this, d->m_connection.get());
     return d->m_connection.releaseRef();
 }
 

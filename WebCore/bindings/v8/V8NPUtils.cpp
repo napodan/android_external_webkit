@@ -35,7 +35,7 @@
 #include "DOMWindow.h"
 #include "Frame.h"
 #include "PlatformString.h"
-#undef LOG
+#undef ALOG
 
 #include "NPV8Object.h"
 #include "V8NPObject.h"

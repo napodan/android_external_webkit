@@ -22025,7 +22025,7 @@
 
         Reviewed by Simon.
 
-        Replaced all instances of qDebug() with LOG(Media, ...)
+        Replaced all instances of qDebug() with ALOG(Media, ...)
         in MediaPlayerPrivatePhonon.
 
         * platform/graphics/qt/MediaPlayerPrivatePhonon.cpp:

@@ -247,7 +247,7 @@ static WebCacheModel cacheModelForMainBundle(void)
         if ([values isKindOfClass:[NSDictionary class]])
             _private->values = [values mutableCopy]; // ensure dictionary is mutable
 
-        LOG(Encoding, "Identifier = %@, Values = %@\n", _private->identifier, _private->values);
+        ALOG(Encoding, "Identifier = %@, Values = %@\n", _private->identifier, _private->values);
     } @catch(id) {
         [self release];
         return nil;
@@ -271,7 +271,7 @@ static WebCacheModel cacheModelForMainBundle(void)
     if ([encoder allowsKeyedCoding]){
         [encoder encodeObject:_private->identifier forKey:@"Identifier"];
         [encoder encodeObject:_private->values forKey:@"Values"];
-        LOG (Encoding, "Identifier = %@, Values = %@\n", _private->identifier, _private->values);
+        ALOG (Encoding, "Identifier = %@, Values = %@\n", _private->identifier, _private->values);
     }
     else {
         int version = WebPreferencesVersion;
@@ -1030,7 +1030,7 @@ static WebCacheModel cacheModelForMainBundle(void)
 
 + (WebPreferences *)_getInstanceForIdentifier:(NSString *)ident
 {
-    LOG(Encoding, "requesting for %@\n", ident);
+    ALOG(Encoding, "requesting for %@\n", ident);
 
     if (!ident)
         return _standardPreferences;
@@ -1046,7 +1046,7 @@ static WebCacheModel cacheModelForMainBundle(void)
         webPreferencesInstances = [[NSMutableDictionary alloc] init];
     if (ident) {
         [webPreferencesInstances setObject:instance forKey:[self _concatenateKeyWithIBCreatorID:ident]];
-        LOG(Encoding, "recording %p for %@\n", instance, [self _concatenateKeyWithIBCreatorID:ident]);
+        ALOG(Encoding, "recording %p for %@\n", instance, [self _concatenateKeyWithIBCreatorID:ident]);
     }
 }
 

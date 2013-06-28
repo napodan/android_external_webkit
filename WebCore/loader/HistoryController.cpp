@@ -138,7 +138,7 @@ void HistoryController::saveDocumentState()
     ASSERT(document);
     
     if (item->isCurrentDocument(document)) {
-        LOG(Loading, "WebCoreLoading %s: saving form state to %p", m_frame->tree()->name().string().utf8().data(), item);
+        ALOG(Loading, "WebCoreLoading %s: saving form state to %p", m_frame->tree()->name().string().utf8().data(), item);
         item->setDocumentState(document->formElementsState());
     }
 }
@@ -177,7 +177,7 @@ void HistoryController::restoreDocumentState()
     if (!itemToRestore)
         return;
 
-    LOG(Loading, "WebCoreLoading %s: restoring form state from %p", m_frame->tree()->name().string().utf8().data(), itemToRestore);
+    ALOG(Loading, "WebCoreLoading %s: restoring form state from %p", m_frame->tree()->name().string().utf8().data(), itemToRestore);
     doc->setStateForNewFormElements(itemToRestore->documentState());
 }
 
@@ -250,7 +250,7 @@ void HistoryController::updateForBackForwardNavigation()
 {
 #if !LOG_DISABLED
     if (m_frame->loader()->documentLoader())
-        LOG(History, "WebCoreHistory: Updating History for back/forward navigation in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
+        ALOG(History, "WebCoreHistory: Updating History for back/forward navigation in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
 #endif
 
     // Must grab the current scroll position before disturbing it
@@ -261,7 +261,7 @@ void HistoryController::updateForReload()
 {
 #if !LOG_DISABLED
     if (m_frame->loader()->documentLoader())
-        LOG(History, "WebCoreHistory: Updating History for reload in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
+        ALOG(History, "WebCoreHistory: Updating History for reload in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
 #endif
 
     if (m_currentItem) {
@@ -284,7 +284,7 @@ void HistoryController::updateForReload()
 
 void HistoryController::updateForStandardLoad()
 {
-    LOG(History, "WebCoreHistory: Updating History for Standard Load in frame %s", m_frame->loader()->documentLoader()->url().string().ascii().data());
+    ALOG(History, "WebCoreHistory: Updating History for Standard Load in frame %s", m_frame->loader()->documentLoader()->url().string().ascii().data());
 
     FrameLoader* frameLoader = m_frame->loader();
 
@@ -322,7 +322,7 @@ void HistoryController::updateForRedirectWithLockedBackForwardList()
 {
 #if !LOG_DISABLED
     if (m_frame->loader()->documentLoader())
-        LOG(History, "WebCoreHistory: Updating History for redirect load in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
+        ALOG(History, "WebCoreHistory: Updating History for redirect load in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
 #endif
     
     Settings* settings = m_frame->settings();
@@ -366,7 +366,7 @@ void HistoryController::updateForClientRedirect()
 {
 #if !LOG_DISABLED
     if (m_frame->loader()->documentLoader())
-        LOG(History, "WebCoreHistory: Updating History for client redirect in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
+        ALOG(History, "WebCoreHistory: Updating History for client redirect in frame %s", m_frame->loader()->documentLoader()->title().utf8().data());
 #endif
 
     // Clear out form data so we don't try to restore it into the incoming page.  Must happen after
@@ -391,7 +391,7 @@ void HistoryController::updateForCommit()
     FrameLoader* frameLoader = m_frame->loader();
 #if !LOG_DISABLED
     if (frameLoader->documentLoader())
-        LOG(History, "WebCoreHistory: Updating History for commit in frame %s", frameLoader->documentLoader()->title().utf8().data());
+        ALOG(History, "WebCoreHistory: Updating History for commit in frame %s", frameLoader->documentLoader()->title().utf8().data());
 #endif
     FrameLoadType type = frameLoader->loadType();
     if (isBackForwardLoadType(type) ||
@@ -466,7 +466,7 @@ PassRefPtr<HistoryItem> HistoryController::createItem(bool useOriginal)
             url = docLoader->requestURL();
     }
 
-    LOG(History, "WebCoreHistory: Creating item for %s", url.string().ascii().data());
+    ALOG(History, "WebCoreHistory: Creating item for %s", url.string().ascii().data());
     
     // Frames that have never successfully loaded any content
     // may have no URL at all. Currently our history code can't
@@ -625,7 +625,7 @@ void HistoryController::updateBackForwardListClippedAtTarget(bool doClip)
     frameLoader->checkDidPerformFirstNavigation();
 
     RefPtr<HistoryItem> item = frameLoader->history()->createItemTree(m_frame, doClip);
-    LOG(BackForward, "WebCoreBackForward - Adding backforward item %p for frame %s", item.get(), m_frame->loader()->documentLoader()->url().string().ascii().data());
+    ALOG(BackForward, "WebCoreBackForward - Adding backforward item %p for frame %s", item.get(), m_frame->loader()->documentLoader()->url().string().ascii().data());
     page->backForwardList()->addItem(item);
 }
 

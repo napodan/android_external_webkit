@@ -331,7 +331,7 @@ JObjectWrapper::JObjectWrapper(jobject instance)
     assert(instance);
 #if PLATFORM(ANDROID)
     if (!instance)
-        LOGE("Attempted to create JObjectWrapper for null object");
+        ALOGE("Attempted to create JObjectWrapper for null object");
 #endif
 
     // Cache the JNIEnv used to get the global ref for this java instance.
@@ -344,7 +344,7 @@ JObjectWrapper::JObjectWrapper(jobject instance)
 
     if  (!m_instance)
 #if PLATFORM(ANDROID)
-        LOGE("%s:  could not get GlobalRef for %p\n", __PRETTY_FUNCTION__, instance);
+        ALOGE("%s:  could not get GlobalRef for %p\n", __PRETTY_FUNCTION__, instance);
 #else
         fprintf(stderr, "%s:  could not get GlobalRef for %p\n", __PRETTY_FUNCTION__, instance);
 #endif

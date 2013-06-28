@@ -236,9 +236,9 @@ bool PluginPackage::fetchInfo()
         CFBundleCloseBundleResourceMap(m_module, resFile);
     }
 
-    LOG(Plugins, "PluginPackage::fetchInfo(): Found plug-in '%s'", m_name.utf8().data());
+    ALOG(Plugins, "PluginPackage::fetchInfo(): Found plug-in '%s'", m_name.utf8().data());
     if (isPluginBlacklisted()) {
-        LOG(Plugins, "\tPlug-in is blacklisted!");
+        ALOG(Plugins, "\tPlug-in is blacklisted!");
         return false;
     }
 
@@ -262,7 +262,7 @@ bool PluginPackage::load()
                                                                         kCFURLPOSIXPathStyle, false));
     m_module = CFBundleCreate(NULL, url.get());
     if (!m_module || !CFBundleLoadExecutable(m_module)) {
-        LOG(Plugins, "%s not loaded", m_path.utf8().data());
+        ALOG(Plugins, "%s not loaded", m_path.utf8().data());
         return false;
     }
 

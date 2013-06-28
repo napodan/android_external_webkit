@@ -77,7 +77,7 @@ struct WebBackForwardListFields {
 
 static void WebHistoryClose(JNIEnv* env, jobject obj, jint frame)
 {
-    LOG_ASSERT(frame, "Close needs a valid Frame pointer!");
+    ALOG_ASSERT(frame, "Close needs a valid Frame pointer!");
     WebCore::Frame* pFrame = (WebCore::Frame*)frame;
 
     WebCore::BackForwardList* list = pFrame->page()->backForwardList();
@@ -144,7 +144,7 @@ static void WebHistoryClose(JNIEnv* env, jobject obj, jint frame)
 
 static void WebHistoryRestoreIndex(JNIEnv* env, jobject obj, jint frame, jint index)
 {
-    LOG_ASSERT(frame, "RestoreState needs a valid Frame pointer!");
+    ALOG_ASSERT(frame, "RestoreState needs a valid Frame pointer!");
     WebCore::Frame* pFrame = (WebCore::Frame*)frame;
     WebCore::Page* page = pFrame->page();
     WebCore::HistoryItem* currentItem =
@@ -157,8 +157,8 @@ static void WebHistoryRestoreIndex(JNIEnv* env, jobject obj, jint frame, jint in
 
 static void WebHistoryInflate(JNIEnv* env, jobject obj, jint frame, jbyteArray data)
 {
-    LOG_ASSERT(frame, "Inflate needs a valid frame pointer!");
-    LOG_ASSERT(data, "Inflate needs a valid data pointer!");
+    ALOG_ASSERT(frame, "Inflate needs a valid frame pointer!");
+    ALOG_ASSERT(data, "Inflate needs a valid data pointer!");
 
     // Get the actual bytes and the length from the java array.
     const jbyte* bytes = env->GetByteArrayElements(data, NULL);
@@ -203,7 +203,7 @@ jbyteArray WebHistory::Flatten(JNIEnv* env, WTF::Vector<char>& v, WebCore::Histo
 
     // Write the top-level history item and then write all the children
     // recursively.
-    LOG_ASSERT(item->bridge(), "Why don't we have a bridge object here?");
+    ALOG_ASSERT(item->bridge(), "Why don't we have a bridge object here?");
     write_item(v, item);
     write_children_recursive(v, item);
 
@@ -245,7 +245,7 @@ void WebHistoryItem::updateHistoryItem(WebCore::HistoryItem* item) {
             // if the parent only has one ref, it is from this WebHistoryItem.
             // This means that the matching WebCore::HistoryItem has been freed.
             // This can happen during clear().
-            LOGW("Can't updateHistoryItem as the top HistoryItem is gone");
+            ALOGW("Can't updateHistoryItem as the top HistoryItem is gone");
             return;
         }
         while (webItem->parent())
@@ -255,7 +255,7 @@ void WebHistoryItem::updateHistoryItem(WebCore::HistoryItem* item) {
             // If a HistoryItem only exists for page cache, it is possible that
             // the parent HistoryItem destroyed before the child HistoryItem. If
             // it happens, skip updating.
-            LOGW("Can't updateHistoryItem as the top HistoryItem is gone");
+            ALOGW("Can't updateHistoryItem as the top HistoryItem is gone");
             return;
         }
     }
@@ -312,7 +312,7 @@ void WebHistoryItem::updateHistoryItem(WebCore::HistoryItem* item) {
 }
 
 static void historyItemChanged(WebCore::HistoryItem* item) {
-    LOG_ASSERT(item, "historyItemChanged called with a null item");
+    ALOG_ASSERT(item, "historyItemChanged called with a null item");
 
     if (item->bridge())
         item->bridge()->updateHistoryItem(item);
@@ -320,7 +320,7 @@ static void historyItemChanged(WebCore::HistoryItem* item) {
 
 void WebHistory::AddItem(const AutoJObject& list, WebCore::HistoryItem* item)
 {
-    LOG_ASSERT(item, "newItem must take a valid HistoryItem!");
+    ALOG_ASSERT(item, "newItem must take a valid HistoryItem!");
     // Item already added. Should only happen when we are inflating the list.
     if (item->bridge() || !list.get())
         return;
@@ -375,7 +375,7 @@ static void write_string(WTF::Vector<char>& v, const WebCore::String& str)
         char* data = v.begin() + vectorLen;
         // Write the actual string
         int l = SkUTF16_ToUTF8(str.characters(), strLen, data);
-        LOGV("Writing string       %d %.*s", l, l, data);
+        ALOGV("Writing string       %d %.*s", l, l, data);
         // Go back and write the utf8 length. Subtract sizeof(unsigned) from
         // data to get the position to write the length.
         memcpy(data - sizeof(unsigned), (char*)&l, sizeof(unsigned));
@@ -414,32 +414,32 @@ static void write_item(WTF::Vector<char>& v, WebCore::HistoryItem* item)
     write_string(v, item->target());
 
     AndroidWebHistoryBridge* bridge = item->bridge();
-    LOG_ASSERT(bridge, "We should have a bridge here!");
+    ALOG_ASSERT(bridge, "We should have a bridge here!");
     // Screen scale
     const int scale = bridge->scale();
-    LOGV("Writing scale %d", scale);
+    ALOGV("Writing scale %d", scale);
     v.append((char*)&scale, sizeof(int));
     const int screenWidthScale = bridge->screenWidthScale();
-    LOGV("Writing screen width scale %d", screenWidthScale);
+    ALOGV("Writing screen width scale %d", screenWidthScale);
     v.append((char*)&screenWidthScale, sizeof(int));
 
     // Document state
     const WTF::Vector<WebCore::String>& docState = item->documentState();
     WTF::Vector<WebCore::String>::const_iterator end = docState.end();
     unsigned stateSize = docState.size();
-    LOGV("Writing docState     %d", stateSize);
+    ALOGV("Writing docState     %d", stateSize);
     v.append((char*)&stateSize, sizeof(unsigned));
     for (WTF::Vector<WebCore::String>::const_iterator i = docState.begin(); i != end; ++i) {
         write_string(v, *i);
     }
 
     // Is target item
-    LOGV("Writing isTargetItem %d", item->isTargetItem());
+    ALOGV("Writing isTargetItem %d", item->isTargetItem());
     v.append((char)item->isTargetItem());
 
     // Children count
     unsigned childCount = item->children().size();
-    LOGV("Writing childCount   %d", childCount);
+    ALOGV("Writing childCount   %d", childCount);
     v.append((char*)&childCount, sizeof(unsigned));
 }
 
@@ -449,7 +449,7 @@ static void write_children_recursive(WTF::Vector<char>& v, WebCore::HistoryItem*
     WebCore::HistoryItemVector::const_iterator end = children.end();
     for (WebCore::HistoryItemVector::const_iterator i = children.begin(); i != end; ++i) {
         WebCore::HistoryItem* item = (*i).get();
-        LOG_ASSERT(parent->bridge(),
+        ALOG_ASSERT(parent->bridge(),
                 "The parent item should have a bridge object!");
         if (!item->bridge()) {
             WebHistoryItem* bridge = new WebHistoryItem(static_cast<WebHistoryItem*>(parent->bridge()));
@@ -461,7 +461,7 @@ static void write_children_recursive(WTF::Vector<char>& v, WebCore::HistoryItem*
             // parent must not have a parent bridge.
             WebHistoryItem* bridge = static_cast<WebHistoryItem*>(item->bridge());
             WebHistoryItem* parentBridge = static_cast<WebHistoryItem*>(parent->bridge());
-            LOG_ASSERT(parentBridge->parent() == 0 ||
+            ALOG_ASSERT(parentBridge->parent() == 0 ||
                     bridge->parent() == parentBridge,
                     "Somehow this item has an incorrect parent");
             bridge->setParent(parentBridge);
@@ -489,7 +489,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     // Increment data pointer by the size of an unsigned int.
     data += sizeofUnsigned;
     if (l) {
-        LOGV("Original url    %d %.*s", l, l, data);
+        ALOGV("Original url    %d %.*s", l, l, data);
         // If we have a length, check if that length exceeds the data length
         // and return null if there is not enough data.
         if (data + l < end)
@@ -507,7 +507,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     memcpy(&l, data, sizeofUnsigned);
     data += sizeofUnsigned;
     if (l) {
-        LOGV("Url             %d %.*s", l, l, data);
+        ALOGV("Url             %d %.*s", l, l, data);
         if (data + l < end)
             newItem->setURLString(e.decode(data, l));
         else
@@ -521,7 +521,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     memcpy(&l, data, sizeofUnsigned);
     data += sizeofUnsigned;
     if (l) {
-        LOGV("Title           %d %.*s", l, l, data);
+        ALOGV("Title           %d %.*s", l, l, data);
         if (data + l < end)
             newItem->setTitle(e.decode(data, l));
         else
@@ -539,7 +539,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     memcpy(&l, data, sizeofUnsigned);
     data += sizeofUnsigned;
     if (l) {
-        LOGV("Content type    %d %.*s", l, l, data);
+        ALOGV("Content type    %d %.*s", l, l, data);
         if (data + l < end)
             formContentType = e.decode(data, l);
         else
@@ -553,7 +553,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     memcpy(&l, data, sizeofUnsigned);
     data += sizeofUnsigned;
     if (l) {
-        LOGV("Form data       %d %.*s", l, l, data);
+        ALOGV("Form data       %d %.*s", l, l, data);
         if (data + l < end)
             formData = WebCore::FormData::create(data, l);
         else
@@ -585,7 +585,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     memcpy(&l, data, sizeofUnsigned);
     data += sizeofUnsigned;
     if (l) {
-        LOGV("Target          %d %.*s", l, l, data);
+        ALOGV("Target          %d %.*s", l, l, data);
         if (data + l < end)
             newItem->setTarget(e.decode(data, l));
         else
@@ -596,14 +596,14 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
         return false;
 
     AndroidWebHistoryBridge* bridge = newItem->bridge();
-    LOG_ASSERT(bridge, "There should be a bridge object during inflate");
+    ALOG_ASSERT(bridge, "There should be a bridge object during inflate");
     // Read the screen scale
     memcpy(&l, data, sizeofUnsigned);
-    LOGV("Screen scale    %d", l);
+    ALOGV("Screen scale    %d", l);
     bridge->setScale(l);
     data += sizeofUnsigned;
     memcpy(&l, data, sizeofUnsigned);
-    LOGV("Screen width scale    %d", l);
+    ALOGV("Screen width scale    %d", l);
     bridge->setScreenWidthScale(l);
     data += sizeofUnsigned;
 
@@ -612,7 +612,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
 
     // Read the document state
     memcpy(&l, data, sizeofUnsigned);
-    LOGV("Document state  %d", l);
+    ALOGV("Document state  %d", l);
     data += sizeofUnsigned;
     if (l) {
         // Check if we have enough data to at least parse the sizes of each
@@ -634,7 +634,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
                 docState.append(e.decode(data, strLen));
             else
                 return false;
-            LOGV("\t\t%d %.*s", strLen, strLen, data);
+            ALOGV("\t\t%d %.*s", strLen, strLen, data);
             data += strLen;
         }
         newItem->setDocumentState(docState);
@@ -649,7 +649,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
     unsigned char c = (unsigned char)data[0];
     if (c > 1)
         return false;
-    LOGV("Target item     %d", c);
+    ALOGV("Target item     %d", c);
     newItem->setIsTargetItem((bool)c);
     data++;
     if (end - data < sizeofUnsigned)
@@ -657,7 +657,7 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
 
     // Read the child count
     memcpy(&l, data, sizeofUnsigned);
-    LOGV("Child count     %d", l);
+    ALOGV("Child count     %d", l);
     data += sizeofUnsigned;
     *pData = data;
     if (l) {
@@ -692,72 +692,72 @@ static bool read_item_recursive(WebCore::HistoryItem* newItem,
 #ifdef UNIT_TEST
 static void unit_test()
 {
-    LOGD("Entering history unit test!");
+    ALOGD("Entering history unit test!");
     const char* test1 = new char[0];
     WTF::RefPtr<WebCore::HistoryItem> item = WebCore::HistoryItem::create();
     WebCore::HistoryItem* testItem = item.get();
     testItem->setBridge(new WebHistoryItem(0));
-    LOG_ASSERT(!read_item_recursive(testItem, &test1, 0), "0 length array should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &test1, 0), "0 length array should fail!");
     delete[] test1;
     const char* test2 = new char[2];
-    LOG_ASSERT(!read_item_recursive(testItem, &test2, 2), "Small array should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &test2, 2), "Small array should fail!");
     delete[] test2;
-    LOG_ASSERT(!read_item_recursive(testItem, NULL, HISTORY_MIN_SIZE), "Null data should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, NULL, HISTORY_MIN_SIZE), "Null data should fail!");
     // Original Url
     char* test3 = new char[HISTORY_MIN_SIZE];
     const char* ptr = (const char*)test3;
     memset(test3, 0, HISTORY_MIN_SIZE);
     *(int*)test3 = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length originalUrl should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length originalUrl should fail!");
     // Url
     int offset = 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length url should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length url should fail!");
     // Title
     offset += 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length title should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length title should fail!");
     // Form content type
     offset += 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length contentType should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length contentType should fail!");
     // Form data
     offset += 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length form data should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length form data should fail!");
     // Target
     offset += 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length target should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length target should fail!");
     offset += 4; // Scale
     // Document state 
     offset += 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length document state should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 length document state should fail!");
     // Is target item
     offset += 1;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(char*)(test3 + offset) = '!';
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "IsTargetItem should fail with ! as the value!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "IsTargetItem should fail with ! as the value!");
     // Child count
     offset += 4;
     memset(test3, 0, HISTORY_MIN_SIZE);
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 4000;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 kids should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE), "4000 kids should fail!");
     offset = 36;
     // Test document state
     delete[] test3;
@@ -766,7 +766,7 @@ static void unit_test()
     ptr = (const char*)test3;
     *(int*)(test3 + offset) = 1;
     *(int*)(test3 + offset + 4) = 20;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE + sizeof(unsigned)), "1 20 length document state string should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE + sizeof(unsigned)), "1 20 length document state string should fail!");
     delete[] test3;
     test3 = new char[HISTORY_MIN_SIZE + 2 * sizeof(unsigned)];
     memset(test3, 0, HISTORY_MIN_SIZE + 2 * sizeof(unsigned));
@@ -774,7 +774,7 @@ static void unit_test()
     *(int*)(test3 + offset) = 2;
     *(int*)(test3 + offset + 4) = 0;
     *(int*)(test3 + offset + 8) = 20;
-    LOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE + 2 * sizeof(unsigned) ), "2 20 length document state string should fail!");
+    ALOG_ASSERT(!read_item_recursive(testItem, &ptr, HISTORY_MIN_SIZE + 2 * sizeof(unsigned) ), "2 20 length document state string should fail!");
     delete[] test3;
 }
 #endif
@@ -803,30 +803,30 @@ int register_webhistory(JNIEnv* env)
 #endif
     // Find WebHistoryItem, its constructor, and the update method.
     jclass clazz = env->FindClass("android/webkit/WebHistoryItem");
-    LOG_ASSERT(clazz, "Unable to find class android/webkit/WebHistoryItem");
+    ALOG_ASSERT(clazz, "Unable to find class android/webkit/WebHistoryItem");
     gWebHistoryItem.mInit = env->GetMethodID(clazz, "<init>", "()V");
-    LOG_ASSERT(gWebHistoryItem.mInit, "Could not find WebHistoryItem constructor");
+    ALOG_ASSERT(gWebHistoryItem.mInit, "Could not find WebHistoryItem constructor");
     gWebHistoryItem.mUpdate = env->GetMethodID(clazz, "update",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Landroid/graphics/Bitmap;[B)V");
-    LOG_ASSERT(gWebHistoryItem.mUpdate, "Could not find method update in WebHistoryItem");
+    ALOG_ASSERT(gWebHistoryItem.mUpdate, "Could not find method update in WebHistoryItem");
 
     // Find the field ids for mTitle and mUrl.
     gWebHistoryItem.mTitle = env->GetFieldID(clazz, "mTitle", "Ljava/lang/String;");
-    LOG_ASSERT(gWebHistoryItem.mTitle, "Could not find field mTitle in WebHistoryItem");
+    ALOG_ASSERT(gWebHistoryItem.mTitle, "Could not find field mTitle in WebHistoryItem");
     gWebHistoryItem.mUrl = env->GetFieldID(clazz, "mUrl", "Ljava/lang/String;");
-    LOG_ASSERT(gWebHistoryItem.mUrl, "Could not find field mUrl in WebHistoryItem");
+    ALOG_ASSERT(gWebHistoryItem.mUrl, "Could not find field mUrl in WebHistoryItem");
 
     // Find the WebBackForwardList object and method.
     clazz = env->FindClass("android/webkit/WebBackForwardList");
-    LOG_ASSERT(clazz, "Unable to find class android/webkit/WebBackForwardList");
+    ALOG_ASSERT(clazz, "Unable to find class android/webkit/WebBackForwardList");
     gWebBackForwardList.mAddHistoryItem = env->GetMethodID(clazz, "addHistoryItem",
             "(Landroid/webkit/WebHistoryItem;)V");
-    LOG_ASSERT(gWebBackForwardList.mAddHistoryItem, "Could not find method addHistoryItem");
+    ALOG_ASSERT(gWebBackForwardList.mAddHistoryItem, "Could not find method addHistoryItem");
     gWebBackForwardList.mRemoveHistoryItem = env->GetMethodID(clazz, "removeHistoryItem",
             "(I)V");
-    LOG_ASSERT(gWebBackForwardList.mRemoveHistoryItem, "Could not find method removeHistoryItem");
+    ALOG_ASSERT(gWebBackForwardList.mRemoveHistoryItem, "Could not find method removeHistoryItem");
     gWebBackForwardList.mSetCurrentIndex = env->GetMethodID(clazz, "setCurrentIndex", "(I)V");
-    LOG_ASSERT(gWebBackForwardList.mSetCurrentIndex, "Could not find method setCurrentIndex");
+    ALOG_ASSERT(gWebBackForwardList.mSetCurrentIndex, "Could not find method setCurrentIndex");
 
     int result = jniRegisterNativeMethods(env, "android/webkit/WebBackForwardList",
             gWebBackForwardListMethods, NELEM(gWebBackForwardListMethods));

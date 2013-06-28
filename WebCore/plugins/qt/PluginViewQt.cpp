@@ -555,7 +555,7 @@ NPError PluginView::handlePostReadFile(Vector<char>& buffer, uint32 len, const c
 
 NPError PluginView::getValueStatic(NPNVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::getValueStatic(%s)", prettyNameForNPNVariable(variable).data());
+    ALOG(Plugins, "PluginView::getValueStatic(%s)", prettyNameForNPNVariable(variable).data());
 
     switch (variable) {
     case NPNVToolkit:
@@ -581,7 +581,7 @@ NPError PluginView::getValueStatic(NPNVariable variable, void* value)
 
 NPError PluginView::getValue(NPNVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::getValue(%s)", prettyNameForNPNVariable(variable).data());
+    ALOG(Plugins, "PluginView::getValue(%s)", prettyNameForNPNVariable(variable).data());
 
     switch (variable) {
     case NPNVxDisplay:

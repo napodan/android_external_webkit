@@ -90,7 +90,7 @@ bool JavaInstance::invokeMethod(const char* methodName, const NPVariant* args, i
         }
     }
     if (!method) {
-        LOGW("unable to find an appropiate method\n");
+        ALOGW("unable to find an appropiate method\n");
         return false;
     }
 
@@ -161,7 +161,7 @@ JObjectWrapper::JObjectWrapper(jobject instance)
     assert(instance);
 // ANDROID
     if (!instance)
-        LOGE("Attempted to create JObjectWrapper for null object");
+        ALOGE("Attempted to create JObjectWrapper for null object");
 // END ANDROID
 
     // Cache the JNIEnv used to get the global ref for this java instanace.
@@ -170,16 +170,16 @@ JObjectWrapper::JObjectWrapper(jobject instance)
 
     m_instance = m_env->NewGlobalRef(instance);
 
-    LOGV("new global ref %p for %p\n", m_instance, instance);
+    ALOGV("new global ref %p for %p\n", m_instance, instance);
 
     if (!m_instance)
 // ANDROID
-        LOGE("%s:  could not get GlobalRef for %p\n", __PRETTY_FUNCTION__, instance);
+        ALOGE("%s:  could not get GlobalRef for %p\n", __PRETTY_FUNCTION__, instance);
 // END ANDROID
 }
 
 JObjectWrapper::~JObjectWrapper()
 {
-    LOGV("deleting global ref %p\n", m_instance);
+    ALOGV("deleting global ref %p\n", m_instance);
     m_env->DeleteGlobalRef(m_instance);
 }

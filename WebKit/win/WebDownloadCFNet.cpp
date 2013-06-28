@@ -93,7 +93,7 @@ void WebDownload::init(ResourceHandle* handle, const ResourceRequest& request, c
         ASSERT_NOT_REACHED();
         LOG_ERROR("WebDownload - Failed to create WebDownload from existing connection (%s)", request.url().string().utf8().data());
     } else
-        LOG(Download, "WebDownload - Created WebDownload %p from existing connection (%s)", this, request.url().string().utf8().data());
+        ALOG(Download, "WebDownload - Created WebDownload %p from existing connection (%s)", this, request.url().string().utf8().data());
 
     // The CFURLDownload either starts successfully and retains the CFURLConnection, 
     // or it fails to creating and we have a now-useless connection with a dangling ref. 
@@ -119,7 +119,7 @@ void WebDownload::init(const KURL& url, IWebDownloadDelegate* delegate)
     CFURLDownloadScheduleWithCurrentMessageQueue(m_download.get());
     CFURLDownloadScheduleDownloadWithRunLoop(m_download.get(), loaderRunLoop(), kCFRunLoopDefaultMode);
 
-    LOG(Download, "WebDownload - Initialized download of url %s in WebDownload %p", url.string().utf8().data(), this);
+    ALOG(Download, "WebDownload - Initialized download of url %s in WebDownload %p", url.string().utf8().data(), this);
 }
 
 // IWebDownload -------------------------------------------------------------------
@@ -130,14 +130,14 @@ HRESULT STDMETHODCALLTYPE WebDownload::initWithRequest(
 {
     COMPtr<WebMutableURLRequest> webRequest;
     if (!request || FAILED(request->QueryInterface(&webRequest))) {
-        LOG(Download, "WebDownload - initWithRequest failed - not a WebMutableURLRequest");    
+        ALOG(Download, "WebDownload - initWithRequest failed - not a WebMutableURLRequest");    
         return E_FAIL;
     }
 
     if (!delegate)
         return E_FAIL;
     m_delegate = delegate;
-    LOG(Download, "Delegate is %p", m_delegate.get());
+    ALOG(Download, "Delegate is %p", m_delegate.get());
 
     RetainPtr<CFURLRequestRef> cfRequest = webRequest->resourceRequest().cfURLRequest();
 
@@ -157,7 +157,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::initWithRequest(
     CFURLDownloadScheduleWithCurrentMessageQueue(m_download.get());
     CFURLDownloadScheduleDownloadWithRunLoop(m_download.get(), loaderRunLoop(), kCFRunLoopDefaultMode);
 
-    LOG(Download, "WebDownload - initWithRequest complete, started download of url %s", webRequest->resourceRequest().url().string().utf8().data());
+    ALOG(Download, "WebDownload - initWithRequest complete, started download of url %s", webRequest->resourceRequest().url().string().utf8().data());
     return S_OK;
 }
 
@@ -165,7 +165,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::initToResumeWithBundle(
         /* [in] */ BSTR bundlePath, 
         /* [in] */ IWebDownloadDelegate* delegate)
 {
-    LOG(Download, "Attempting resume of download bundle %s", String(bundlePath, SysStringLen(bundlePath)).ascii().data());
+    ALOG(Download, "Attempting resume of download bundle %s", String(bundlePath, SysStringLen(bundlePath)).ascii().data());
 
     RetainPtr<CFDataRef> resumeData(AdoptCF, extractResumeDataFromBundle(String(bundlePath, SysStringLen(bundlePath))));
     
@@ -175,7 +175,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::initToResumeWithBundle(
     if (!delegate)
         return E_FAIL;
     m_delegate = delegate;
-    LOG(Download, "Delegate is %p", m_delegate.get());
+    ALOG(Download, "Delegate is %p", m_delegate.get());
 
     CFURLDownloadClient client = {0, this, 0, 0, 0, didStartCallback, willSendRequestCallback, didReceiveAuthenticationChallengeCallback, 
                                   didReceiveResponseCallback, willResumeWithResponseCallback, didReceiveDataCallback, shouldDecodeDataOfMIMETypeCallback, 
@@ -187,7 +187,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::initToResumeWithBundle(
     m_download.adoptCF(CFURLDownloadCreateWithResumeData(0, resumeData.get(), pathURL.get(), &client));
 
     if (!m_download) {
-        LOG(Download, "Failed to create CFURLDownloadRef for resume");    
+        ALOG(Download, "Failed to create CFURLDownloadRef for resume");    
         return E_FAIL;
     }
     
@@ -203,13 +203,13 @@ HRESULT STDMETHODCALLTYPE WebDownload::initToResumeWithBundle(
     CFURLDownloadScheduleWithCurrentMessageQueue(m_download.get());
     CFURLDownloadScheduleDownloadWithRunLoop(m_download.get(), loaderRunLoop(), kCFRunLoopDefaultMode);
 
-    LOG(Download, "WebDownload - initWithRequest complete, resumed download of bundle %s", String(bundlePath, SysStringLen(bundlePath)).ascii().data());
+    ALOG(Download, "WebDownload - initWithRequest complete, resumed download of bundle %s", String(bundlePath, SysStringLen(bundlePath)).ascii().data());
     return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE WebDownload::start()
 {
-    LOG(Download, "WebDownload - Starting download (%p)", this);
+    ALOG(Download, "WebDownload - Starting download (%p)", this);
     if (!m_download)
         return E_FAIL;
 
@@ -223,7 +223,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::start()
 
 HRESULT STDMETHODCALLTYPE WebDownload::cancel()
 {
-    LOG(Download, "WebDownload - Cancelling download (%p)", this);
+    ALOG(Download, "WebDownload - Cancelling download (%p)", this);
     if (!m_download)
         return E_FAIL;
 
@@ -234,7 +234,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::cancel()
 
 HRESULT STDMETHODCALLTYPE WebDownload::cancelForResume()
 {
-    LOG(Download, "WebDownload - Cancelling download (%p), writing resume information to file if possible", this);
+    ALOG(Download, "WebDownload - Cancelling download (%p), writing resume information to file if possible", this);
     ASSERT(m_download);
     if (!m_download)
         return E_FAIL;
@@ -251,7 +251,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::cancelForResume()
 
     resumeData = CFURLDownloadCopyResumeData(m_download.get());
     if (!resumeData) {
-        LOG(Download, "WebDownload - Unable to create resume data for download (%p)", this);
+        ALOG(Download, "WebDownload - Unable to create resume data for download (%p)", this);
         goto exit;
     }
 
@@ -294,7 +294,7 @@ HRESULT STDMETHODCALLTYPE WebDownload::setDestination(
     CFURLDownloadSetDestination(m_download.get(), pathURL, !!allowOverwrite);
     CFRelease(pathURL);
 
-    LOG(Download, "WebDownload - Set destination to %s", m_bundlePath.ascii().data());
+    ALOG(Download, "WebDownload - Set destination to %s", m_bundlePath.ascii().data());
 
     return S_OK;
 }
@@ -354,7 +354,7 @@ void WebDownload::didStart()
 #ifndef NDEBUG
     m_startTime = m_dataTime = currentTime();
     m_received = 0;
-    LOG(Download, "DOWNLOAD - Started %p at %.3f seconds", this, m_startTime);
+    ALOG(Download, "DOWNLOAD - Started %p at %.3f seconds", this, m_startTime);
 #endif
     if (FAILED(m_delegate->didBegin(this)))
         LOG_ERROR("DownloadDelegate->didBegin failed");
@@ -420,7 +420,7 @@ void WebDownload::didReceiveData(CFIndex length)
     m_received += length;
     double current = currentTime();
     if (current - m_dataTime > 2.0)
-        LOG(Download, "DOWNLOAD - %p hanged for %.3f seconds - Received %i bytes for a total of %i", this, current - m_dataTime, length, m_received);
+        ALOG(Download, "DOWNLOAD - %p hanged for %.3f seconds - Received %i bytes for a total of %i", this, current - m_dataTime, length, m_received);
     m_dataTime = current;
 #endif
     if (FAILED(m_delegate->didReceiveDataOfLength(this, length)))
@@ -465,11 +465,11 @@ void WebDownload::didCreateDestination(CFURLRef destination)
 void WebDownload::didFinish()
 {
 #ifndef NDEBUG
-    LOG(Download, "DOWNLOAD - Finished %p after %i bytes and %.3f seconds", this, m_received, currentTime() - m_startTime);
+    ALOG(Download, "DOWNLOAD - Finished %p after %i bytes and %.3f seconds", this, m_received, currentTime() - m_startTime);
 #endif
 
     ASSERT(!m_bundlePath.isEmpty() && !m_destination.isEmpty());
-    LOG(Download, "WebDownload - Moving file from bundle %s to destination %s", m_bundlePath.ascii().data(), m_destination.ascii().data());
+    ALOG(Download, "WebDownload - Moving file from bundle %s to destination %s", m_bundlePath.ascii().data(), m_destination.ascii().data());
 
     // We try to rename the bundle to the final file name.  If that fails, we give the delegate one more chance to chose
     // the final file name, then we just leave it

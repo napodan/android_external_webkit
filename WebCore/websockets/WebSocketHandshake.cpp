@@ -230,7 +230,7 @@ int WebSocketHandshake::readServerHandshake(const char* header, size_t len)
             m_context->addMessage(ConsoleDestination, JSMessageSource, LogMessageType, ErrorMessageLevel, "No response code found: " + String(header, len), 0, clientOrigin());
             return len;
         }
-        LOG(Network, "response code: %s", code.utf8().data());
+        ALOG(Network, "response code: %s", code.utf8().data());
         if (code == "401") {
             m_mode = Failed;
             m_context->addMessage(ConsoleDestination, JSMessageSource, LogMessageType, ErrorMessageLevel, "Authentication required, but not implemented yet.", 0, clientOrigin());
@@ -278,12 +278,12 @@ int WebSocketHandshake::readServerHandshake(const char* header, size_t len)
     HTTPHeaderMap headers;
     p = readHTTPHeaders(p, end, &headers);
     if (!p) {
-        LOG(Network, "readHTTPHeaders failed");
+        ALOG(Network, "readHTTPHeaders failed");
         m_mode = Failed;
         return len;
     }
     if (!processHeaders(headers)) {
-        LOG(Network, "header process failed");
+        ALOG(Network, "header process failed");
         m_mode = Failed;
         return p - header;
     }
@@ -421,7 +421,7 @@ const char* WebSocketHandshake::readHTTPHeaders(const char* start, const char* e
         }
         AtomicString nameStr(String::fromUTF8(name.data(), name.size()));
         String valueStr = String::fromUTF8(value.data(), value.size());
-        LOG(Network, "name=%s value=%s", nameStr.string().utf8().data(), valueStr.utf8().data());
+        ALOG(Network, "name=%s value=%s", nameStr.string().utf8().data(), valueStr.utf8().data());
         headers->add(nameStr, valueStr);
     }
     ASSERT_NOT_REACHED();

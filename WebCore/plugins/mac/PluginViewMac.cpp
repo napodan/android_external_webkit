@@ -181,7 +181,7 @@ bool PluginView::platformStart()
     if (getValueStatic(NPNVariable(NPNVsupportsCarbonBool + m_eventModel), &eventModelSupported) != NPERR_NO_ERROR
             || !eventModelSupported) {
         m_status = PluginStatusCanNotLoadPlugin;
-        LOG(Plugins, "Plug-in '%s' uses unsupported event model %s",
+        ALOG(Plugins, "Plug-in '%s' uses unsupported event model %s",
                 m_plugin->name().utf8().data(), prettyNameForEventModel(m_eventModel));
         return false;
     }
@@ -189,7 +189,7 @@ bool PluginView::platformStart()
     if (getValueStatic(NPNVariable(NPNVsupportsQuickDrawBool + m_drawingModel), &drawingModelSupported) != NPERR_NO_ERROR
             || !drawingModelSupported) {
         m_status = PluginStatusCanNotLoadPlugin;
-        LOG(Plugins, "Plug-in '%s' uses unsupported drawing model %s",
+        ALOG(Plugins, "Plug-in '%s' uses unsupported drawing model %s",
                 m_plugin->name().utf8().data(), prettyNameForDrawingModel(m_drawingModel));
         return false;
     }
@@ -237,7 +237,7 @@ void PluginView::platformDestroy()
 // fallback for variables that do not require a view to resolve.
 NPError PluginView::getValueStatic(NPNVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::getValueStatic(%s)", prettyNameForNPNVariable(variable).data());
+    ALOG(Plugins, "PluginView::getValueStatic(%s)", prettyNameForNPNVariable(variable).data());
 
     switch (variable) {
     case NPNVToolkit:
@@ -280,7 +280,7 @@ NPError PluginView::getValueStatic(NPNVariable variable, void* value)
 // Used only for variables that need a view to resolve
 NPError PluginView::getValue(NPNVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::getValue(%s)", prettyNameForNPNVariable(variable).data());
+    ALOG(Plugins, "PluginView::getValue(%s)", prettyNameForNPNVariable(variable).data());
 
     switch (variable) {
     case NPNVWindowNPObject: {
@@ -327,7 +327,7 @@ NPError PluginView::getValue(NPNVariable variable, void* value)
 }
 void PluginView::setParent(ScrollView* parent)
 {
-    LOG(Plugins, "PluginView::setParent(%p)", parent);
+    ALOG(Plugins, "PluginView::setParent(%p)", parent);
 
     Widget::setParent(parent);
 
@@ -339,7 +339,7 @@ void PluginView::setParent(ScrollView* parent)
 
 void PluginView::show()
 {
-    LOG(Plugins, "PluginView::show()");
+    ALOG(Plugins, "PluginView::show()");
 
     setSelfVisible(true);
 
@@ -348,7 +348,7 @@ void PluginView::show()
 
 void PluginView::hide()
 {
-    LOG(Plugins, "PluginView::hide()");
+    ALOG(Plugins, "PluginView::hide()");
 
     setSelfVisible(false);
 
@@ -357,7 +357,7 @@ void PluginView::hide()
 
 void PluginView::setFocus()
 {
-    LOG(Plugins, "PluginView::setFocus()");
+    ALOG(Plugins, "PluginView::setFocus()");
 
     if (platformPluginWidget())
 #if PLATFORM(QT)
@@ -378,7 +378,7 @@ void PluginView::setFocus()
     record.modifiers = GetCurrentKeyModifiers();
 
     if (!dispatchNPEvent(record))
-        LOG(Events, "PluginView::setFocus(): Get-focus event not accepted");
+        ALOG(Events, "PluginView::setFocus(): Get-focus event not accepted");
 }
 
 void PluginView::setParentVisible(bool visible)
@@ -429,7 +429,7 @@ void PluginView::setNPWindowIfNeeded()
     m_npWindow.clipRect.right = m_windowRect.x() + m_windowRect.width();
     m_npWindow.clipRect.bottom = m_windowRect.y() + m_windowRect.height();
 
-    LOG(Plugins, "PluginView::setNPWindowIfNeeded(): window=%p, context=%p,"
+    ALOG(Plugins, "PluginView::setNPWindowIfNeeded(): window=%p, context=%p,"
             " window.x:%ld window.y:%ld window.width:%d window.height:%d window.clipRect size:%dx%d",
             newWindowRef, newContextRef, m_npWindow.x, m_npWindow.y, m_npWindow.width, m_npWindow.height,
             m_npWindow.clipRect.right - m_npWindow.clipRect.left, m_npWindow.clipRect.bottom - m_npWindow.clipRect.top);
@@ -525,7 +525,7 @@ void PluginView::paint(GraphicsContext* context, const IntRect& rect)
     event.modifiers = GetCurrentKeyModifiers();
 
     if (!dispatchNPEvent(event))
-        LOG(Events, "PluginView::paint(): Paint event not accepted");
+        ALOG(Events, "PluginView::paint(): Paint event not accepted");
 
     CGContextRestoreGState(cgContext);
 
@@ -621,7 +621,7 @@ void PluginView::handleMouseEvent(MouseEvent* event)
         if (record.what == adjustCursorEvent)
             return; // Signals that the plugin wants a normal cursor
 
-        LOG(Events, "PluginView::handleMouseEvent(): Mouse event type %d at %d,%d not accepted",
+        ALOG(Events, "PluginView::handleMouseEvent(): Mouse event type %d at %d,%d not accepted",
                 record.what, record.where.h, record.where.v);
     } else {
         event->setDefaultHandled();
@@ -633,9 +633,9 @@ void PluginView::handleKeyboardEvent(KeyboardEvent* event)
     if (!m_isStarted)
         return;
 
-    LOG(Plugins, "PluginView::handleKeyboardEvent() ----------------- ");
+    ALOG(Plugins, "PluginView::handleKeyboardEvent() ----------------- ");
 
-    LOG(Plugins, "PV::hKE(): KE.keyCode: 0x%02X, KE.charCode: %d",
+    ALOG(Plugins, "PV::hKE(): KE.keyCode: 0x%02X, KE.charCode: %d",
             event->keyCode(), event->charCode());
 
     EventRecord record;
@@ -671,7 +671,7 @@ void PluginView::handleKeyboardEvent(KeyboardEvent* event)
 
     WTF::RetainPtr<CFStringRef> cfText(WTF::AdoptCF, text.createCFString());
 
-    LOG(Plugins, "PV::hKE(): PKE.text: %s, PKE.unmodifiedText: %s, PKE.keyIdentifier: %s",
+    ALOG(Plugins, "PV::hKE(): PKE.text: %s, PKE.unmodifiedText: %s, PKE.keyIdentifier: %s",
             text.ascii().data(), platformEvent->unmodifiedText().ascii().data(),
             platformEvent->keyIdentifier().ascii().data());
 
@@ -687,15 +687,15 @@ void PluginView::handleKeyboardEvent(KeyboardEvent* event)
     record.message = ((keyCode & 0xFF) << 8) | (charCodes[0] & 0xFF);
     record.when = TickCount();
 
-    LOG(Plugins, "PV::hKE(): record.modifiers: %d", record.modifiers);
+    ALOG(Plugins, "PV::hKE(): record.modifiers: %d", record.modifiers);
 
 #if PLATFORM(QT)
-    LOG(Plugins, "PV::hKE(): PKE.qtEvent()->nativeVirtualKey: 0x%02X, charCode: %d",
+    ALOG(Plugins, "PV::hKE(): PKE.qtEvent()->nativeVirtualKey: 0x%02X, charCode: %d",
                keyCode, int(uchar(charCodes[0])));
 #endif
 
     if (!dispatchNPEvent(record))
-        LOG(Events, "PluginView::handleKeyboardEvent(): Keyboard event type %d not accepted", record.what);
+        ALOG(Events, "PluginView::handleKeyboardEvent(): Keyboard event type %d not accepted", record.what);
     else
         event->setDefaultHandled();
 }

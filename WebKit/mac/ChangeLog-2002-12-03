@@ -1960,7 +1960,7 @@ e data source was done loading. Because of this, I've decided to not keep a list
 	- my own private war on the cString method
 
         * Downloads.subproj/WebDownloadHandler.m:
-        (-[WebDownloadHandler initWithDataSource:]): Use %@ in LOG to avoid cString.
+        (-[WebDownloadHandler initWithDataSource:]): Use %@ in ALOG to avoid cString.
         (-[WebDownloadHandler finishedLoading]): Ditto.
         * WebView.subproj/WebDataSourcePrivate.m:
         (-[WebDataSource _commitIfReady]): Ditto.
@@ -1972,7 +1972,7 @@ e data source was done loading. Because of this, I've decided to not keep a list
 2002-11-08  Ken Kocienda  <kocienda@apple.com>
 
 	Fix deployment build breaker: a variable was used only in a 
-	LOG statement, causing the variable to become usused when
+	ALOG statement, causing the variable to become usused when
 	building with the Deployment build style. 
 
         * Downloads.subproj/WebDownloadHandler.m:
@@ -7690,7 +7690,7 @@ starts. We now start plug-ins when they are added to the window.
         * Plugins.subproj/WebPluginStream.m:
         * Plugins.subproj/WebPluginView.m:
 	Use #if ! rather than #ifndef with LOG_DISABLED, since it
-	is set to 0 rather than not defined when LOG is enabled.
+	is set to 0 rather than not defined when ALOG is enabled.
 
 2002-09-08  Darin Adler  <darin@apple.com>
 

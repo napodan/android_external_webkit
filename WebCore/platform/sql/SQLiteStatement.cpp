@@ -62,10 +62,10 @@ int SQLiteStatement::prepare()
 {
     ASSERT(!m_isPrepared);
     const void* tail;
-    LOG(SQLDatabase, "SQL - prepare - %s", m_query.ascii().data());
+    ALOG(SQLDatabase, "SQL - prepare - %s", m_query.ascii().data());
     int error = sqlite3_prepare16_v2(m_database.sqlite3Handle(), m_query.charactersWithNullTermination(), -1, &m_statement, &tail);
     if (error != SQLITE_OK)
-        LOG(SQLDatabase, "sqlite3_prepare16 failed (%i)\n%s\n%s", error, m_query.ascii().data(), sqlite3_errmsg(m_database.sqlite3Handle()));
+        ALOG(SQLDatabase, "sqlite3_prepare16 failed (%i)\n%s\n%s", error, m_query.ascii().data(), sqlite3_errmsg(m_database.sqlite3Handle()));
 #ifndef NDEBUG
     m_isPrepared = error == SQLITE_OK;
 #endif
@@ -77,10 +77,10 @@ int SQLiteStatement::step()
     ASSERT(m_isPrepared);
     if (!m_statement)
         return SQLITE_OK;
-    LOG(SQLDatabase, "SQL - step - %s", m_query.ascii().data());
+    ALOG(SQLDatabase, "SQL - step - %s", m_query.ascii().data());
     int error = sqlite3_step(m_statement);
     if (error != SQLITE_DONE && error != SQLITE_ROW) {
-        LOG(SQLDatabase, "sqlite3_step failed (%i)\nQuery - %s\nError - %s", 
+        ALOG(SQLDatabase, "sqlite3_step failed (%i)\nQuery - %s\nError - %s", 
             error, m_query.ascii().data(), sqlite3_errmsg(m_database.sqlite3Handle()));
     }
     return error;
@@ -93,7 +93,7 @@ int SQLiteStatement::finalize()
 #endif
     if (!m_statement)
         return SQLITE_OK;
-    LOG(SQLDatabase, "SQL - finalize - %s", m_query.ascii().data());
+    ALOG(SQLDatabase, "SQL - finalize - %s", m_query.ascii().data());
     int result = sqlite3_finalize(m_statement);
     m_statement = 0;
     return result;
@@ -104,7 +104,7 @@ int SQLiteStatement::reset()
     ASSERT(m_isPrepared);
     if (!m_statement)
         return SQLITE_OK;
-    LOG(SQLDatabase, "SQL - reset - %s", m_query.ascii().data());
+    ALOG(SQLDatabase, "SQL - reset - %s", m_query.ascii().data());
     return sqlite3_reset(m_statement);
 }
 
@@ -342,13 +342,13 @@ const void* SQLiteStatement::getColumnBlob(int col, int& size)
     size = 0;
 
     if (finalize() != SQLITE_OK)
-        LOG(SQLDatabase, "Finalize failed");
+        ALOG(SQLDatabase, "Finalize failed");
     if (prepare() != SQLITE_OK) {
-        LOG(SQLDatabase, "Prepare failed");
+        ALOG(SQLDatabase, "Prepare failed");
         return 0;
     }
     if (step() != SQLITE_ROW) {
-        LOG(SQLDatabase, "Step wasn't a row");
+        ALOG(SQLDatabase, "Step wasn't a row");
         return 0;
     }
 
@@ -379,7 +379,7 @@ bool SQLiteStatement::returnTextResults(int col, Vector<String>& v)
     bool result = true;
     if (m_database.lastError() != SQLITE_DONE) {
         result = false;
-        LOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
+        ALOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
     }
     finalize();
     return result;
@@ -399,7 +399,7 @@ bool SQLiteStatement::returnIntResults(int col, Vector<int>& v)
     bool result = true;
     if (m_database.lastError() != SQLITE_DONE) {
         result = false;
-        LOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
+        ALOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
     }
     finalize();
     return result;
@@ -419,7 +419,7 @@ bool SQLiteStatement::returnInt64Results(int col, Vector<int64_t>& v)
     bool result = true;
     if (m_database.lastError() != SQLITE_DONE) {
         result = false;
-        LOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
+        ALOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
     }
     finalize();
     return result;
@@ -439,7 +439,7 @@ bool SQLiteStatement::returnDoubleResults(int col, Vector<double>& v)
     bool result = true;
     if (m_database.lastError() != SQLITE_DONE) {
         result = false;
-        LOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
+        ALOG(SQLDatabase, "Error reading results from database query %s", m_query.ascii().data());
     }
     finalize();
     return result;

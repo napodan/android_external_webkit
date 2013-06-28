@@ -64,7 +64,7 @@ static String keyIdentifierForKeyEvent(NSEvent* event)
     
     NSString *s = [event charactersIgnoringModifiers];
     if ([s length] != 1) {
-        LOG(Events, "received an unexpected number of characters in key event: %u", [s length]);
+        ALOG(Events, "received an unexpected number of characters in key event: %u", [s length]);
         return "Unidentified";
     }
     unichar c = [s characterAtIndex:0];

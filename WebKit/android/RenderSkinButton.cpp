@@ -70,7 +70,7 @@ void RenderSkinButton::Init(android::AssetManager* am, String drawableDirectory)
         String path = drawableDirectory + gFiles[i].name;
         if (!RenderSkinAndroid::DecodeBitmap(am, path.utf8().data(), &gButton[i])) {
             gDecoded = false;
-            LOGD("RenderSkinButton::Init: button assets failed to decode\n\tBrowser buttons will not draw");
+            ALOGD("RenderSkinButton::Init: button assets failed to decode\n\tBrowser buttons will not draw");
             break;
         }
     }

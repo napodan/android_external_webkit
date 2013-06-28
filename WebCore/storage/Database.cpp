@@ -136,14 +136,14 @@ PassRefPtr<Database> Database::openDatabase(ScriptExecutionContext* context, con
 {
     if (!DatabaseTracker::tracker().canEstablishDatabase(context, name, displayName, estimatedSize)) {
         // FIXME: There should be an exception raised here in addition to returning a null Database object.  The question has been raised with the WHATWG.
-        LOG(StorageAPI, "Database %s for origin %s not allowed to be established", name.ascii().data(), context->securityOrigin()->toString().ascii().data());
+        ALOG(StorageAPI, "Database %s for origin %s not allowed to be established", name.ascii().data(), context->securityOrigin()->toString().ascii().data());
         return 0;
     }
 
     RefPtr<Database> database = adoptRef(new Database(context, name, expectedVersion, displayName, estimatedSize));
 
     if (!database->openAndVerifyVersion(e)) {
-        LOG(StorageAPI, "Failed to open and verify version (expected %s) of database %s", expectedVersion.ascii().data(), database->databaseDebugName().ascii().data());
+        ALOG(StorageAPI, "Failed to open and verify version (expected %s) of database %s", expectedVersion.ascii().data(), database->databaseDebugName().ascii().data());
         context->removeOpenDatabase(database.get());
         DatabaseTracker::tracker().removeOpenDatabase(database.get());
         return 0;
@@ -337,11 +337,11 @@ void Database::markAsDeletedAndClose()
     if (m_deleted || !m_scriptExecutionContext->databaseThread())
         return;
 
-    LOG(StorageAPI, "Marking %s (%p) as deleted", stringIdentifier().ascii().data(), this);
+    ALOG(StorageAPI, "Marking %s (%p) as deleted", stringIdentifier().ascii().data(), this);
     m_deleted = true;
 
     if (m_scriptExecutionContext->databaseThread()->terminationRequested()) {
-        LOG(StorageAPI, "Database handle %p is on a terminated DatabaseThread, cannot be marked for normal closure\n", this);
+        ALOG(StorageAPI, "Database handle %p is on a terminated DatabaseThread, cannot be marked for normal closure\n", this);
         return;
     }
 
@@ -515,9 +515,9 @@ bool Database::performOpenAndVerify(ExceptionCode& e)
         if (entry != guidToVersionMap().end()) {
             // Map null string to empty string (see updateGuidVersionMap()).
             currentVersion = entry->second.isNull() ? String("") : entry->second;
-            LOG(StorageAPI, "Current cached version for guid %i is %s", m_guid, currentVersion.ascii().data());
+            ALOG(StorageAPI, "Current cached version for guid %i is %s", m_guid, currentVersion.ascii().data());
         } else {
-            LOG(StorageAPI, "No cached version for guid %i", m_guid);
+            ALOG(StorageAPI, "No cached version for guid %i", m_guid);
 
             if (!m_sqliteDatabase.tableExists(databaseInfoTableName())) {
                 if (!m_sqliteDatabase.executeCommand("CREATE TABLE " + databaseInfoTableName() + " (key TEXT NOT NULL ON CONFLICT FAIL UNIQUE ON CONFLICT REPLACE,value TEXT NOT NULL ON CONFLICT FAIL);")) {
@@ -537,9 +537,9 @@ bool Database::performOpenAndVerify(ExceptionCode& e)
                 return false;
             }
             if (currentVersion.length()) {
-                LOG(StorageAPI, "Retrieved current version %s from database %s", currentVersion.ascii().data(), databaseDebugName().ascii().data());
+                ALOG(StorageAPI, "Retrieved current version %s from database %s", currentVersion.ascii().data(), databaseDebugName().ascii().data());
             } else {
-                LOG(StorageAPI, "Setting version %s in database %s that was just created", m_expectedVersion.ascii().data(), databaseDebugName().ascii().data());
+                ALOG(StorageAPI, "Setting version %s in database %s that was just created", m_expectedVersion.ascii().data(), databaseDebugName().ascii().data());
                 if (!setVersionInDatabase(m_expectedVersion)) {
                     LOG_ERROR("Failed to set version %s in database %s", m_expectedVersion.ascii().data(), databaseDebugName().ascii().data());
                     e = INVALID_STATE_ERR;
@@ -555,14 +555,14 @@ bool Database::performOpenAndVerify(ExceptionCode& e)
     }
 
     if (currentVersion.isNull()) {
-        LOG(StorageAPI, "Database %s does not have its version set", databaseDebugName().ascii().data());
+        ALOG(StorageAPI, "Database %s does not have its version set", databaseDebugName().ascii().data());
         currentVersion = "";
     }
 
     // If the expected version isn't the empty string, ensure that the current database version we have matches that version. Otherwise, set an exception.
     // If the expected version is the empty string, then we always return with whatever version of the database we have.
     if (m_expectedVersion.length() && m_expectedVersion != currentVersion) {
-        LOG(StorageAPI, "page expects version %s from database %s, which actually has version name %s - openDatabase() call will fail", m_expectedVersion.ascii().data(),
+        ALOG(StorageAPI, "page expects version %s from database %s, which actually has version name %s - openDatabase() call will fail", m_expectedVersion.ascii().data(),
             databaseDebugName().ascii().data(), currentVersion.ascii().data());
         e = INVALID_STATE_ERR;
         // Close the handle to the database file.
@@ -610,7 +610,7 @@ void Database::scheduleTransaction()
 
     if (transaction && m_scriptExecutionContext->databaseThread()) {
         OwnPtr<DatabaseTransactionTask> task = DatabaseTransactionTask::create(transaction);
-        LOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for transaction %p\n", task.get(), task->transaction());
+        ALOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for transaction %p\n", task.get(), task->transaction());
         m_transactionInProgress = true;
         m_scriptExecutionContext->databaseThread()->scheduleTask(task.release());
     } else
@@ -623,7 +623,7 @@ void Database::scheduleTransactionStep(SQLTransaction* transaction, bool immedia
         return;
 
     OwnPtr<DatabaseTransactionTask> task = DatabaseTransactionTask::create(transaction);
-    LOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for the transaction step\n", task.get());
+    ALOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for the transaction step\n", task.get());
     if (immediately)
         m_scriptExecutionContext->databaseThread()->scheduleImmediateTask(task.release());
     else

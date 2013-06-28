@@ -117,7 +117,7 @@ void TimeCounter::recordNoCounter(enum Type type, const char* functionName)
     uint32_t elapsed = time - sStartTime[type];
     sTotalTimeUsed[type] += elapsed;
     if (elapsed > 1000)
-        LOGW("***** %s() used %d ms\n", functionName, elapsed);
+        ALOGW("***** %s() used %d ms\n", functionName, elapsed);
 }
 
 void TimeCounter::report(const KURL& url, int live, int dead, size_t arenaSize)
@@ -125,7 +125,7 @@ void TimeCounter::report(const KURL& url, int live, int dead, size_t arenaSize)
     String urlString = url;
     int totalTime = static_cast<int>((currentTime() - sStartTotalTime) * 1000);
     int threadTime = getThreadMsec() - sStartThreadTime;
-    LOGD("*-* Total load time: %d ms, thread time: %d ms for %s\n",
+    ALOGD("*-* Total load time: %d ms, thread time: %d ms for %s\n",
         totalTime, threadTime, urlString.utf8().data());
     for (Type type = (Type) 0; type < TotalTimeCounterCount; type 
             = (Type) (type + 1)) {
@@ -134,18 +134,18 @@ void TimeCounter::report(const KURL& url, int live, int dead, size_t arenaSize)
             timeCounterNames[type], sTotalTimeUsed[type]);
         if (sCounter[type] > 0)
             sprintf(&scratch[index], " called %d times", sCounter[type]);
-        LOGD("%s", scratch);
+        ALOGD("%s", scratch);
     }
-    LOGD("Current cache has %d bytes live and %d bytes dead", live, dead);
-    LOGD("Current render arena takes %d bytes", arenaSize);
+    ALOGD("Current cache has %d bytes live and %d bytes dead", live, dead);
+    ALOGD("Current render arena takes %d bytes", arenaSize);
 #if USE(JSC)
     JSLock lock(false);
     Heap::Statistics jsHeapStatistics = JSDOMWindow::commonJSGlobalData()->heap.statistics();
-    LOGD("Current JavaScript heap size is %d and has %d bytes free",
+    ALOGD("Current JavaScript heap size is %d and has %d bytes free",
             jsHeapStatistics.size, jsHeapStatistics.free);
 #endif
-    LOGD("Current CSS styles use %d bytes", StyleBase::reportStyleSize());
-    LOGD("Current DOM nodes use %d bytes", WebCore::Node::reportDOMNodesSize());
+    ALOGD("Current CSS styles use %d bytes", StyleBase::reportStyleSize());
+    ALOGD("Current DOM nodes use %d bytes", WebCore::Node::reportDOMNodesSize());
 }
 
 void TimeCounter::reportNow()
@@ -154,7 +154,7 @@ void TimeCounter::reportNow()
     uint32_t currentThread = getThreadMsec();
     int elapsedTime = static_cast<int>((current - sLastTotalTime) * 1000);
     int elapsedThreadTime = currentThread - sLastThreadTime;
-    LOGD("*-* Elapsed time: %d ms, ui thread time: %d ms, webcore thread time:"
+    ALOGD("*-* Elapsed time: %d ms, ui thread time: %d ms, webcore thread time:"
         " %d ms\n", elapsedTime, elapsedThreadTime, sEndWebCoreThreadTime -
         sStartWebCoreThreadTime);
     for (Type type = (Type) 0; type < TotalTimeCounterCount; type 
@@ -167,7 +167,7 @@ void TimeCounter::reportNow()
         if (sCounter[type] > sLastCounter[type])
             sprintf(&scratch[index], " called %d times", sCounter[type]
                 - sLastCounter[type]);
-        LOGD("%s", scratch);
+        ALOGD("%s", scratch);
     }
     memcpy(sLastTimeUsed, sTotalTimeUsed, sizeof(sTotalTimeUsed));
     memcpy(sLastCounter, sCounter, sizeof(sCounter));
@@ -179,7 +179,7 @@ void TimeCounter::reportNow()
 void TimeCounter::reset() {
     bzero(sTotalTimeUsed, sizeof(sTotalTimeUsed));
     bzero(sCounter, sizeof(sCounter));
-    LOGD("*-* Start browser instrument\n");
+    ALOGD("*-* Start browser instrument\n");
     sStartTotalTime = currentTime();
     sStartThreadTime = getThreadMsec();
 }

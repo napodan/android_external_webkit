@@ -5220,7 +5220,7 @@ void WebView::selectionChanged()
 
 bool WebView::onIMEStartComposition()
 {
-    LOG(TextInput, "onIMEStartComposition");
+    ALOG(TextInput, "onIMEStartComposition");
     m_inIMEComposition++;
     Frame* targetFrame = m_page->focusController()->focusedOrMainFrame();
     if (!targetFrame)
@@ -5356,7 +5356,7 @@ static String imeRequestName(WPARAM wparam)
 
 bool WebView::onIMEComposition(LPARAM lparam)
 {
-    LOG(TextInput, "onIMEComposition %s", imeCompositionArgumentNames(lparam).latin1().data());
+    ALOG(TextInput, "onIMEComposition %s", imeCompositionArgumentNames(lparam).latin1().data());
     HIMC hInputContext = getIMMContext();
     if (!hInputContext)
         return true;
@@ -5401,7 +5401,7 @@ bool WebView::onIMEComposition(LPARAM lparam)
 
 bool WebView::onIMEEndComposition()
 {
-    LOG(TextInput, "onIMEEndComposition");
+    ALOG(TextInput, "onIMEEndComposition");
     // If the composition hasn't been confirmed yet, it needs to be cancelled.
     // This happens after deleting the last character from inline input hole.
     Frame* targetFrame = m_page->focusController()->focusedOrMainFrame();
@@ -5418,14 +5418,14 @@ bool WebView::onIMEChar(WPARAM wparam, LPARAM lparam)
 {
     UNUSED_PARAM(wparam);
     UNUSED_PARAM(lparam);
-    LOG(TextInput, "onIMEChar U+%04X %08X", wparam, lparam);
+    ALOG(TextInput, "onIMEChar U+%04X %08X", wparam, lparam);
     return true;
 }
 
 bool WebView::onIMENotify(WPARAM wparam, LPARAM, LRESULT*)
 {
     UNUSED_PARAM(wparam);
-    LOG(TextInput, "onIMENotify %s", imeNotificationName(wparam).latin1().data());
+    ALOG(TextInput, "onIMENotify %s", imeNotificationName(wparam).latin1().data());
     return false;
 }
 
@@ -5469,7 +5469,7 @@ LRESULT WebView::onIMERequestReconvertString(Frame* targetFrame, RECONVERTSTRING
 
 LRESULT WebView::onIMERequest(WPARAM request, LPARAM data)
 {
-    LOG(TextInput, "onIMERequest %s", imeRequestName(request).latin1().data());
+    ALOG(TextInput, "onIMERequest %s", imeRequestName(request).latin1().data());
     Frame* targetFrame = m_page->focusController()->focusedOrMainFrame();
     if (!targetFrame || !targetFrame->editor()->canEdit())
         return 0;
@@ -5488,13 +5488,13 @@ bool WebView::onIMESelect(WPARAM wparam, LPARAM lparam)
 {
     UNUSED_PARAM(wparam);
     UNUSED_PARAM(lparam);
-    LOG(TextInput, "onIMESelect locale %ld %s", lparam, wparam ? "select" : "deselect");
+    ALOG(TextInput, "onIMESelect locale %ld %s", lparam, wparam ? "select" : "deselect");
     return false;
 }
 
 bool WebView::onIMESetContext(WPARAM wparam, LPARAM)
 {
-    LOG(TextInput, "onIMESetContext %s", wparam ? "active" : "inactive");
+    ALOG(TextInput, "onIMESetContext %s", wparam ? "active" : "inactive");
     return false;
 }
 

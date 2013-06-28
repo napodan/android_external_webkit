@@ -1468,7 +1468,7 @@ sub GenerateImplementation
          "#include \"V8BindingState.h\"\n" .
          "#include \"V8DOMWrapper.h\"\n" .
          "#include \"V8IsolatedContext.h\"\n\n" .
-         "#undef LOG\n\n");
+         "#undef ALOG\n\n");
 
     push(@implFixedHeader, "\n#if ${conditionalString}\n\n") if $conditionalString;
 

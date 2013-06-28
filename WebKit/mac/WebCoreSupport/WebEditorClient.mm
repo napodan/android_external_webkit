@@ -534,7 +534,7 @@ void WebEditorClient::handleInputMethodKeydown(KeyboardEvent* event)
         event->setDefaultHandled();
 }
 
-#define FormDelegateLog(ctrl)  LOG(FormDelegate, "control=%@", ctrl)
+#define FormDelegateLog(ctrl)  ALOG(FormDelegate, "control=%@", ctrl)
 
 void WebEditorClient::textFieldDidBeginEditing(Element* element)
 {

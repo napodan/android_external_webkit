@@ -255,7 +255,7 @@ void TextCodecGtk::registerEncodingNames(EncodingNameRegistrar registrar, bool e
         canonicalName = (*codecAliases)[codecCount];
 
         if(!isEncodingAvailable(canonicalName)) {
-            LOG(TextConversion, "Canonical encoding %s not available, skipping.", canonicalName);
+            ALOG(TextConversion, "Canonical encoding %s not available, skipping.", canonicalName);
             continue;
         }
         registrar(canonicalName, canonicalName);
@@ -263,7 +263,7 @@ void TextCodecGtk::registerEncodingNames(EncodingNameRegistrar registrar, bool e
         const char *currentAlias;
         while ((currentAlias = (*codecAliases)[++codecCount])) {
             if (isEncodingAvailable(currentAlias)) {
-                LOG(TextConversion, "Registering encoding name alias %s to canonical %s", currentAlias, canonicalName);
+                ALOG(TextConversion, "Registering encoding name alias %s to canonical %s", currentAlias, canonicalName);
                 registrar(currentAlias, canonicalName);
             }
         }

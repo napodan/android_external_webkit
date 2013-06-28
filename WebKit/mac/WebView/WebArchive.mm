@@ -225,7 +225,7 @@ static BOOL isArrayOfClass(id object, Class elementClass)
     CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime duration = end - start;
 #endif
-    LOG(Timing, "Parsing web archive with [NSPropertyListSerialization propertyListFromData::::] took %f seconds", duration);
+    ALOG(Timing, "Parsing web archive with [NSPropertyListSerialization propertyListFromData::::] took %f seconds", duration);
     
     return self;
 }
@@ -369,7 +369,7 @@ static BOOL isArrayOfClass(id object, Class elementClass)
     CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime duration = end - start;
 #endif
-    LOG(Timing, "Serializing web archive to raw CFPropertyList data took %f seconds", duration);
+    ALOG(Timing, "Serializing web archive to raw CFPropertyList data took %f seconds", duration);
         
     return [[(NSData *)data.get() retain] autorelease];
 }

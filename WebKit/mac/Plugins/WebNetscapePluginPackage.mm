@@ -352,7 +352,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
     CFAbsoluteTime currentTime;
     CFAbsoluteTime duration;
 #endif
-    LOG(Plugins, "%f Load timing started for: %@", start, [self name]);
+    ALOG(Plugins, "%f Load timing started for: %@", start, [self name]);
 
     if (isLoaded)
         return YES;
@@ -366,7 +366,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
         currentTime = CFAbsoluteTimeGetCurrent();
         duration = currentTime - start;
 #endif
-        LOG(Plugins, "%f CFBundleLoadExecutable took %f seconds", currentTime, duration);
+        ALOG(Plugins, "%f CFBundleLoadExecutable took %f seconds", currentTime, duration);
         isLoaded = YES;
         
 #ifdef SUPPORT_CFM
@@ -408,7 +408,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
         currentTime = CFAbsoluteTimeGetCurrent();
         duration = currentTime - start;
 #endif
-        LOG(Plugins, "%f WebGetDiskFragment took %f seconds", currentTime, duration);
+        ALOG(Plugins, "%f WebGetDiskFragment took %f seconds", currentTime, duration);
         isLoaded = YES;
         
         pluginMainFunc = (MainFuncPtr)functionPointerForTVector((TransitionVector)pluginMainFunc);
@@ -492,7 +492,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
 #if !LOG_DISABLED
         CFAbsoluteTime mainStart = CFAbsoluteTimeGetCurrent();
 #endif
-        LOG(Plugins, "%f main timing started", mainStart);
+        ALOG(Plugins, "%f main timing started", mainStart);
         NPP_ShutdownProcPtr shutdownFunction;
         npErr = pluginMainFunc(&browserFuncs, &pluginFuncs, &shutdownFunction);
         NP_Shutdown = (NPP_ShutdownProcPtr)functionPointerForTVector((TransitionVector)shutdownFunction);
@@ -511,11 +511,11 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
         currentTime = CFAbsoluteTimeGetCurrent();
         duration = currentTime - mainStart;
 #endif
-        LOG(Plugins, "%f main took %f seconds", currentTime, duration);
+        ALOG(Plugins, "%f main took %f seconds", currentTime, duration);
         
         pluginSize = pluginFuncs.size;
         pluginVersion = pluginFuncs.version;
-        LOG(Plugins, "pluginMainFunc: %d, size=%d, version=%d", npErr, pluginSize, pluginVersion);
+        ALOG(Plugins, "pluginMainFunc: %d, size=%d, version=%d", npErr, pluginSize, pluginVersion);
         
         pluginFuncs.newp = (NPP_NewProcPtr)functionPointerForTVector((TransitionVector)pluginFuncs.newp);
         pluginFuncs.destroy = (NPP_DestroyProcPtr)functionPointerForTVector((TransitionVector)pluginFuncs.destroy);
@@ -534,9 +534,9 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
         // LiveConnect support
         pluginFuncs.javaClass = (JRIGlobalRef)functionPointerForTVector((TransitionVector)pluginFuncs.javaClass);
         if (pluginFuncs.javaClass) {
-            LOG(LiveConnect, "%@:  CFM entry point for NPP_GetJavaClass = %p", [self name], pluginFuncs.javaClass);
+            ALOG(LiveConnect, "%@:  CFM entry point for NPP_GetJavaClass = %p", [self name], pluginFuncs.javaClass);
         } else {
-            LOG(LiveConnect, "%@:  no entry point for NPP_GetJavaClass", [self name]);
+            ALOG(LiveConnect, "%@:  no entry point for NPP_GetJavaClass", [self name]);
         }
 
     } else {
@@ -605,7 +605,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
 #if !LOG_DISABLED
         CFAbsoluteTime initializeStart = CFAbsoluteTimeGetCurrent();
 #endif
-        LOG(Plugins, "%f NP_Initialize timing started", initializeStart);
+        ALOG(Plugins, "%f NP_Initialize timing started", initializeStart);
         npErr = NP_Initialize(&browserFuncs);
         if (npErr != NPERR_NO_ERROR)
             return NO;
@@ -613,7 +613,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
         currentTime = CFAbsoluteTimeGetCurrent();
         duration = currentTime - initializeStart;
 #endif
-        LOG(Plugins, "%f NP_Initialize took %f seconds", currentTime, duration);
+        ALOG(Plugins, "%f NP_Initialize took %f seconds", currentTime, duration);
 
         pluginFuncs.size = sizeof(NPPluginFuncs);
         
@@ -625,9 +625,9 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
         pluginVersion = pluginFuncs.version;
         
         if (pluginFuncs.javaClass)
-            LOG(LiveConnect, "%@:  mach-o entry point for NPP_GetJavaClass = %p", [self name], pluginFuncs.javaClass);
+            ALOG(LiveConnect, "%@:  mach-o entry point for NPP_GetJavaClass = %p", [self name], pluginFuncs.javaClass);
         else
-            LOG(LiveConnect, "%@:  no entry point for NPP_GetJavaClass", [self name]);
+            ALOG(LiveConnect, "%@:  no entry point for NPP_GetJavaClass", [self name]);
 
 #ifdef SUPPORT_CFM
     }
@@ -637,7 +637,7 @@ static TransitionVector tVectorForFunctionPointer(FunctionPointer);
     currentTime = CFAbsoluteTimeGetCurrent();
     duration = currentTime - start;
 #endif
-    LOG(Plugins, "%f Total load time: %f seconds", currentTime, duration);
+    ALOG(Plugins, "%f Total load time: %f seconds", currentTime, duration);
 
     return YES;
 }
@@ -736,7 +736,7 @@ TransitionVector tVectorForFunctionPointer(FunctionPointer fp)
     if (!isLoaded)
         return;
     
-    LOG(Plugins, "Unloading %@...", name);
+    ALOG(Plugins, "Unloading %@...", name);
 
     // Cannot unload a plug-in package while an instance is still using it
     if (instanceCount > 0) {
@@ -755,7 +755,7 @@ TransitionVector tVectorForFunctionPointer(FunctionPointer fp)
         WebCloseConnection(&connID);
 #endif
 
-    LOG(Plugins, "Plugin Unloaded");
+    ALOG(Plugins, "Plugin Unloaded");
     isLoaded = NO;
 }
 

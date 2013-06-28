@@ -40,13 +40,13 @@
 #include <cutils/log.h>
 #include <wtf/CurrentTime.h>
 
-#undef LOG
-#define LOG(...) android_printLog(ANDROID_LOG_DEBUG, "GraphicsLayer", __VA_ARGS__)
+#undef ALOG
+#define ALOG(...) android_printLog(ANDROID_LOG_DEBUG, "GraphicsLayer", __VA_ARGS__)
 #define MLOG(...) android_printLog(ANDROID_LOG_DEBUG, "GraphicsLayer", __VA_ARGS__)
 #define TLOG(...) android_printLog(ANDROID_LOG_DEBUG, "GraphicsLayer", __VA_ARGS__)
 
-#undef LOG
-#define LOG(...)
+#undef ALOG
+#define ALOG(...)
 #undef MLOG
 #define MLOG(...)
 #undef TLOG
@@ -143,7 +143,7 @@ void GraphicsLayerAndroid::setName(const String& name)
 
 NativeLayer GraphicsLayerAndroid::nativeLayer() const
 {
-    LOG("(%x) nativeLayer", this);
+    ALOG("(%x) nativeLayer", this);
     return 0;
 }
 
@@ -162,7 +162,7 @@ void GraphicsLayerAndroid::addChild(GraphicsLayer* childLayer)
 {
 #ifndef NDEBUG
     const char* n = (static_cast<GraphicsLayerAndroid*>(childLayer))->m_name.latin1().data();
-    LOG("(%x) addChild: %x (%s)", this, childLayer, n);
+    ALOG("(%x) addChild: %x (%s)", this, childLayer, n);
 #endif
     GraphicsLayer::addChild(childLayer);
     m_needsSyncChildren = true;
@@ -171,7 +171,7 @@ void GraphicsLayerAndroid::addChild(GraphicsLayer* childLayer)
 
 void GraphicsLayerAndroid::addChildAtIndex(GraphicsLayer* childLayer, int index)
 {
-    LOG("(%x) addChild %x AtIndex %d", this, childLayer, index);
+    ALOG("(%x) addChild %x AtIndex %d", this, childLayer, index);
     GraphicsLayer::addChildAtIndex(childLayer, index);
     m_needsSyncChildren = true;
     askForSync();
@@ -179,7 +179,7 @@ void GraphicsLayerAndroid::addChildAtIndex(GraphicsLayer* childLayer, int index)
 
 void GraphicsLayerAndroid::addChildBelow(GraphicsLayer* childLayer, GraphicsLayer* sibling)
 {
-    LOG("(%x) addChild %x Below %x", this, childLayer, sibling);
+    ALOG("(%x) addChild %x Below %x", this, childLayer, sibling);
     GraphicsLayer::addChildBelow(childLayer, sibling);
     m_needsSyncChildren = true;
     askForSync();
@@ -187,7 +187,7 @@ void GraphicsLayerAndroid::addChildBelow(GraphicsLayer* childLayer, GraphicsLaye
 
 void GraphicsLayerAndroid::addChildAbove(GraphicsLayer* childLayer, GraphicsLayer* sibling)
 {
-    LOG("(%x) addChild %x Above %x", this, childLayer, sibling);
+    ALOG("(%x) addChild %x Above %x", this, childLayer, sibling);
     GraphicsLayer::addChildAbove(childLayer, sibling);
     m_needsSyncChildren = true;
     askForSync();
@@ -195,7 +195,7 @@ void GraphicsLayerAndroid::addChildAbove(GraphicsLayer* childLayer, GraphicsLaye
 
 bool GraphicsLayerAndroid::replaceChild(GraphicsLayer* oldChild, GraphicsLayer* newChild)
 {
-    LOG("(%x) replaceChild %x by %x", this, oldChild, newChild);
+    ALOG("(%x) replaceChild %x by %x", this, oldChild, newChild);
     bool ret = GraphicsLayer::replaceChild(oldChild, newChild);
     m_needsSyncChildren = true;
     askForSync();
@@ -204,7 +204,7 @@ bool GraphicsLayerAndroid::replaceChild(GraphicsLayer* oldChild, GraphicsLayer* 
 
 void GraphicsLayerAndroid::removeFromParent()
 {
-    LOG("(%x) removeFromParent()", this);
+    ALOG("(%x) removeFromParent()", this);
     if (m_parent)
         static_cast<GraphicsLayerAndroid*>(m_parent)->needsSyncChildren();
     GraphicsLayer::removeFromParent();
@@ -261,7 +261,7 @@ void GraphicsLayerAndroid::setPosition(const FloatPoint& point)
     m_currentPosition = point;
     m_needsDisplay = true;
 #ifdef LAYER_DEBUG_2
-    LOG("(%x) setPosition(%.2f,%.2f) pos(%.2f, %.2f) anchor(%.2f,%.2f) size(%.2f, %.2f)",
+    ALOG("(%x) setPosition(%.2f,%.2f) pos(%.2f, %.2f) anchor(%.2f,%.2f) size(%.2f, %.2f)",
         this, point.x(), point.y(), m_currentPosition.x(), m_currentPosition.y(),
         m_anchorPoint.x(), m_anchorPoint.y(), m_size.width(), m_size.height());
 #endif
@@ -291,7 +291,7 @@ void GraphicsLayerAndroid::setTransform(const TransformationMatrix& t)
 {
     TransformationMatrix::DecomposedType tDecomp;
     t.decompose(tDecomp);
-    LOG("(%x) setTransform, translate (%.2f, %.2f), mpos(%.2f,%.2f)",
+    ALOG("(%x) setTransform, translate (%.2f, %.2f), mpos(%.2f,%.2f)",
         this, tDecomp.translateX, tDecomp.translateY,
         m_position.x(), m_position.y());
 
@@ -308,7 +308,7 @@ void GraphicsLayerAndroid::setChildrenTransform(const TransformationMatrix& t)
 {
     if (t == m_childrenTransform)
        return;
-    LOG("(%x) setChildrenTransform", this);
+    ALOG("(%x) setChildrenTransform", this);
 
     GraphicsLayer::setChildrenTransform(t);
     for (unsigned int i = 0; i < m_children.size(); i++) {
@@ -350,7 +350,7 @@ void GraphicsLayerAndroid::setDrawsContent(bool drawsContent)
 
 void GraphicsLayerAndroid::setBackgroundColor(const Color& color)
 {
-    LOG("(%x) setBackgroundColor", this);
+    ALOG("(%x) setBackgroundColor", this);
     GraphicsLayer::setBackgroundColor(color);
     SkColor c = SkColorSetARGB(color.alpha(), color.red(), color.green(), color.blue());
     m_contentLayer->setBackgroundColor(c);
@@ -360,14 +360,14 @@ void GraphicsLayerAndroid::setBackgroundColor(const Color& color)
 
 void GraphicsLayerAndroid::clearBackgroundColor()
 {
-    LOG("(%x) clearBackgroundColor", this);
+    ALOG("(%x) clearBackgroundColor", this);
     GraphicsLayer::clearBackgroundColor();
     askForSync();
 }
 
 void GraphicsLayerAndroid::setContentsOpaque(bool opaque)
 {
-    LOG("(%x) setContentsOpaque (%d)", this, opaque);
+    ALOG("(%x) setContentsOpaque (%d)", this, opaque);
     GraphicsLayer::setContentsOpaque(opaque);
     m_haveContents = true;
     askForSync();
@@ -375,7 +375,7 @@ void GraphicsLayerAndroid::setContentsOpaque(bool opaque)
 
 void GraphicsLayerAndroid::setOpacity(float opacity)
 {
-    LOG("(%x) setOpacity: %.2f", this, opacity);
+    ALOG("(%x) setOpacity: %.2f", this, opacity);
     float clampedOpacity = max(0.0f, min(opacity, 1.0f));
 
     if (clampedOpacity == m_opacity)
@@ -390,7 +390,7 @@ void GraphicsLayerAndroid::setOpacity(float opacity)
 
 bool GraphicsLayerAndroid::repaintAll()
 {
-     LOG("(%x) repaintAll", this);
+     ALOG("(%x) repaintAll", this);
      bool ret = false;
      for (unsigned int i = 0; i < m_children.size(); i++) {
          GraphicsLayerAndroid* layer = static_cast<GraphicsLayerAndroid*>(m_children[i]);
@@ -413,7 +413,7 @@ bool GraphicsLayerAndroid::repaintAll()
 
 void GraphicsLayerAndroid::setNeedsDisplay()
 {
-    LOG("(%x) setNeedsDisplay()", this);
+    ALOG("(%x) setNeedsDisplay()", this);
     FloatRect rect(0, 0, m_size.width(), m_size.height());
     setNeedsDisplayInRect(rect);
 }
@@ -425,7 +425,7 @@ void GraphicsLayerAndroid::setFrame(Frame* f)
 
 void GraphicsLayerAndroid::sendImmediateRepaint()
 {
-    LOG("(%x) sendImmediateRepaint()", this);
+    ALOG("(%x) sendImmediateRepaint()", this);
     GraphicsLayerAndroid* rootGraphicsLayer = this;
 
     while (rootGraphicsLayer->parent())
@@ -447,7 +447,7 @@ void GraphicsLayerAndroid::sendImmediateRepaint()
 
 bool GraphicsLayerAndroid::repaint(const FloatRect& rect)
 {
-    LOG("(%x) repaint(%.2f,%.2f,%.2f,%.2f), gPaused(%d) m_needsRepaint(%d) m_haveContents(%d) ",
+    ALOG("(%x) repaint(%.2f,%.2f,%.2f,%.2f), gPaused(%d) m_needsRepaint(%d) m_haveContents(%d) ",
         this, rect.x(), rect.y(), rect.width(), rect.height(),
         gPaused, m_needsRepaint, m_haveContents);
 
@@ -497,7 +497,7 @@ void GraphicsLayerAndroid::setNeedsDisplayInRect(const FloatRect& rect)
         }
     }
     if (!m_haveImage && !drawsContent()) {
-        LOG("(%x) setNeedsDisplay(%.2f,%.2f,%.2f,%.2f) doesn't have content, bypass...",
+        ALOG("(%x) setNeedsDisplay(%.2f,%.2f,%.2f,%.2f) doesn't have content, bypass...",
             this, rect.x(), rect.y(), rect.width(), rect.height());
         return;
     }
@@ -509,7 +509,7 @@ void GraphicsLayerAndroid::setNeedsDisplayInRect(const FloatRect& rect)
     }
 
 #ifdef LAYER_DEBUG
-    LOG("(%x) setNeedsDisplayInRect(%d) - (%.2f, %.2f, %.2f, %.2f)", this,
+    ALOG("(%x) setNeedsDisplayInRect(%d) - (%.2f, %.2f, %.2f, %.2f)", this,
         m_needsRepaint, rect.x(), rect.y(), rect.width(), rect.height());
 #endif
 
@@ -706,7 +706,7 @@ bool GraphicsLayerAndroid::createTransformAnimationsFromKeyframes(const Keyframe
             } else if ((op->getOperationType() == TransformOperation::ROTATE)
                           || (op->getOperationType() == TransformOperation::ROTATE_X)
                           || (op->getOperationType() == TransformOperation::ROTATE_Y)) {
-                LOG("(%x) animateTransform, the %d operation is a rotation", this, j);
+                ALOG("(%x) animateTransform, the %d operation is a rotation", this, j);
                 RotateTransformOperation* rotateOperation = (RotateTransformOperation*) op;
                 float angle = rotateOperation->angle();
                 TLOG("(%x) animateTransform, the %d operation is a rotation (%d), of angle %.2f",
@@ -824,7 +824,7 @@ void GraphicsLayerAndroid::setContentsToImage(Image* image)
 
 PlatformLayer* GraphicsLayerAndroid::platformLayer() const
 {
-    LOG("platformLayer");
+    ALOG("platformLayer");
     return (PlatformLayer*) m_contentLayer;
 }
 
@@ -840,7 +840,7 @@ void GraphicsLayerAndroid::setDebugBorder(const Color& color, float borderWidth)
 
 void GraphicsLayerAndroid::setZPosition(float position)
 {
-    LOG("(%x) setZPosition: %.2f", this, position);
+    ALOG("(%x) setZPosition: %.2f", this, position);
     GraphicsLayer::setZPosition(position);
     askForSync();
 }

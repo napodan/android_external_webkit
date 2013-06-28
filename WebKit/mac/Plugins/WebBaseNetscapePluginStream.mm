@@ -246,7 +246,7 @@ void WebNetscapePluginStream::startStream(NSURL *url, long long expectedContentL
         npErr = m_pluginFuncs->newstream(m_plugin, (char *)[m_mimeType.get() UTF8String], &m_stream, NO, &m_transferMode);
     }
 
-    LOG(Plugins, "NPP_NewStream URL=%@ MIME=%@ error=%d", m_responseURL.get(), m_mimeType.get(), npErr);
+    ALOG(Plugins, "NPP_NewStream URL=%@ MIME=%@ error=%d", m_responseURL.get(), m_mimeType.get(), npErr);
 
     if (npErr != NPERR_NO_ERROR) {
         LOG_ERROR("NPP_NewStream failed with error: %d responseURL: %@", npErr, m_responseURL.get());
@@ -259,13 +259,13 @@ void WebNetscapePluginStream::startStream(NSURL *url, long long expectedContentL
 
     switch (m_transferMode) {
         case NP_NORMAL:
-            LOG(Plugins, "Stream type: NP_NORMAL");
+            ALOG(Plugins, "Stream type: NP_NORMAL");
             break;
         case NP_ASFILEONLY:
-            LOG(Plugins, "Stream type: NP_ASFILEONLY");
+            ALOG(Plugins, "Stream type: NP_ASFILEONLY");
             break;
         case NP_ASFILE:
-            LOG(Plugins, "Stream type: NP_ASFILE");
+            ALOG(Plugins, "Stream type: NP_ASFILE");
             break;
         case NP_SEEK:
             LOG_ERROR("Stream type: NP_SEEK not yet supported");
@@ -397,7 +397,7 @@ void WebNetscapePluginStream::destroyStream()
             
             PluginStopDeferrer deferrer(m_pluginView.get());
             m_pluginFuncs->asfile(m_plugin, &m_stream, [carbonPath fileSystemRepresentation]);
-            LOG(Plugins, "NPP_StreamAsFile responseURL=%@ path=%s", m_responseURL.get(), carbonPath);
+            ALOG(Plugins, "NPP_StreamAsFile responseURL=%@ path=%s", m_responseURL.get(), carbonPath);
         }
 
         if (m_path) {
@@ -424,7 +424,7 @@ void WebNetscapePluginStream::destroyStream()
             NPError npErr = 
 #endif
             m_pluginFuncs->destroystream(m_plugin, &m_stream, m_reason);
-            LOG(Plugins, "NPP_DestroyStream responseURL=%@ error=%d", m_responseURL.get(), npErr);
+            ALOG(Plugins, "NPP_DestroyStream responseURL=%@ error=%d", m_responseURL.get(), npErr);
         }
 
         free(m_headers);
@@ -441,7 +441,7 @@ void WebNetscapePluginStream::destroyStream()
         // NPP_URLNotify expects the request URL, not the response URL.
         PluginStopDeferrer deferrer(m_pluginView.get());
         m_pluginFuncs->urlnotify(m_plugin, [m_requestURL.get() _web_URLCString], m_reason, m_notifyData);
-        LOG(Plugins, "NPP_URLNotify requestURL=%@ reason=%d", m_requestURL.get(), m_reason);
+        ALOG(Plugins, "NPP_URLNotify requestURL=%@ reason=%d", m_requestURL.get(), m_reason);
     }
 
     m_isTerminated = true;
@@ -513,7 +513,7 @@ void WebNetscapePluginStream::deliverData()
     while (totalBytesDelivered < totalBytes) {
         PluginStopDeferrer deferrer(m_pluginView.get());
         int32 deliveryBytes = m_pluginFuncs->writeready(m_plugin, &m_stream);
-        LOG(Plugins, "NPP_WriteReady responseURL=%@ bytes=%d", m_responseURL.get(), deliveryBytes);
+        ALOG(Plugins, "NPP_WriteReady responseURL=%@ bytes=%d", m_responseURL.get(), deliveryBytes);
 
         if (m_isTerminated)
             return;
@@ -536,7 +536,7 @@ void WebNetscapePluginStream::deliverData()
             deliveryBytes = min<int32>(deliveryBytes, [subdata length]);
             m_offset += deliveryBytes;
             totalBytesDelivered += deliveryBytes;
-            LOG(Plugins, "NPP_Write responseURL=%@ bytes=%d total-delivered=%d/%d", m_responseURL.get(), deliveryBytes, m_offset, m_stream.end);
+            ALOG(Plugins, "NPP_Write responseURL=%@ bytes=%d total-delivered=%d/%d", m_responseURL.get(), deliveryBytes, m_offset, m_stream.end);
         }
     }
 

@@ -138,9 +138,9 @@ void WebCoreResourceLoader::SetResponseHeader(JNIEnv* env, jobject obj, jint nat
 #endif
     
     WebCore::ResourceResponse* response = (WebCore::ResourceResponse*)nativeResponse;
-    LOG_ASSERT(response, "nativeSetResponseHeader must take a valid response pointer!");
+    ALOG_ASSERT(response, "nativeSetResponseHeader must take a valid response pointer!");
 
-    LOG_ASSERT(key, "How did a null value become a key?");
+    ALOG_ASSERT(key, "How did a null value become a key?");
     if (val) {
         WebCore::String valStr = to_string(env, val);
         if (!valStr.isEmpty())
@@ -155,17 +155,17 @@ jint WebCoreResourceLoader::CreateResponse(JNIEnv* env, jobject obj, jstring url
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::ResourceTimeCounter);
 #endif
-    LOG_ASSERT(url, "Must have a url in the response!");
+    ALOG_ASSERT(url, "Must have a url in the response!");
     WebCore::KURL kurl(WebCore::ParsedURLString, to_string(env, url));
     WebCore::String encodingStr;
     WebCore::String mimeTypeStr;
     if (mimeType) {
         mimeTypeStr = to_string(env, mimeType);
-        LOGV("Response setMIMEType: %s", mimeTypeStr.latin1().data());
+        ALOGV("Response setMIMEType: %s", mimeTypeStr.latin1().data());
     }
     if (encoding) {
         encodingStr = to_string(env, encoding);
-        LOGV("Response setTextEncodingName: %s", encodingStr.latin1().data());
+        ALOGV("Response setTextEncodingName: %s", encodingStr.latin1().data());
     }
     WebCore::ResourceResponse* response = new WebCore::ResourceResponse(
             kurl, mimeTypeStr, (long long)expectedLength,
@@ -174,7 +174,7 @@ jint WebCoreResourceLoader::CreateResponse(JNIEnv* env, jobject obj, jstring url
     if (statusText) {
         WebCore::String status = to_string(env, statusText);
         response->setHTTPStatusText(status);
-        LOGV("Response setStatusText: %s", status.latin1().data());
+        ALOGV("Response setStatusText: %s", status.latin1().data());
     }
     return (int)response;
 }
@@ -185,13 +185,13 @@ void WebCoreResourceLoader::ReceivedResponse(JNIEnv* env, jobject obj, jint nati
     TimeCounterAuto counter(TimeCounter::ResourceTimeCounter);
 #endif
     WebCore::ResourceHandle* handle = GET_NATIVE_HANDLE(env, obj);
-    LOG_ASSERT(handle, "nativeReceivedResponse must take a valid handle!");
+    ALOG_ASSERT(handle, "nativeReceivedResponse must take a valid handle!");
     // ResourceLoader::didFail() can set handle to be NULL, we need to check
     if (!handle)
         return;
 
     WebCore::ResourceResponse* response = (WebCore::ResourceResponse*)nativeResponse;
-    LOG_ASSERT(response, "nativeReceivedResponse must take a valid resource pointer!");
+    ALOG_ASSERT(response, "nativeReceivedResponse must take a valid resource pointer!");
     handle->client()->didReceiveResponse(handle, *response);
     // As the client makes a copy of the response, delete it here.
     delete response;
@@ -202,10 +202,10 @@ void WebCoreResourceLoader::AddData(JNIEnv* env, jobject obj, jbyteArray dataArr
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::ResourceTimeCounter);
 #endif
-    LOGV("webcore_resourceloader data(%d)", length);
+    ALOGV("webcore_resourceloader data(%d)", length);
 
     WebCore::ResourceHandle* handle = GET_NATIVE_HANDLE(env, obj);
-    LOG_ASSERT(handle, "nativeAddData must take a valid handle!");
+    ALOG_ASSERT(handle, "nativeAddData must take a valid handle!");
     // ResourceLoader::didFail() can set handle to be NULL, we need to check
     if (!handle)
         return;
@@ -215,7 +215,7 @@ void WebCoreResourceLoader::AddData(JNIEnv* env, jobject obj, jbyteArray dataArr
     bool result = false;
     jbyte * data =  env->GetByteArrayElements(dataArray, NULL);
 
-    LOG_ASSERT(handle->client(), "Why do we not have a client?");
+    ALOG_ASSERT(handle->client(), "Why do we not have a client?");
     handle->client()->didReceiveData(handle, (const char *)data, length, length);
     env->ReleaseByteArrayElements(dataArray, data, JNI_ABORT);    
 }
@@ -225,14 +225,14 @@ void WebCoreResourceLoader::Finished(JNIEnv* env, jobject obj)
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::ResourceTimeCounter);
 #endif
-    LOGV("webcore_resourceloader finished");
+    ALOGV("webcore_resourceloader finished");
     WebCore::ResourceHandle* handle = GET_NATIVE_HANDLE(env, obj);
-    LOG_ASSERT(handle, "nativeFinished must take a valid handle!");
+    ALOG_ASSERT(handle, "nativeFinished must take a valid handle!");
     // ResourceLoader::didFail() can set handle to be NULL, we need to check
     if (!handle)
         return;
 
-    LOG_ASSERT(handle->client(), "Why do we not have a client?");
+    ALOG_ASSERT(handle->client(), "Why do we not have a client?");
     handle->client()->didFinishLoading(handle);
 }
 
@@ -242,14 +242,14 @@ jstring WebCoreResourceLoader::RedirectedToUrl(JNIEnv* env, jobject obj,
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::ResourceTimeCounter);
 #endif
-    LOGV("webcore_resourceloader redirectedToUrl");
+    ALOGV("webcore_resourceloader redirectedToUrl");
     WebCore::ResourceHandle* handle = GET_NATIVE_HANDLE(env, obj);
-    LOG_ASSERT(handle, "nativeRedirectedToUrl must take a valid handle!");
+    ALOG_ASSERT(handle, "nativeRedirectedToUrl must take a valid handle!");
     // ResourceLoader::didFail() can set handle to be NULL, we need to check
     if (!handle)
         return NULL;
 
-    LOG_ASSERT(handle->client(), "Why do we not have a client?");
+    ALOG_ASSERT(handle->client(), "Why do we not have a client?");
     WebCore::ResourceRequest r = handle->request();
     WebCore::KURL url(WebCore::KURL(WebCore::ParsedURLString, to_string(env, baseUrl)),
             to_string(env, redirectTo));
@@ -282,9 +282,9 @@ void WebCoreResourceLoader::Error(JNIEnv* env, jobject obj, jint id, jstring des
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::ResourceTimeCounter);
 #endif
-    LOGV("webcore_resourceloader error");
+    ALOGV("webcore_resourceloader error");
     WebCore::ResourceHandle* handle = GET_NATIVE_HANDLE(env, obj);
-    LOG_ASSERT(handle, "nativeError must take a valid handle!");
+    ALOG_ASSERT(handle, "nativeError must take a valid handle!");
     // ResourceLoader::didFail() can set handle to be NULL, we need to check
     if (!handle)
         return;

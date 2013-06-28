@@ -79,7 +79,7 @@ bool SQLStatement::execute(Database* db)
     int result = statement.prepare();
 
     if (result != SQLResultOk) {
-        LOG(StorageAPI, "Unable to verify correctness of statement %s - error %i (%s)", m_statement.ascii().data(), result, database->lastErrorMsg());
+        ALOG(StorageAPI, "Unable to verify correctness of statement %s - error %i (%s)", m_statement.ascii().data(), result, database->lastErrorMsg());
         m_error = SQLError::create(1, database->lastErrorMsg());
         return false;
     }
@@ -87,7 +87,7 @@ bool SQLStatement::execute(Database* db)
     // FIXME:  If the statement uses the ?### syntax supported by sqlite, the bind parameter count is very likely off from the number of question marks.
     // If this is the case, they might be trying to do something fishy or malicious
     if (statement.bindParameterCount() != m_arguments.size()) {
-        LOG(StorageAPI, "Bind parameter count doesn't match number of question marks");
+        ALOG(StorageAPI, "Bind parameter count doesn't match number of question marks");
         m_error = SQLError::create(1, "number of '?'s in statement string does not match argument count");
         return false;
     }
@@ -100,7 +100,7 @@ bool SQLStatement::execute(Database* db)
         }
 
         if (result != SQLResultOk) {
-            LOG(StorageAPI, "Failed to bind value index %i to statement for query '%s'", i + 1, m_statement.ascii().data());
+            ALOG(StorageAPI, "Failed to bind value index %i to statement for query '%s'", i + 1, m_statement.ascii().data());
             m_error = SQLError::create(1, database->lastErrorMsg());
             return false;
         }

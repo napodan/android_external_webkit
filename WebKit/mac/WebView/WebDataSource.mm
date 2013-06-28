@@ -371,7 +371,7 @@ static inline void addTypesFromClass(NSMutableDictionary *allTypes, Class objCCl
     
     _private->loader = loader.releaseRef();
         
-    LOG(Loading, "creating datasource for %@", static_cast<NSURL *>(_private->loader->request().url()));
+    ALOG(Loading, "creating datasource for %@", static_cast<NSURL *>(_private->loader->request().url()));
     
     ++WebDataSourceCount;
     

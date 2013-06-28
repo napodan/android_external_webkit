@@ -97,7 +97,7 @@ void ProgressTracker::reset()
 
 void ProgressTracker::progressStarted(Frame* frame)
 {
-    // LOG (Progress, "frame %p(%@), _private->numProgressTrackedFrames %d, _private->originatingProgressFrame %p", frame, [frame name], _private->numProgressTrackedFrames, _private->originatingProgressFrame);
+    // ALOG (Progress, "frame %p(%@), _private->numProgressTrackedFrames %d, _private->originatingProgressFrame %p", frame, [frame name], _private->numProgressTrackedFrames, _private->originatingProgressFrame);
 
     frame->loader()->client()->willChangeEstimatedProgress();
     
@@ -115,7 +115,7 @@ void ProgressTracker::progressStarted(Frame* frame)
 
 void ProgressTracker::progressCompleted(Frame* frame)
 {
-    // LOG (Progress, "frame %p(%@), _private->numProgressTrackedFrames %d, _private->originatingProgressFrame %p", frame, [frame name], _private->numProgressTrackedFrames, _private->originatingProgressFrame);
+    // ALOG (Progress, "frame %p(%@), _private->numProgressTrackedFrames %d, _private->originatingProgressFrame %p", frame, [frame name], _private->numProgressTrackedFrames, _private->originatingProgressFrame);
     
     if (m_numProgressTrackedFrames <= 0)
         return;
@@ -132,7 +132,7 @@ void ProgressTracker::progressCompleted(Frame* frame)
 
 void ProgressTracker::finalProgressComplete()
 {
-    // LOG (Progress, "");
+    // ALOG (Progress, "");
     
     RefPtr<Frame> frame = m_originatingProgressFrame.release();
     
@@ -151,7 +151,7 @@ void ProgressTracker::finalProgressComplete()
 
 void ProgressTracker::incrementProgress(unsigned long identifier, const ResourceResponse& response)
 {
-    // LOG (Progress, "_private->numProgressTrackedFrames %d, _private->originatingProgressFrame %p", _private->numProgressTrackedFrames, _private->originatingProgressFrame);
+    // ALOG (Progress, "_private->numProgressTrackedFrames %d, _private->originatingProgressFrame %p", _private->numProgressTrackedFrames, _private->originatingProgressFrame);
 
     if (m_numProgressTrackedFrames <= 0)
         return;
@@ -214,7 +214,7 @@ void ProgressTracker::incrementProgress(unsigned long identifier, const char*, i
     double now = currentTime();
     double notifiedProgressTimeDelta = now - m_lastNotifiedProgressTime;
     
-    // LOG (Progress, "_private->progressValue %g, _private->numProgressTrackedFrames %d", _private->progressValue, _private->numProgressTrackedFrames);
+    // ALOG (Progress, "_private->progressValue %g, _private->numProgressTrackedFrames %d", _private->progressValue, _private->numProgressTrackedFrames);
     double notificationProgressDelta = m_progressValue - m_lastNotifiedProgressValue;
     if ((notificationProgressDelta >= m_progressNotificationInterval ||
          notifiedProgressTimeDelta >= m_progressNotificationTimeInterval) &&

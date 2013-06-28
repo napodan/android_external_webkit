@@ -49,7 +49,7 @@ IconRecord::IconRecord(const String& url)
 
 IconRecord::~IconRecord()
 {
-    LOG(IconDatabase, "Destroying IconRecord for icon url %s", m_iconURL.ascii().data());
+    ALOG(IconDatabase, "Destroying IconRecord for icon url %s", m_iconURL.ascii().data());
 }
 
 Image* IconRecord::image(const IntSize&)
@@ -69,7 +69,7 @@ void IconRecord::setImageData(PassRefPtr<SharedBuffer> data)
 
     // Copy the provided data into the buffer of the new Image object.
     if (!m_image->setData(data, true)) {
-        LOG(IconDatabase, "Manual image data for iconURL '%s' FAILED - it was probably invalid image data", m_iconURL.ascii().data());
+        ALOG(IconDatabase, "Manual image data for iconURL '%s' FAILED - it was probably invalid image data", m_iconURL.ascii().data());
         m_image.clear();
     }
     
