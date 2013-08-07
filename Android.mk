@@ -284,6 +284,7 @@ LOCAL_SHARED_LIBRARIES := \
 	libcutils \
 	libicuuc \
 	libicui18n \
+	liblog \
 	libmedia \
 	libsurfaceflinger_client
 
