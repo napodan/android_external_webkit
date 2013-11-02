@@ -670,8 +670,8 @@ void HTMLMediaElement::noneSupported()
 
     // 9 -Abort these steps. Until the load() method is invoked, the element won't attempt to load another resource.
 
-    if (isVideo())
-        static_cast<HTMLVideoElement*>(this)->updatePosterImage();
+    updatePosterImage();
+
     if (renderer())
         renderer()->updateFromElement();
 }
@@ -749,9 +749,7 @@ void HTMLMediaElement::setNetworkState(MediaPlayer::NetworkState state)
         else if (state == MediaPlayer::FormatError && m_loadState == LoadingFromSrcAttr)
             noneSupported();
 
-        if (isVideo())
-            static_cast<HTMLVideoElement*>(this)->updatePosterImage();
-
+        updatePosterImage();
         return;
     }
 
@@ -889,8 +887,8 @@ void HTMLMediaElement::setReadyState(MediaPlayer::ReadyState state)
         shouldUpdatePosterImage = true;
     }
 
-    if (shouldUpdatePosterImage && isVideo())
-        static_cast<HTMLVideoElement*>(this)->updatePosterImage();
+    if (shouldUpdatePosterImage)
+        updatePosterImage();
 
     updatePlayState();
 }
@@ -1512,6 +1510,8 @@ void HTMLMediaElement::mediaPlayerRepaint(MediaPlayer*)
     beginProcessingMediaPlayerCallback();
     if (renderer())
         renderer()->repaint();
+
+    updatePosterImage();
     endProcessingMediaPlayerCallback();
 }
 
@@ -1535,11 +1535,10 @@ bool HTMLMediaElement::mediaPlayerRenderingCanBeAccelerated(MediaPlayer*)
     return false;
 }
 
-GraphicsLayer* HTMLMediaElement::mediaPlayerGraphicsLayer(MediaPlayer*)
+void HTMLMediaElement::mediaPlayerRenderingModeChanged(MediaPlayer*)
 {
-    if (renderer() && renderer()->isVideo())
-        return toRenderVideo(renderer())->videoGraphicsLayer();
-    return 0;
+    // Kick off a fake recalcStyle that will update the compositing tree.
+    setNeedsStyleRecalc(SyntheticStyleChange);
 }
 #endif
 
@@ -1883,6 +1882,13 @@ PlatformMedia HTMLMediaElement::platformMedia() const
 {
     return m_player ? m_player->platformMedia() : NoPlatformMedia;
 }
+
+#if USE(ACCELERATED_COMPOSITING)
+PlatformLayer* HTMLMediaElement::platformLayer() const
+{
+    return m_player ? m_player->platformLayer() : 0;
+}
+#endif
 
 bool HTMLMediaElement::hasClosedCaptions() const
 {
