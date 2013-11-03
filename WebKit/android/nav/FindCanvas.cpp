@@ -675,4 +675,3 @@ void FindOnPage::setMatches(WTF::Vector<MatchInfo>* matches)
 }
 
 }
-
