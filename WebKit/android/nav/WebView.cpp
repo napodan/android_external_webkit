@@ -892,7 +892,7 @@ bool motionUp(int x, int y, int slop)
     viewInvalidate();
     if (!result->isTextInput()) {
         clearTextEntry();
-        if (!result->isSelect())
+        if (!result->isSelect() && !result->isContentEditable())
             setFollowedLink(true);
         if (syntheticLink)
             overrideUrlLoading(result->getExport());
@@ -1333,6 +1333,19 @@ static const CachedInput* getInputCandidate(JNIEnv *env, jobject obj)
     return cursor ? frame->textInput(cursor) : 0;
 }
 
+static jboolean nativePageShouldHandleShiftAndArrows(JNIEnv *env, jobject obj)
+{
+    const CachedNode* focus = getFocusNode(env, obj);
+    if (!focus) return false;
+    // Plugins handle shift and arrows whether or not they have focus.
+    if (focus->isPlugin()) return true;
+    const CachedNode* cursor = getCursorNode(env, obj);
+    // ContentEditable nodes should only receive shift and arrows if they have
+    // both the cursor and the focus.
+    return cursor && cursor->nodePointer() == focus->nodePointer()
+            && cursor->isContentEditable();
+}
+
 static jboolean nativeCursorMatchesFocus(JNIEnv *env, jobject obj)
 {
     const CachedNode* cursor = getCursorNode(env, obj);
@@ -1721,7 +1734,7 @@ static void nativeSetFindIsEmpty(JNIEnv *env, jobject obj)
 static void nativeSetFollowedLink(JNIEnv *env, jobject obj, bool followed)
 {
     const CachedNode* cursor = getCursorNode(env, obj);
-    if (cursor && !cursor->isSelect()) {
+    if (cursor && !cursor->isSelect() && ! cursor->isContentEditable()) {
         WebView* view = GET_NATIVE_VIEW(env, obj);
         LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
         view->setFollowedLink(followed);
@@ -2031,6 +2044,8 @@ static JNINativeMethod gJavaWebViewMethods[] = {
         (void*) nativeCreate },
     { "nativeCursorFramePointer", "()I",
         (void*) nativeCursorFramePointer },
+    { "nativePageShouldHandleShiftAndArrows", "()Z",
+        (void*) nativePageShouldHandleShiftAndArrows },
     { "nativeCursorMatchesFocus", "()Z",
         (void*) nativeCursorMatchesFocus },
     { "nativeCursorNodeBounds", "()Landroid/graphics/Rect;",
