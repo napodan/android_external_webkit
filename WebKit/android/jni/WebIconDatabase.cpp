@@ -28,7 +28,6 @@
 #include "config.h"
 #include "WebIconDatabase.h"
 
-#include "CString.h"
 #include "FileSystem.h"
 #include "GraphicsJNI.h"
 #include "IconDatabase.h"
@@ -47,6 +46,7 @@
 #include <pthread.h>
 #include <utils/misc.h>
 #include <wtf/Platform.h>
+#include <wtf/text/CString.h>
 
 namespace android {
 
@@ -141,7 +141,7 @@ static void Open(JNIEnv* env, jobject obj, jstring path)
     iconDb->setClient(gIconDatabaseClient);
     ALOG_ASSERT(path, "No path given to nativeOpen");
     WebCore::String pathStr = to_string(env, path);
-    WebCore::CString fullPath = WebCore::pathByAppendingComponent(pathStr,
+    WTF::CString fullPath = WebCore::pathByAppendingComponent(pathStr,
             WebCore::IconDatabase::defaultDatabaseFilename()).utf8();
     mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
     bool didSetPermissions = false;
