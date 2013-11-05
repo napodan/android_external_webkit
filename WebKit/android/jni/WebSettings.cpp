@@ -30,7 +30,6 @@
 
 #include "ApplicationCacheStorage.h"
 #include "BitmapAllocatorAndroid.h"
-#include "CString.h"
 #include "DatabaseTracker.h"
 #include "Database.h"
 #include "DocLoader.h"
@@ -55,6 +54,7 @@
 
 #include <JNIHelp.h>
 #include <utils/misc.h>
+#include <wtf/text/CString.h>
 
 namespace android {
 
