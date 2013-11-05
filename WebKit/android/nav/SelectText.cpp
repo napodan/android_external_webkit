@@ -44,7 +44,7 @@
 #include "TextRun.h"
 
 #ifdef DEBUG_NAV_UI
-#include "CString.h"
+#include <wtf/text/CString.h>
 #endif
 
 #define VERBOSE_LOGGING 0

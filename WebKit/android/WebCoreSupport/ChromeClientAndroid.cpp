@@ -29,7 +29,6 @@
 
 #include "ApplicationCacheStorage.h"
 #include "ChromeClientAndroid.h"
-#include "CString.h"
 #include "DatabaseTracker.h"
 #include "Document.h"
 #include "PlatformString.h"
@@ -39,6 +38,7 @@
 #include "FrameView.h"
 #include "Geolocation.h"
 #include "GraphicsLayerAndroid.h"
+#include "Icon.h"
 #include "Page.h"
 #include "Screen.h"
 #include "ScriptController.h"
@@ -47,6 +47,7 @@
 #include "WebViewCore.h"
 #include "WindowFeatures.h"
 #include "Settings.h"
+#include <wtf/text/CString.h>
 
 namespace android {
 
@@ -276,12 +277,19 @@ bool ChromeClientAndroid::tabsToLinks() const { return false; }
 
 IntRect ChromeClientAndroid::windowResizerRect() const { return IntRect(0, 0, 0, 0); }
 
-// new to change 38068 (Nov 6, 2008)
-void ChromeClientAndroid::repaint(const IntRect& rect, bool contentChanged, 
-        bool immediate, bool repaintContentOnly) { 
-    notImplemented(); 
-// was in ScrollViewAndroid::update() : needs to be something like:
-//    android::WebViewCore::getWebViewCore(this)->contentInvalidate(rect);
+void ChromeClientAndroid::invalidateWindow(const IntRect&, bool)
+{
+    notImplemented();
+}
+
+void ChromeClientAndroid::invalidateContentsAndWindow(const IntRect& updateRect, bool /*immediate*/)
+{
+    notImplemented();
+}
+
+void ChromeClientAndroid::invalidateContentsForSlowScroll(const IntRect& updateRect, bool immediate)
+{
+    notImplemented();
 }
 
 // new to change 38068 (Nov 6, 2008)
@@ -461,7 +469,7 @@ void ChromeClientAndroid::requestGeolocationPermissionForFrame(Frame* frame, Geo
     m_geolocationPermissions->queryPermissionState(frame);
 }
 
-void ChromeClientAndroid::cancelGeolocationPermissionRequestForFrame(Frame* frame)
+void ChromeClientAndroid::cancelGeolocationPermissionRequestForFrame(Frame* frame, WebCore::Geolocation*)
 {
     if (m_geolocationPermissions)
         m_geolocationPermissions->cancelPermissionStateQuery(frame);
@@ -492,7 +500,7 @@ void ChromeClientAndroid::runOpenPanel(Frame* frame,
     core->openFileChooser(chooser);
 }
 
-void ChromeClientAndroid::iconForFiles(const Vector<WebCore::String>&, PassRefPtr<WebCore::FileChooser>)
+void ChromeClientAndroid::chooseIconForFiles(const Vector<WebCore::String>&, FileChooser*)
 {
     notImplemented();
 }

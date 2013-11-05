@@ -70,10 +70,9 @@ public:
     bool canResizeRow(const IntPoint&) const;
     bool canResizeColumn(const IntPoint&) const;
 
-#ifdef FLATTEN_FRAMESET
+#ifdef ANDROID_FLATTEN_FRAMESET
     void setGridNeedsLayout() { m_gridCalculated = false; }
 #endif
-    bool flattenFrameSet() const;
 
 private:
     static const int noSplit = -1;
@@ -100,8 +99,10 @@ private:
     virtual bool nodeAtPoint(const HitTestRequest&, HitTestResult&, int x, int y, int tx, int ty, HitTestAction);
     virtual void paint(PaintInfo&, int tx, int ty);
     virtual bool isChildAllowed(RenderObject*, RenderStyle*) const;
-    
+
     inline HTMLFrameSetElement* frameSet() const;
+
+    bool flattenFrameSet() const;
 
     void setIsResizing(bool);
 
@@ -127,7 +128,7 @@ private:
 
     bool m_isResizing;
     bool m_isChildResizing;
-#ifdef FLATTEN_FRAMESET
+#ifdef ANDROID_FLATTEN_FRAMESET
     bool m_gridCalculated;
 #endif
 };

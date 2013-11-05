@@ -29,17 +29,20 @@
 #include "config.h"
 #include "FileSystem.h"
 
-#include "CString.h"
 #include "PlatformString.h"
-
-#include <sys/stat.h>
 #ifdef ANDROID_PLUGINS
-#include <sys/types.h>
 #include <dirent.h>
+#endif
+#include <errno.h>
+#include <fcntl.h>
+#ifdef ANDROID_PLUGINS
 #include <fnmatch.h>
 #endif
 #include <libgen.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <wtf/text/CString.h>
 
 namespace WebCore {
 
@@ -68,6 +71,71 @@ bool deleteFile(const String& path)
 
     // unlink(...) returns 0 on successful deletion of the path and non-zero in any other case (including invalid permissions or non-existent file)
     return !unlink(fsRep.data());
+}
+
+PlatformFileHandle openFile(const String& path, FileOpenMode mode)
+{
+    int platformFlag = 0;
+    if (mode == OpenForRead)
+        platformFlag |= O_RDONLY;
+    else if (mode == OpenForWrite)
+        platformFlag |= (O_WRONLY | O_CREAT | O_TRUNC);
+    return open(path.utf8().data(), platformFlag, 0666);
+}
+
+void closeFile(PlatformFileHandle& handle)
+{
+    if (isHandleValid(handle)) {
+        close(handle);
+        handle = invalidPlatformFileHandle;
+    }
+}
+
+long long seekFile(PlatformFileHandle handle, long long offset, FileSeekOrigin origin)
+{
+    int whence = SEEK_SET;
+    switch (origin) {
+    case SeekFromBeginning:
+        whence = SEEK_SET;
+        break;
+    case SeekFromCurrent:
+        whence = SEEK_CUR;
+        break;
+    case SeekFromEnd:
+        whence = SEEK_END;
+        break;
+    default:
+        ASSERT_NOT_REACHED();
+    }
+    return static_cast<long long>(lseek(handle, offset, whence));
+}
+
+bool truncateFile(PlatformFileHandle handle, long long offset)
+{
+    // ftruncate returns 0 to indicate the success.
+    return !ftruncate(handle, offset);
+}
+
+#if !PLATFORM(ANDROID)
+int writeToFile(PlatformFileHandle handle, const char* data, int length)
+{
+    do {
+        int bytesWritten = write(handle, data, static_cast<size_t>(length));
+        if (bytesWritten >= 0)
+            return bytesWritten;
+    } while (errno == EINTR);
+    return -1;
+}
+#endif
+
+int readFromFile(PlatformFileHandle handle, char* data, int length)
+{
+    do {
+        int bytesRead = read(handle, data, static_cast<size_t>(length));
+        if (bytesRead >= 0)
+            return bytesRead;
+    } while (errno == EINTR);
+    return -1;
 }
 
 bool deleteEmptyDirectory(const String& path)

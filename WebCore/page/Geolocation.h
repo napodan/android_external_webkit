@@ -38,14 +38,6 @@
 #include "PositionErrorCallback.h"
 #include "PositionOptions.h"
 #include "Timer.h"
-#include <wtf/HashMap.h>
-#include <wtf/HashSet.h>
-#include <wtf/OwnPtr.h>
-#include <wtf/PassRefPtr.h>
-#include <wtf/Platform.h>
-#include <wtf/RefCounted.h>
-#include <wtf/RefPtr.h>
-#include <wtf/Vector.h>
 
 namespace WebCore {
 
@@ -59,32 +51,26 @@ class GeolocationError;
 // ANDROID
 class Geolocation : public EventListener
 // END ANDROID
-#if !ENABLE(CLIENT_BASED_GEOLOCATION)
+#if !ENABLE(CLIENT_BASED_GEOLOCATION) && ENABLE(GEOLOCATION)
     , public GeolocationServiceClient
 #endif
 {
 public:
     static PassRefPtr<Geolocation> create(Frame* frame) { return adoptRef(new Geolocation(frame)); }
 
-    virtual ~Geolocation();
+    ~Geolocation();
 
     void disconnectFrame();
     
-    Geoposition* lastPosition();
-
     void getCurrentPosition(PassRefPtr<PositionCallback>, PassRefPtr<PositionErrorCallback>, PassRefPtr<PositionOptions>);
     int watchPosition(PassRefPtr<PositionCallback>, PassRefPtr<PositionErrorCallback>, PassRefPtr<PositionOptions>);
     void clearWatch(int watchId);
 
+    // These methods are used by Android.
     void suspend();
     void resume();
 
     void setIsAllowed(bool);
-    bool isAllowed() const { return m_allowGeolocation == Yes; }
-    bool isDenied() const { return m_allowGeolocation == No; }
-    
-    void setShouldClearCache(bool shouldClearCache) { m_shouldClearCache = shouldClearCache; }
-    bool shouldClearCache() const { return m_shouldClearCache; }
     Frame* frame() const { return m_frame; }
 
 #if ENABLE(CLIENT_BASED_GEOLOCATION)
@@ -95,6 +81,11 @@ public:
 #endif
 
 private:
+    Geoposition* lastPosition();
+
+    bool isAllowed() const { return m_allowGeolocation == Yes; }
+    bool isDenied() const { return m_allowGeolocation == No; }
+    
     Geolocation(Frame*);
 
     class GeoNotifier : public RefCounted<GeoNotifier> {
@@ -155,7 +146,7 @@ private:
     bool startUpdating(GeoNotifier*);
     void stopUpdating();
 
-#if !ENABLE(CLIENT_BASED_GEOLOCATION)
+#if !ENABLE(CLIENT_BASED_GEOLOCATION) && ENABLE(GEOLOCATION)
     // GeolocationServiceClient
     virtual void geolocationServicePositionChanged(GeolocationService*);
     virtual void geolocationServiceErrorOccurred(GeolocationService*);
@@ -186,7 +177,6 @@ private:
     RefPtr<GeoNotifier> m_startRequestPermissionNotifier;
 #endif
     RefPtr<Geoposition> m_lastPosition;
-    RefPtr<Geoposition> m_currentPosition;
 
     enum {
         Unknown,
@@ -194,9 +184,10 @@ private:
         Yes,
         No
     } m_allowGeolocation;
-    bool m_shouldClearCache;
 
+#if ENABLE(GEOLOCATION)
     OwnPtr<GeolocationPositionCache> m_positionCache;
+#endif
     GeoNotifierSet m_requestsAwaitingCachedPosition;
 };
     

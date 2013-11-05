@@ -31,6 +31,7 @@
 #include "ApplicationCacheStorage.h"
 #include "CString.h"
 #include "DatabaseTracker.h"
+#include "Database.h"
 #include "DocLoader.h"
 #include "Document.h"
 #include "EditorClientAndroid.h"
@@ -267,7 +268,7 @@ public:
         jobject textSize = env->GetObjectField(obj, gFieldIds->mTextSize);
         float zoomFactor = env->GetIntField(textSize, gFieldIds->mTextSizeValue) / 100.0f;
         if (pFrame->zoomFactor() != zoomFactor)
-            pFrame->setZoomFactor(zoomFactor, /*isTextOnly*/true);
+            pFrame->setZoomFactor(zoomFactor, WebCore::ZoomTextOnly);
 
         jstring str = (jstring)env->GetObjectField(obj, gFieldIds->mStandardFontFamily);
         s->setStandardFontFamily(to_string(env, str));
@@ -367,7 +368,7 @@ public:
         s->setShrinksStandaloneImagesToFit(flag);
 #if ENABLE(DATABASE)
         flag = env->GetBooleanField(obj, gFieldIds->mDatabaseEnabled);
-        s->setDatabasesEnabled(flag);
+        WebCore::Database::setIsAvailable(flag);
 
         flag = env->GetBooleanField(obj, gFieldIds->mDatabasePathHasBeenSet);
         if (flag) {

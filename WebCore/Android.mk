@@ -103,6 +103,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/BeforeUnloadEvent.cpp \
 	dom/CDATASection.cpp \
 	dom/CSSMappedAttributeDeclaration.cpp \
+	dom/CanvasSurface.cpp \
 	dom/CharacterData.cpp \
 	dom/CheckedRadioButtons.cpp \
 	dom/ChildNodeList.cpp \
@@ -114,6 +115,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/Comment.cpp \
 	dom/CompositionEvent.cpp \
 	dom/ContainerNode.cpp \
+	dom/CustomEvent.cpp \
 	dom/DOMImplementation.cpp \
 	dom/Document.cpp \
 	dom/DocumentFragment.cpp \
@@ -177,6 +179,8 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/TreeWalker.cpp \
 	dom/UIEvent.cpp \
 	dom/UIEventWithKeyState.cpp \
+	dom/UserGestureIndicator.cpp \
+	dom/ViewportArguments.cpp \
 	dom/WebKitAnimationEvent.cpp \
 	dom/WebKitTransitionEvent.cpp \
 	dom/WheelEvent.cpp \
@@ -244,6 +248,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/Blob.cpp \
 	html/CollectionCache.cpp \
 	html/DateComponents.cpp \
+	html/DOMFormData.cpp \
 	html/File.cpp \
 	html/FileList.cpp \
 	html/FormDataList.cpp \
@@ -263,6 +268,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/HTMLViewSourceDocument.cpp \
 	html/ImageData.cpp \
 	html/PreloadScanner.cpp \
+	html/StepRange.cpp \
 	html/TimeRanges.cpp \
 	html/ValidityState.cpp \
 	\
@@ -288,6 +294,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	loader/DocLoader.cpp \
 	loader/DocumentLoader.cpp \
 	loader/DocumentThreadableLoader.cpp \
+	loader/DocumentWriter.cpp \
 	loader/FormState.cpp \
 	loader/FrameLoader.cpp \
 	loader/HistoryController.cpp \
@@ -357,6 +364,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	page/Screen.cpp \
 	page/SecurityOrigin.cpp \
 	page/Settings.cpp \
+	page/SpatialNavigation.cpp \
 	page/UserContentURLPattern.cpp \
 	page/WindowFeatures.cpp \
 	page/WorkerNavigator.cpp \
@@ -440,7 +448,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	platform/graphics/FontFastPath.cpp \
 	platform/graphics/GeneratedImage.cpp \
 	platform/graphics/GlyphPageTreeNode.cpp \
-	platform/graphics/GlyphWidthMap.cpp \
+	platform/graphics/GlyphMetricsMap.cpp \
 	platform/graphics/Gradient.cpp \
 	platform/graphics/GraphicsContext.cpp \
 	platform/graphics/GraphicsLayer.cpp \
@@ -541,15 +549,12 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	platform/sql/SQLiteStatement.cpp \
 	platform/sql/SQLiteTransaction.cpp \
 	\
-	platform/text/AtomicString.cpp \
 	platform/text/Base64.cpp \
 	platform/text/BidiContext.cpp \
-	platform/text/CString.cpp \
 	platform/text/RegularExpression.cpp \
 	platform/text/SegmentedString.cpp \
 	platform/text/String.cpp \
 	platform/text/StringBuilder.cpp \
-	platform/text/StringImpl.cpp \
 	platform/text/TextBoundaries.cpp \
 	platform/text/TextBreakIteratorICU.cpp \
 	platform/text/TextCodec.cpp \
@@ -609,8 +614,10 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/RenderFlexibleBox.cpp \
 	rendering/RenderForeignObject.cpp \
 	rendering/RenderFrame.cpp \
+	rendering/RenderFrameBase.cpp \
 	rendering/RenderFrameSet.cpp \
 	rendering/RenderHTMLCanvas.cpp \
+	rendering/RenderIFrame.cpp \
 	rendering/RenderImage.cpp \
 	rendering/RenderImageGeneratedContent.cpp \
 	rendering/RenderInline.cpp \
@@ -627,7 +634,6 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/RenderObject.cpp \
 	rendering/RenderObjectChildList.cpp \
 	rendering/RenderPart.cpp \
-	rendering/RenderPartObject.cpp \
 	rendering/RenderPath.cpp \
 	rendering/RenderReplaced.cpp \
 	rendering/RenderReplica.cpp \
@@ -646,6 +652,9 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/RenderSVGInline.cpp \
 	rendering/RenderSVGInlineText.cpp \
 	rendering/RenderSVGModelObject.cpp \
+	rendering/RenderSVGResourceClipper.cpp \
+	rendering/RenderSVGResourceFilter.cpp \
+	rendering/RenderSVGResourceMarker.cpp \
 	rendering/RenderSVGResourceMasker.cpp \
 	rendering/RenderSVGRoot.cpp \
 	rendering/RenderSVGShadowTreeRootContainer.cpp \
@@ -899,9 +908,6 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	svg/graphics/SVGPaintServerRadialGradient.cpp \
 	svg/graphics/SVGPaintServerSolid.cpp \
 	svg/graphics/SVGResource.cpp \
-	svg/graphics/SVGResourceClipper.cpp \
-	svg/graphics/SVGResourceFilter.cpp \
-	svg/graphics/SVGResourceMarker.cpp \
 	\
 	svg/graphics/filters/SVGFEConvolveMatrix.cpp \
 	svg/graphics/filters/SVGFEDiffuseLighting.cpp \
@@ -937,6 +943,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	\
 	xml/DOMParser.cpp \
 	xml/XMLHttpRequest.cpp \
+	xml/XMLHttpRequestProgressEventThrottle.cpp \
 	xml/XMLHttpRequestUpload.cpp \
 	xml/XMLSerializer.cpp
 

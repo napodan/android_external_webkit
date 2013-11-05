@@ -28,7 +28,7 @@
 #include "HTMLFrameElement.h"
 #include "RenderView.h"
 
-#ifdef FLATTEN_FRAMESET
+#ifdef ANDROID_FLATTEN_FRAMESET
 #include "Frame.h"
 #include "Document.h"
 #include "RenderView.h"
@@ -37,7 +37,7 @@
 namespace WebCore {
 
 RenderFrame::RenderFrame(HTMLFrameElement* frame)
-    : RenderPart(frame)
+    : RenderFrameBase(frame)
 {
     setInline(false);
 }
@@ -65,7 +65,7 @@ void RenderFrame::viewCleared()
         view->setMarginHeight(marginh);
 }
 
-#ifdef FLATTEN_FRAMESET
+#ifdef ANDROID_FLATTEN_FRAMESET
 void RenderFrame::layout()
 {
     if (widget() && widget()->isFrameView()) {
@@ -93,56 +93,5 @@ void RenderFrame::layout()
     setNeedsLayout(false);
 }
 #endif
-void RenderFrame::layoutWithFlattening(bool fixedWidth, bool fixedHeight)
-{
-    // NOTE: The width and height have been set at this point by
-    // RenderFrameSet::positionFramesWithFlattening()
-
-    FrameView* childFrameView = static_cast<FrameView*>(widget());
-    RenderView* childRoot = childFrameView ? static_cast<RenderView*>(childFrameView->frame()->contentRenderer()) : 0;
-    HTMLFrameElement* element = static_cast<HTMLFrameElement*>(node());
-
-    // Do not expand framesets which has zero width or height
-    if (!width() || !height() || !childRoot) {
-        updateWidgetPosition();
-        if (childFrameView)
-            childFrameView->layout();
-        setNeedsLayout(false);
-        return;
-    }
-
-    // need to update to calculate min/max correctly
-    updateWidgetPosition();
-    if (childRoot->prefWidthsDirty())
-        childRoot->calcPrefWidths();
-
-    // if scrollbars are off, and the width or height are fixed
-    // we obey them and do not expand. With frame flattening
-    // no subframe much ever become scrollable.
-
-    bool isScrollable = element->scrollingMode() != ScrollbarAlwaysOff;
-
-    // make sure minimum preferred width is enforced
-    if (isScrollable || !fixedWidth || childRoot->isFrameSet())
-        setWidth(max(width(), childRoot->minPrefWidth()));
-
-    // update again to pass the width to the child frame
-    updateWidgetPosition();
-    childFrameView->layout();
-
-    // expand the frame by setting frame height = content height
-    if (isScrollable || !fixedHeight || childRoot->isFrameSet())
-        setHeight(max(height(), childFrameView->contentsHeight()));
-    if (isScrollable || !fixedWidth || childRoot->isFrameSet())
-        setWidth(max(width(), childFrameView->contentsWidth()));
-
-    updateWidgetPosition();
-
-    ASSERT(!childFrameView->layoutPending());
-    ASSERT(!childRoot->needsLayout());
-    ASSERT(!childRoot->firstChild() || !childRoot->firstChild()->firstChild() || !childRoot->firstChild()->firstChild()->needsLayout());
-
-    setNeedsLayout(false);
-}
 
 } // namespace WebCore

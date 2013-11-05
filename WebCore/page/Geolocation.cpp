@@ -28,12 +28,11 @@
 #include "config.h"
 #include "Geolocation.h"
 
+#if ENABLE(GEOLOCATION)
+
 #include "Chrome.h"
 // ANDROID
 #include "DOMWindow.h"
-// END ANDROID
-#include "Document.h"
-// ANDROID
 #include "EventNames.h"
 // END ANDROID
 #include "Frame.h"
@@ -217,7 +216,6 @@ Geolocation::Geolocation(Frame* frame)
     , m_service(GeolocationService::create(this))
 #endif
     , m_allowGeolocation(Unknown)
-    , m_shouldClearCache(false)
     , m_positionCache(new GeolocationPositionCache)
 {
     if (!m_frame)
@@ -241,18 +239,18 @@ Geolocation::~Geolocation()
 
 void Geolocation::disconnectFrame()
 {
+    if (m_frame && m_frame->page() && m_allowGeolocation == InProgress)
+        m_frame->page()->chrome()->cancelGeolocationPermissionRequestForFrame(m_frame, this);
     stopUpdating();
-    if (m_frame) {
-        if (m_frame->document())
-            m_frame->document()->setUsingGeolocation(false);
-        if (m_frame->page() && m_allowGeolocation == InProgress)
-            m_frame->page()->chrome()->cancelGeolocationPermissionRequestForFrame(m_frame);
-    }
+    if (m_frame && m_frame->document())
+        m_frame->document()->setUsingGeolocation(false);
     m_frame = 0;
 }
 
 Geoposition* Geolocation::lastPosition()
 {
+    ASSERT(isAllowed());
+
 #if ENABLE(CLIENT_BASED_GEOLOCATION)
     if (!m_frame)
         return 0;
@@ -563,9 +561,7 @@ void Geolocation::requestPermission()
 
 void Geolocation::positionChanged(PassRefPtr<Geoposition> newPosition)
 {
-    m_currentPosition = newPosition;
-
-    m_positionCache->setCachedPosition(m_currentPosition.get());
+    m_positionCache->setCachedPosition(newPosition.get());
 
     // Stop all currently running timers.
     stopTimers();
@@ -584,7 +580,7 @@ void Geolocation::positionChanged(PassRefPtr<Geoposition> newPosition)
 
 void Geolocation::makeSuccessCallbacks()
 {
-    ASSERT(m_currentPosition);
+    ASSERT(lastPosition());
     ASSERT(isAllowed());
     
     Vector<RefPtr<GeoNotifier> > oneShotsCopy;
@@ -598,8 +594,8 @@ void Geolocation::makeSuccessCallbacks()
     // further callbacks to these notifiers.
     m_oneShots.clear();
 
-    sendPosition(oneShotsCopy, m_currentPosition.get());
-    sendPosition(watchersCopy, m_currentPosition.get());
+    sendPosition(oneShotsCopy, lastPosition());
+    sendPosition(watchersCopy, lastPosition());
 
     if (!hasListeners())
         stopUpdating();
@@ -715,3 +711,19 @@ void Geolocation::handleEvent(ScriptExecutionContext*, Event* event)
 // END ANDROID
 
 } // namespace WebCore
+
+#else
+
+namespace WebCore {
+
+void Geolocation::disconnectFrame() {}
+
+Geolocation::Geolocation(Frame*) {}
+
+Geolocation::~Geolocation() {}
+
+void Geolocation::setIsAllowed(bool) {}
+
+}
+                                                        
+#endif // ENABLE(GEOLOCATION)

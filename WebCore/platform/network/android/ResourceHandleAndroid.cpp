@@ -27,7 +27,6 @@
 
 #include "ResourceHandle.h"
 
-#include "CString.h"
 #include "DocLoader.h"
 #include "DocumentLoader.h"
 #include "Frame.h"
@@ -37,6 +36,7 @@
 #include "ResourceHandleClient.h"
 #include "ResourceHandleInternal.h"
 #include "ResourceLoaderAndroid.h"
+#include <wtf/text/CString.h>
 
 namespace WebCore {
 
@@ -156,7 +156,7 @@ void ResourceHandle::loadResourceSynchronously(const ResourceRequest& request,
         Frame* frame) 
 {
     SyncLoader s(error, response, data);
-    ResourceHandle h(request, &s, false, false, false);
+    ResourceHandle h(request, &s, false, false);
     // This blocks until the load is finished.
     // Use the request owned by the ResourceHandle. This has had the username
     // and password (if present) stripped from the URL in

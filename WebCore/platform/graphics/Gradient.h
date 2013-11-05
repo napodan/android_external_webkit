@@ -64,6 +64,9 @@ class SkShader;
 typedef class SkShader* PlatformGradient;
 typedef class SkShader* PlatformPattern;
 #endif
+#elif PLATFORM(HAIKU)
+class BGradient;
+typedef BGradient* PlatformGradient;
 #else
 typedef void* PlatformGradient;
 #endif

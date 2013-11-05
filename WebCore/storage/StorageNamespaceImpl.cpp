@@ -62,9 +62,9 @@ PassRefPtr<StorageNamespace> StorageNamespaceImpl::localStorageNamespace(const S
     return it->second;
 }
 
-PassRefPtr<StorageNamespace> StorageNamespaceImpl::sessionStorageNamespace()
+PassRefPtr<StorageNamespace> StorageNamespaceImpl::sessionStorageNamespace(unsigned quota)
 {
-    return adoptRef(new StorageNamespaceImpl(SessionStorage, String(), StorageMap::noQuota));
+    return adoptRef(new StorageNamespaceImpl(SessionStorage, String(), quota));
 }
 
 StorageNamespaceImpl::StorageNamespaceImpl(StorageType storageType, const String& path, unsigned quota)
@@ -123,7 +123,9 @@ PassRefPtr<StorageArea> StorageNamespaceImpl::storageArea(PassRefPtr<SecurityOri
 void StorageNamespaceImpl::close()
 {
     ASSERT(isMainThread());
-    ASSERT(!m_isShutdown);
+
+    if (m_isShutdown)
+        return;
 
     // If we're session storage, we shouldn't need to do any work here.
     if (m_storageType == SessionStorage) {

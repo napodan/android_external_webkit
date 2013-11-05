@@ -24,7 +24,6 @@
 
 #include "PlatformString.h"
 #include "TextBreakIteratorInternalICU.h"
-
 #include <unicode/ubrk.h>
 #include <wtf/Assertions.h>
 
@@ -120,9 +119,9 @@ int textBreakCurrent(TextBreakIterator* iterator)
     return ubrk_current(reinterpret_cast<UBreakIterator*>(iterator));
 }
 
-bool isTextBreak(TextBreakIterator* iterator, int pos)
+bool isTextBreak(TextBreakIterator* iterator, int position)
 {
-    return ubrk_isBoundary(reinterpret_cast<UBreakIterator*>(iterator), pos);
+    return ubrk_isBoundary(reinterpret_cast<UBreakIterator*>(iterator), position);
 }
 
 #ifndef BUILDING_ON_TIGER

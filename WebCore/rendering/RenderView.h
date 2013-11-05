@@ -166,6 +166,7 @@ public:
 #if USE(ACCELERATED_COMPOSITING)
     RenderLayerCompositor* compositor();
     bool usesCompositing() const;
+    void compositingStateChanged(bool nowComposited);
 #endif
 
 protected:
@@ -175,7 +176,7 @@ protected:
 private:
     bool shouldRepaint(const IntRect& r) const;
         
-#ifdef FLATTEN_FRAMESET
+#ifdef ANDROID_FLATTEN_FRAMESET
 public: // used by layout function
 #endif
     int docHeight() const;

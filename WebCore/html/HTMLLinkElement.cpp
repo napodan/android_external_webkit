@@ -26,7 +26,6 @@
 
 #include "CSSHelper.h"
 #include "CachedCSSStyleSheet.h"
-#include "DNS.h"
 #include "DocLoader.h"
 #include "Document.h"
 #include "Frame.h"
@@ -38,6 +37,7 @@
 #include "MediaList.h"
 #include "MediaQueryEvaluator.h"
 #include "Page.h"
+#include "ResourceHandle.h"
 #include "ScriptEventListener.h"
 #include "Settings.h"
 #include <wtf/StdLibExtras.h>
@@ -210,7 +210,7 @@ void HTMLLinkElement::process()
 #endif
 
     if (m_rel.m_isDNSPrefetch && document()->isDNSPrefetchEnabled() && m_url.isValid() && !m_url.isEmpty())
-        prefetchDNS(m_url.host());
+        ResourceHandle::prepareForURL(m_url);
 
 #if ENABLE(LINK_PREFETCH)
     if (m_rel.m_isLinkPrefetch && m_url.isValid()) {
@@ -231,7 +231,7 @@ void HTMLLinkElement::process()
         
         String charset = getAttribute(charsetAttr);
         if (charset.isEmpty() && document()->frame())
-            charset = document()->frame()->loader()->encoding();
+            charset = document()->frame()->loader()->writer()->encoding();
 
         if (m_cachedSheet) {
             if (m_loading)

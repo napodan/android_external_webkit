@@ -34,7 +34,6 @@
 #include "CachedScript.h"
 #include "CachedXSLStyleSheet.h"
 #include "Console.h"
-#include "CString.h"
 #include "Document.h"
 #include "DOMWindow.h"
 #include "HTMLElement.h"
@@ -44,6 +43,8 @@
 #include "loader.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
+#include <wtf/text/CString.h>
+
 #if ENABLE(LINK_PREFETCH)
 #include "CachedLinkPrefetch.h"
 #endif
@@ -473,7 +474,7 @@ void DocLoader::requestPreload(CachedResource::Type type, const String& url, con
 {
     String encoding;
     if (type == CachedResource::Script || type == CachedResource::CSSStyleSheet)
-        encoding = charset.isEmpty() ? m_doc->frame()->loader()->encoding() : charset;
+        encoding = charset.isEmpty() ? m_doc->frame()->loader()->writer()->encoding() : charset;
 
     CachedResource* resource = requestResource(type, url, encoding, true);
     if (!resource || m_preloads.contains(resource))

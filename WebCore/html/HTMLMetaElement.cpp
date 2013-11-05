@@ -68,9 +68,10 @@ void HTMLMetaElement::insertedIntoDocument()
 
 void HTMLMetaElement::process()
 {
-#ifdef ANDROID_META_SUPPORT
     if (!inDocument() || m_content.isNull())
         return;
+#ifdef ANDROID_META_SUPPORT
+    // TODO: Evaluate whether to take upstreamed meta support
     bool updateViewport = false;
     if (equalIgnoringCase(name(), "viewport")) {
         document()->processMetadataSettings(m_content);
@@ -91,10 +92,14 @@ void HTMLMetaElement::process()
         if (view)
             android::WebViewCore::getWebViewCore(view)->updateViewport();
     }
+#else
+    if (equalIgnoringCase(name(), "viewport"))
+        document()->processViewport(m_content);
 #endif
+
     // Get the document to process the tag, but only if we're actually part of DOM tree (changing a meta tag while
     // it's not in the tree shouldn't have any effect on the document)
-    if (inDocument() && !m_equiv.isNull() && !m_content.isNull())
+    if (!m_equiv.isNull())
         document()->processHttpEquiv(m_equiv, m_content);
 }
 

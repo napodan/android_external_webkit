@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2008, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010 Apple Inc. All rights reserved.
  * Copyright (C) 2006 Alexey Proskuryakov (ap@webkit.org)
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,10 @@
 #include "Page.h"
 #include "PlatformKeyboardEvent.h"
 #include "PlatformWheelEvent.h"
+#include "PluginDocument.h"
+#if defined(ANDROID_PLUGINS)
 #include "PluginView.h"
+#endif
 #include "RenderFrameSet.h"
 #include "RenderTextControlSingleLine.h"
 #include "RenderView.h"
@@ -66,7 +69,10 @@
 #include "SelectionController.h"
 #include "Settings.h"
 #include "TextEvent.h"
+#include "UserGestureIndicator.h"
+#include "WheelEvent.h"
 #include "htmlediting.h" // for comparePositions()
+#include <wtf/CurrentTime.h>
 #include <wtf/StdLibExtras.h>
 
 #if ENABLE(SVG)
@@ -110,25 +116,33 @@ using namespace SVGNames;
 // When the autoscroll or the panScroll is triggered when do the scroll every 0.05s to make it smooth
 const double autoscrollInterval = 0.05;
 
+const double fakeMouseMoveInterval = 0.1;
+
 static Frame* subframeForHitTestResult(const MouseEventWithHitTestResults&);
 
-static inline void scrollAndAcceptEvent(float delta, ScrollDirection positiveDirection, ScrollDirection negativeDirection, PlatformWheelEvent& e, Node* node, Node** stopNode)
+static inline bool scrollNode(float delta, WheelEvent::Granularity granularity, ScrollDirection positiveDirection, ScrollDirection negativeDirection, Node* node, Node** stopNode)
 {
     if (!delta)
-        return;
-        
+        return false;
+    
+    if (!node->renderer())
+        return false;
+    
     // Find the nearest enclosing box.
     RenderBox* enclosingBox = node->renderer()->enclosingBox();
 
-    if (e.granularity() == ScrollByPageWheelEvent) {
-        if (enclosingBox->scroll(delta < 0 ? negativeDirection : positiveDirection, ScrollByPage, 1, stopNode))
-            e.accept();
-        return;
-    }
+    float absDelta = delta > 0 ? delta : -delta;
+    
+    if (granularity == WheelEvent::Page)
+        return enclosingBox->scroll(delta < 0 ? negativeDirection : positiveDirection, ScrollByPage, absDelta, stopNode);
 
-    float pixelsToScroll = delta > 0 ? delta : -delta;
-    if (enclosingBox->scroll(delta < 0 ? negativeDirection : positiveDirection, ScrollByPixel, pixelsToScroll, stopNode))
-        e.accept();
+    if (granularity == WheelEvent::Line)
+        return enclosingBox->scroll(delta < 0 ? negativeDirection : positiveDirection, ScrollByLine, absDelta, stopNode);
+
+    if (granularity == WheelEvent::Pixel)
+        return enclosingBox->scroll(delta < 0 ? negativeDirection : positiveDirection, ScrollByPixel, absDelta, stopNode);
+        
+    return false;
 }
 
 #if !PLATFORM(MAC) || ENABLE(EXPERIMENTAL_SINGLE_VIEW_MODE)
@@ -166,6 +180,7 @@ EventHandler::EventHandler(Frame* frame)
     , m_autoscrollInProgress(false)
     , m_mouseDownMayStartAutoscroll(false)
     , m_mouseDownWasInSubframe(false)
+    , m_fakeMouseMoveEventTimer(this, &EventHandler::fakeMouseMoveEventTimerFired)
 #if ENABLE(SVG)
     , m_svgPan(false)
 #endif
@@ -185,6 +200,7 @@ EventHandler::EventHandler(Frame* frame)
 
 EventHandler::~EventHandler()
 {
+    ASSERT(!m_fakeMouseMoveEventTimer.isActive());
 }
     
 #if ENABLE(DRAG_SUPPORT)
@@ -198,6 +214,7 @@ EventHandler::EventHandlerDragState& EventHandler::dragState()
 void EventHandler::clear()
 {
     m_hoverTimer.stop();
+    m_fakeMouseMoveEventTimer.stop();
     m_resizeLayer = 0;
     m_nodeUnderMouse = 0;
     m_lastNodeUnderMouse = 0;
@@ -233,20 +250,21 @@ void EventHandler::selectClosestWordFromMouseEvent(const MouseEventWithHitTestRe
 
     if (innerNode && innerNode->renderer() && m_mouseDownMayStartSelect) {
         VisiblePosition pos(innerNode->renderer()->positionForPoint(result.localPoint()));
+        TextGranularity granularity = CharacterGranularity;
         if (pos.isNotNull()) {
             newSelection = VisibleSelection(pos);
             newSelection.expandUsingGranularity(WordGranularity);
         }
     
         if (newSelection.isRange()) {
-            m_frame->setSelectionGranularity(WordGranularity);
+            granularity = WordGranularity;
             m_beganSelectingText = true;
             if (result.event().clickCount() == 2 && m_frame->editor()->isSelectTrailingWhitespaceEnabled()) 
                 newSelection.appendTrailingWhitespace();            
         }
         
         if (m_frame->shouldChangeSelection(newSelection))
-            m_frame->selection()->setSelection(newSelection);
+            m_frame->selection()->setSelection(newSelection, granularity);
     }
 }
 
@@ -264,13 +282,14 @@ void EventHandler::selectClosestWordOrLinkFromMouseEvent(const MouseEventWithHit
         if (pos.isNotNull() && pos.deepEquivalent().node()->isDescendantOf(URLElement))
             newSelection = VisibleSelection::selectionFromContentsOfNode(URLElement);
     
+        TextGranularity granularity = CharacterGranularity;
         if (newSelection.isRange()) {
-            m_frame->setSelectionGranularity(WordGranularity);
+            granularity = WordGranularity;
             m_beganSelectingText = true;
         }
 
         if (m_frame->shouldChangeSelection(newSelection))
-            m_frame->selection()->setSelection(newSelection);
+            m_frame->selection()->setSelection(newSelection, granularity);
     }
 }
 
@@ -307,13 +326,15 @@ bool EventHandler::handleMousePressEventTripleClick(const MouseEventWithHitTestR
         newSelection = VisibleSelection(pos);
         newSelection.expandUsingGranularity(ParagraphGranularity);
     }
+    
+    TextGranularity granularity = CharacterGranularity;
     if (newSelection.isRange()) {
-        m_frame->setSelectionGranularity(ParagraphGranularity);
+        granularity = ParagraphGranularity;
         m_beganSelectingText = true;
     }
     
     if (m_frame->shouldChangeSelection(newSelection))
-        m_frame->selection()->setSelection(newSelection);
+        m_frame->selection()->setSelection(newSelection, granularity);
 
     return true;
 }
@@ -343,8 +364,10 @@ bool EventHandler::handleMousePressEventSingleClick(const MouseEventWithHitTestR
     Position pos = visiblePos.deepEquivalent();
     
     VisibleSelection newSelection = m_frame->selection()->selection();
+    TextGranularity granularity = CharacterGranularity;
+
     if (extendSelection && newSelection.isCaretOrRange()) {
-        m_frame->selection()->setLastChangeWasHorizontalExtension(false);
+        m_frame->selection()->setIsDirectional(false);
         
         // See <rdar://problem/3668157> REGRESSION (Mail): shift-click deselects when selection 
         // was created right-to-left
@@ -355,16 +378,17 @@ bool EventHandler::handleMousePressEventSingleClick(const MouseEventWithHitTestR
         else
             newSelection = VisibleSelection(start, pos);
 
-        if (m_frame->selectionGranularity() != CharacterGranularity)
+        if (m_frame->selectionGranularity() != CharacterGranularity) {
+            granularity = m_frame->selectionGranularity();
             newSelection.expandUsingGranularity(m_frame->selectionGranularity());
+        }
+
         m_beganSelectingText = true;
-    } else {
+    } else
         newSelection = VisibleSelection(visiblePos);
-        m_frame->setSelectionGranularity(CharacterGranularity);
-    }
     
     if (m_frame->shouldChangeSelection(newSelection))
-        m_frame->selection()->setSelection(newSelection);
+        m_frame->selection()->setSelection(newSelection, granularity);
 
     return true;
 }
@@ -375,6 +399,8 @@ bool EventHandler::handleMousePressEvent(const MouseEventWithHitTestResults& eve
     // Reset drag state.
     dragState().m_dragSrc = 0;
 #endif
+
+    cancelFakeMouseMoveEvent();
 
     if (ScrollView* scrollView = m_frame->view()) {
         if (scrollView->isPointInScrollbarCorner(event.event().pos()))
@@ -576,8 +602,8 @@ void EventHandler::updateSelectionForMouseDrag(Node* targetNode, const IntPoint&
         newSelection.expandUsingGranularity(m_frame->selectionGranularity());
 
     if (m_frame->shouldChangeSelection(newSelection)) {
-        m_frame->selection()->setLastChangeWasHorizontalExtension(false);
-        m_frame->selection()->setSelection(newSelection);
+        m_frame->selection()->setIsDirectional(false);
+        m_frame->selection()->setSelection(newSelection, m_frame->selectionGranularity());
     }
 }
 #endif // ENABLE(DRAG_SUPPORT)
@@ -1005,8 +1031,8 @@ Cursor EventHandler::selectCursor(const MouseEventWithHitTestResults& event, Scr
     if (style && style->cursors()) {
         const CursorList* cursors = style->cursors();
         for (unsigned i = 0; i < cursors->size(); ++i) {
-            CachedImage* cimage = (*cursors)[i].cursorImage.get();
-            IntPoint hotSpot = (*cursors)[i].hotSpot;
+            const CachedImage* cimage = (*cursors)[i].image();
+            IntPoint hotSpot = (*cursors)[i].hotSpot();
             if (!cimage)
                 continue;
             // Limit the size of cursors so that they cannot be used to cover UI elements in chrome.
@@ -1151,6 +1177,9 @@ bool EventHandler::handleMousePressEvent(const PlatformMouseEvent& mouseEvent)
 {
     RefPtr<FrameView> protector(m_frame->view());
 
+    UserGestureIndicator gestureIndicator(DefinitelyProcessingUserGesture);
+
+    cancelFakeMouseMoveEvent();
     m_mousePressed = true;
     m_capturesDragging = true;
     m_currentMousePosition = mouseEvent.pos();
@@ -1185,7 +1214,7 @@ bool EventHandler::handleMousePressEvent(const PlatformMouseEvent& mouseEvent)
     if (Page* page = m_frame->page()) {
         InspectorController* inspector = page->inspectorController();
         if (inspector && inspector->enabled() && inspector->searchingForNodeInPage()) {
-            inspector->handleMousePressOnNode(m_mousePressNode.get());
+            inspector->handleMousePress();
             invalidateClick();
             return true;
         }
@@ -1279,6 +1308,8 @@ bool EventHandler::handleMouseDoubleClickEvent(const PlatformMouseEvent& mouseEv
 {
     RefPtr<FrameView> protector(m_frame->view());
 
+    UserGestureIndicator gestureIndicator(DefinitelyProcessingUserGesture);
+
     // We get this instead of a second mouse-up 
     m_mousePressed = false;
     m_currentMousePosition = mouseEvent.pos();
@@ -1342,6 +1373,8 @@ bool EventHandler::handleMouseMoveEvent(const PlatformMouseEvent& mouseEvent, Hi
     if (m_hoverTimer.isActive())
         m_hoverTimer.stop();
 
+    cancelFakeMouseMoveEvent();
+
 #if ENABLE(SVG)
     if (m_svgPan) {
         static_cast<SVGDocument*>(m_frame->document())->updatePan(m_currentMousePosition);
@@ -1404,8 +1437,18 @@ bool EventHandler::handleMouseMoveEvent(const PlatformMouseEvent& mouseEvent, Hi
             scrollbar->mouseMoved(mouseEvent); // Handle hover effects on platforms that support visual feedback on scrollbar hovering.
         if (Page* page = m_frame->page()) {
             if ((!m_resizeLayer || !m_resizeLayer->inResizeMode()) && !page->mainFrame()->eventHandler()->panScrollInProgress()) {
-                if (FrameView* view = m_frame->view())
-                    view->setCursor(selectCursor(mev, scrollbar));
+                // Plugins set cursor on their own. The only case WebKit intervenes is resetting cursor to arrow on mouse enter,
+                // in case the particular plugin doesn't manipulate cursor at all. Thus,  even a CSS cursor set on body has no
+                // effect on plugins (which matches Firefox).
+                bool overPluginElement = false;
+                if (mev.targetNode() && mev.targetNode()->isHTMLElement()) {
+                    HTMLElement* el = static_cast<HTMLElement*>(mev.targetNode());
+                    overPluginElement = el->hasTagName(appletTag) || el->hasTagName(objectTag) || el->hasTagName(embedTag);
+                }
+                if (!overPluginElement) {
+                    if (FrameView* view = m_frame->view())
+                        view->setCursor(selectCursor(mev, scrollbar));
+                }
             }
         }
     }
@@ -1433,6 +1476,8 @@ void EventHandler::invalidateClick()
 bool EventHandler::handleMouseReleaseEvent(const PlatformMouseEvent& mouseEvent)
 {
     RefPtr<FrameView> protector(m_frame->view());
+    
+    UserGestureIndicator gestureIndicator(DefinitelyProcessingUserGesture);
 
 #if ENABLE(PAN_SCROLLING)
     if (mouseEvent.button() == MiddleButton)
@@ -1863,21 +1908,6 @@ bool EventHandler::handleWheelEvent(PlatformWheelEvent& e)
         node->dispatchWheelEvent(e);
         if (e.isAccepted())
             return true;
-
-        // If we don't have a renderer, send the wheel event to the first node we find with a renderer.
-        // This is needed for <option> and <optgroup> elements so that <select>s get a wheel scroll.
-        while (node && !node->renderer())
-            node = node->parent();
-
-        if (node && node->renderer()) {
-            // Just break up into two scrolls if we need to.  Diagonal movement on 
-            // a MacBook pro is an example of a 2-dimensional mouse wheel event (where both deltaX and deltaY can be set).
-            Node* stopNode = m_previousWheelScrolledNode.get();
-            scrollAndAcceptEvent(e.deltaX(), ScrollLeft, ScrollRight, e, node, &stopNode);
-            scrollAndAcceptEvent(e.deltaY(), ScrollUp, ScrollDown, e, node, &stopNode);
-            if (!m_useLatchedWheelEventNode)
-                m_previousWheelScrolledNode = stopNode;
-        }
     }
 
     if (e.isAccepted())
@@ -1889,6 +1919,25 @@ bool EventHandler::handleWheelEvent(PlatformWheelEvent& e)
 
     view->wheelEvent(e);
     return e.isAccepted();
+}
+    
+void EventHandler::defaultWheelEventHandler(Node* startNode, WheelEvent* wheelEvent)
+{
+    if (!startNode || !wheelEvent)
+        return;
+    
+    Node* stopNode = m_previousWheelScrolledNode.get();
+    
+    // Break up into two scrolls if we need to.  Diagonal movement on 
+    // a MacBook pro is an example of a 2-dimensional mouse wheel event (where both deltaX and deltaY can be set).
+    if (scrollNode(wheelEvent->rawDeltaX(), wheelEvent->granularity(), ScrollLeft, ScrollRight, startNode, &stopNode))
+        wheelEvent->setDefaultHandled();
+    
+    if (scrollNode(wheelEvent->rawDeltaY(), wheelEvent->granularity(), ScrollUp, ScrollDown, startNode, &stopNode))
+        wheelEvent->setDefaultHandled();
+    
+    if (!m_useLatchedWheelEventNode)
+        m_previousWheelScrolledNode = stopNode;
 }
 
 #if ENABLE(CONTEXT_MENUS)
@@ -1928,6 +1977,43 @@ void EventHandler::scheduleHoverStateUpdate()
 {
     if (!m_hoverTimer.isActive())
         m_hoverTimer.startOneShot(0);
+}
+
+void EventHandler::dispatchFakeMouseMoveEventSoonInQuad(const FloatQuad& quad)
+{
+    FrameView* view = m_frame->view();
+    if (!view)
+        return;
+
+    if (m_mousePressed || !quad.containsPoint(view->windowToContents(m_currentMousePosition)))
+        return;
+
+    if (!m_fakeMouseMoveEventTimer.isActive())
+        m_fakeMouseMoveEventTimer.startOneShot(fakeMouseMoveInterval);
+}
+
+void EventHandler::cancelFakeMouseMoveEvent()
+{
+    m_fakeMouseMoveEventTimer.stop();
+}
+
+void EventHandler::fakeMouseMoveEventTimerFired(Timer<EventHandler>* timer)
+{
+    ASSERT_UNUSED(timer, timer == &m_fakeMouseMoveEventTimer);
+    ASSERT(!m_mousePressed);
+
+    FrameView* view = m_frame->view();
+    if (!view)
+        return;
+
+    bool shiftKey;
+    bool ctrlKey;
+    bool altKey;
+    bool metaKey;
+    PlatformKeyboardEvent::getCurrentModifierState(shiftKey, ctrlKey, altKey, metaKey);
+    IntPoint globalPoint = view->contentsToScreen(IntRect(view->windowToContents(m_currentMousePosition), IntSize())).location();
+    PlatformMouseEvent fakeMouseMoveEvent(m_currentMousePosition, globalPoint, NoButton, MouseEventMoved, 0, shiftKey, ctrlKey, altKey, metaKey, currentTime());
+    mouseMoved(fakeMouseMoveEvent);
 }
 
 // Whether or not a mouse down can begin the creation of a selection.  Fires the selectStart event.
@@ -1996,13 +2082,16 @@ static Node* eventTargetNodeForDocument(Document* doc)
     if (!doc)
         return 0;
     Node* node = doc->focusedNode();
-
 #if defined(ANDROID_PLUGINS)
     if (!node && doc->frame() && doc->frame()->view())
         node = android::WebViewCore::getWebViewCore(doc->frame()->view())
                                      ->cursorNodeIsPlugin();
+#else
+    if (!node && doc->isPluginDocument()) {
+        PluginDocument* pluginDocument = static_cast<PluginDocument*>(doc);
+        node =  pluginDocument->pluginNode();
+    }
 #endif
-
     if (!node && doc->isHTMLDocument())
         node = doc->body();
     if (!node)
@@ -2054,6 +2143,8 @@ bool EventHandler::keyEvent(const PlatformKeyboardEvent& initialKeyEvent)
     RefPtr<Node> node = eventTargetNodeForDocument(m_frame->document());
     if (!node)
         return false;
+
+    UserGestureIndicator gestureIndicator(DefinitelyProcessingUserGesture);
 
     if (FrameView* view = m_frame->view())
         view->resetDeferredRepaintDelay();
@@ -2171,10 +2262,15 @@ void EventHandler::defaultKeyboardEventHandler(KeyboardEvent* event)
             return;
         if (event->keyIdentifier() == "U+0009")
             defaultTabEventHandler(event);
+        else {
+            FocusDirection direction = focusDirectionForKey(event->keyIdentifier());
+            if (direction != FocusDirectionNone)
+                defaultArrowEventHandler(direction, event);
+        }
 
-       // provides KB navigation and selection for enhanced accessibility users
-       if (AXObjectCache::accessibilityEnhancedUserInterfaceEnabled())
-           handleKeyboardSelectionMovement(event);       
+        // provides KB navigation and selection for enhanced accessibility users
+        if (AXObjectCache::accessibilityEnhancedUserInterfaceEnabled())
+            handleKeyboardSelectionMovement(event);
     }
     if (event->type() == eventNames().keypressEvent) {
         m_frame->editor()->handleKeyboardEvent(event);
@@ -2183,6 +2279,27 @@ void EventHandler::defaultKeyboardEventHandler(KeyboardEvent* event)
         if (event->charCode() == ' ')
             defaultSpaceEventHandler(event);
     }
+}
+
+FocusDirection EventHandler::focusDirectionForKey(const AtomicString& keyIdentifier) const
+{
+    DEFINE_STATIC_LOCAL(AtomicString, Down, ("Down"));
+    DEFINE_STATIC_LOCAL(AtomicString, Up, ("Up"));
+    DEFINE_STATIC_LOCAL(AtomicString, Left, ("Left"));
+    DEFINE_STATIC_LOCAL(AtomicString, Right, ("Right"));
+
+    FocusDirection retVal = FocusDirectionNone;
+
+    if (keyIdentifier == Down)
+        retVal = FocusDirectionDown;
+    else if (keyIdentifier == Up)
+        retVal = FocusDirectionUp;
+    else if (keyIdentifier == Left)
+        retVal = FocusDirectionLeft;
+    else if (keyIdentifier == Right)
+        retVal = FocusDirectionRight;
+
+    return retVal;
 }
 
 #if ENABLE(DRAG_SUPPORT)
@@ -2222,7 +2339,7 @@ bool EventHandler::shouldDragAutoNode(Node* node, const IntPoint& point) const
     if (!node || !m_frame->view())
         return false;
     Page* page = m_frame->page();
-    return page && page->dragController()->mayStartDragAtEventLocation(m_frame, point);
+    return page && page->dragController()->mayStartDragAtEventLocation(m_frame, point, node);
 }
 
 void EventHandler::dragSourceEndedAt(const PlatformMouseEvent& event, DragOperation operation)
@@ -2332,7 +2449,7 @@ bool EventHandler::handleDrag(const MouseEventWithHitTestResults& event)
                 // FIXME: This doesn't work correctly with transforms.
                 FloatPoint absPos = renderer->localToAbsolute();
                 IntSize delta = m_mouseDownPos - roundedIntPoint(absPos);
-                dragState().m_dragClipboard->setDragImageElement(dragState().m_dragSrc.get(), IntPoint() + delta);
+                dragState().m_dragClipboard->setDragImageElement(dragState().m_dragSrc.get(), toPoint(delta));
             } else {
                 // The renderer has disappeared, this can happen if the onStartDrag handler has hidden
                 // the element in some way.  In this case we just kill the drag.
@@ -2412,8 +2529,7 @@ bool EventHandler::handleTextInputEvent(const String& text, Event* underlyingEve
     return event->defaultHandled();
 }
     
-    
-#if !PLATFORM(MAC) && !PLATFORM(QT) && !PLATFORM(HAIKU)
+#if !PLATFORM(MAC) && !PLATFORM(QT) && !PLATFORM(HAIKU) && !PLATFORM(EFL)
 bool EventHandler::invertSenseOfTabsToLinks(KeyboardEvent*) const
 {
     return false;
@@ -2478,6 +2594,27 @@ void EventHandler::defaultSpaceEventHandler(KeyboardEvent* event)
 }
 
 #endif
+
+void EventHandler::defaultArrowEventHandler(FocusDirection focusDirection, KeyboardEvent* event)
+{
+    if (event->ctrlKey() || event->metaKey() || event->altGraphKey() || event->shiftKey())
+        return;
+
+    Page* page = m_frame->page();
+    if (!page)
+        return;
+
+    if (!page->settings() || !page->settings()->isSpatialNavigationEnabled())
+        return;
+
+    // Arrows and other possible directional navigation keys can be used in design
+    // mode editing.
+    if (m_frame->document()->inDesignMode())
+        return;
+
+    if (page->focusController()->advanceFocus(focusDirection, event))
+        event->setDefaultHandled();
+}
 
 void EventHandler::defaultTabEventHandler(KeyboardEvent* event)
 {
@@ -2575,6 +2712,8 @@ bool EventHandler::handleTouchEvent(const PlatformTouchEvent& event)
 
     const Vector<PlatformTouchPoint>& points = event.touchPoints();
     AtomicString* eventName = 0;
+
+    UserGestureIndicator gestureIndicator(DefinitelyProcessingUserGesture);
 
     for (unsigned i = 0; i < points.size(); ++i) {
         const PlatformTouchPoint& point = points[i];

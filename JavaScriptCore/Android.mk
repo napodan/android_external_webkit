@@ -142,6 +142,7 @@ LOCAL_SRC_FILES := \
 	runtime/RegExpConstructor.cpp \
 	runtime/RegExpObject.cpp \
 	runtime/RegExpPrototype.cpp \
+	runtime/RopeImpl.cpp \
 	runtime/ScopeChain.cpp \
 	runtime/SmallStrings.cpp \
 	runtime/StringConstructor.cpp \
@@ -151,14 +152,6 @@ LOCAL_SRC_FILES := \
 	runtime/StructureChain.cpp \
 	runtime/TimeoutChecker.cpp \
 	runtime/UString.cpp \
-	runtime/UStringImpl.cpp \
-	\
-	wrec/CharacterClass.cpp \
-	wrec/CharacterClassConstructor.cpp \
-	wrec/WREC.cpp \
-	wrec/WRECFunctors.cpp \
-	wrec/WRECGenerator.cpp \
-	wrec/WRECParser.cpp \
 	\
 	wtf/Assertions.cpp \
 	wtf/ByteArray.cpp \
@@ -173,11 +166,17 @@ LOCAL_SRC_FILES := \
 	wtf/ThreadIdentifierDataPthreads.cpp \
 	wtf/Threading.cpp \
 	wtf/ThreadingPthreads.cpp \
+	wtf/WTFThreadData.cpp \
 	\
 	wtf/TypeTraits.cpp \
 	wtf/dtoa.cpp \
 	\
 	wtf/android/MainThreadAndroid.cpp \
+	\
+	wtf/text/AtomicString.cpp \
+	wtf/text/CString.cpp \
+	wtf/text/StringImpl.cpp \
+	wtf/text/WTFString.cpp \
 	\
 	wtf/unicode/CollatorDefault.cpp \
 	wtf/unicode/UTF8.cpp \

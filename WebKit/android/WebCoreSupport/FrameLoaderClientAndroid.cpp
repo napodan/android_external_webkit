@@ -29,7 +29,6 @@
 #include "FrameLoaderClientAndroid.h"
 
 #include "BackForwardList.h"
-#include "CString.h"
 #include "CachedFrame.h"
 #include "CachedFramePlatformDataAndroid.h"
 #include "Chrome.h"
@@ -77,6 +76,7 @@
 #include "android_graphics.h"
 
 #include <utils/AssetManager.h>
+#include <wtf/text/CString.h>
 
 extern android::AssetManager* globalAssetManager();
 
@@ -695,7 +695,7 @@ void FrameLoaderClientAndroid::committedLoad(DocumentLoader* loader, const char*
         bool userChosen = !encoding.isNull();
         if (encoding.isNull())
             encoding = loader->response().textEncodingName();
-        loader->frameLoader()->setEncoding(encoding, userChosen);
+        loader->frameLoader()->writer()->setEncoding(encoding, userChosen);
         Document *doc = m_frame->document();
         if (doc)
             loader->frameLoader()->addData(data, length);

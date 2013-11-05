@@ -40,6 +40,7 @@
 
 #include <JNIHelp.h>
 #include <JNIUtility.h>
+#include <SharedBuffer.h>
 #include <SkBitmap.h>
 #include <SkImageDecoder.h>
 #include <SkTemplates.h>

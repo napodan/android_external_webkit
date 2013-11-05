@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1999 Lars Knoll (knoll@kde.org)
  * Copyright (C) 2000 Dirk Mueller (mueller@kde.org)
- * Copyright (C) 2004, 2006, 2009 Apple Inc. All rights reserved.
+ * Copyright (C) 2004, 2006, 2009, 2010 Apple Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -155,13 +155,22 @@ RenderWidget::~RenderWidget()
 bool RenderWidget::setWidgetGeometry(const IntRect& frame)
 {
     ASSERT(!widgetHierarchyUpdateSuspendCount);
-    if (!node() || m_widget->frameRect() == frame)
+    if (!node())
         return false;
+
+    IntRect clipRect = enclosingLayer()->childrenClipRect();
+    bool clipChanged = m_clipRect != clipRect;
+    bool boundsChanged = m_widget->frameRect() != frame;
+
+    if (!boundsChanged && !clipChanged)
+        return false;
+
+    m_clipRect = clipRect;
 
     RenderWidgetProtector protector(this);
     RefPtr<Node> protectedNode(node());
     m_widget->setFrameRect(frame);
-    return true;
+    return boundsChanged;
 }
 
 void RenderWidget::setWidget(PassRefPtr<Widget> widget)
@@ -308,7 +317,7 @@ void RenderWidget::deref(RenderArena *arena)
 
 void RenderWidget::updateWidgetPosition()
 {
-    if (!m_widget)
+    if (!m_widget || !node()) // Check the node in case destroy() has been called.
         return;
 
     // FIXME: This doesn't work correctly with transforms.
@@ -320,7 +329,7 @@ void RenderWidget::updateWidgetPosition()
 
     bool boundsChanged = setWidgetGeometry(IntRect(absPos.x(), absPos.y(), w, h));
 
-#ifndef FLATTEN_IFRAME
+#ifndef ANDROID_FLATTEN_IFRAME
     // if the frame bounds got changed, or if view needs layout (possibly indicating
     // content size is wrong) we have to do a layout to set the right widget size
     if (m_widget->isFrameView()) {
@@ -329,6 +338,21 @@ void RenderWidget::updateWidgetPosition()
             frameView->layout();
     }
 #endif
+}
+
+void RenderWidget::widgetPositionsUpdated()
+{
+    if (!m_widget)
+        return;
+    m_widget->widgetPositionsUpdated();
+}
+
+IntRect RenderWidget::windowClipRect() const
+{
+    if (!m_frameView)
+        return IntRect();
+
+    return intersection(m_frameView->contentsToWindow(m_clipRect), m_frameView->windowClipRect());
 }
 
 void RenderWidget::setSelectionState(SelectionState state)

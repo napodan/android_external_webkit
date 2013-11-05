@@ -135,6 +135,10 @@ void HTMLFrameSetElement::parseMappedAttribute(MappedAttribute *attr)
         document()->setWindowAttributeEventListener(eventNames().blurEvent, createAttributeEventListener(document()->frame(), attr));
     else if (attr->name() == onfocusAttr)
         document()->setWindowAttributeEventListener(eventNames().focusEvent, createAttributeEventListener(document()->frame(), attr));
+    else if (attr->name() == onfocusinAttr)
+        document()->setWindowAttributeEventListener(eventNames().focusinEvent, createAttributeEventListener(document()->frame(), attr));
+    else if (attr->name() == onfocusoutAttr)
+        document()->setWindowAttributeEventListener(eventNames().focusoutEvent, createAttributeEventListener(document()->frame(), attr));
 #if ENABLE(ORIENTATION_EVENTS)
     else if (attr->name() == onorientationchangeAttr)
         document()->setWindowAttributeEventListener(eventNames().orientationchangeEvent, createAttributeEventListener(document()->frame(), attr));
@@ -211,7 +215,7 @@ void HTMLFrameSetElement::recalcStyle(StyleChange ch)
 {
     if (needsStyleRecalc() && renderer()) {
         renderer()->setNeedsLayout(true);
-#ifdef FLATTEN_FRAMESET
+#ifdef ANDROID_FLATTEN_FRAMESET
         static_cast<RenderFrameSet*>(renderer())->setGridNeedsLayout();
 #endif
         setNeedsStyleRecalc(NoStyleChange);
