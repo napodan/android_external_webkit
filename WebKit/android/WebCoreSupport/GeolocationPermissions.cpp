@@ -26,7 +26,6 @@
 #include "config.h"
 #include "GeolocationPermissions.h"
 
-#include "CString.h"
 #include "DOMWindow.h"
 #include "Frame.h"
 #include "Geolocation.h"
@@ -36,6 +35,8 @@
 #include "SQLiteStatement.h"
 #include "SQLiteTransaction.h"
 #include "WebViewCore.h"
+
+#include <text/CString.h>
 
 using namespace WebCore;
 
