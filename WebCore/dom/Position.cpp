@@ -876,13 +876,13 @@ bool Position::rendersInDifferentPosition(const Position &pos) const
     InlineBox* b2;
     pos.getInlineBoxAndOffset(DOWNSTREAM, b2, ignoredCaretOffset);
 
-    LOG(Editing, "renderer:               %p [%p]\n", renderer, b1);
-    LOG(Editing, "thisRenderedOffset:         %d\n", thisRenderedOffset);
-    LOG(Editing, "posRenderer:            %p [%p]\n", posRenderer, b2);
-    LOG(Editing, "posRenderedOffset:      %d\n", posRenderedOffset);
-    LOG(Editing, "node min/max:           %d:%d\n", caretMinOffset(node()), caretMaxRenderedOffset(node()));
-    LOG(Editing, "pos node min/max:       %d:%d\n", caretMinOffset(pos.node()), caretMaxRenderedOffset(pos.node()));
-    LOG(Editing, "----------------------------------------------------------------------\n");
+    ALOG(Editing, "renderer:               %p [%p]\n", renderer, b1);
+    ALOG(Editing, "thisRenderedOffset:         %d\n", thisRenderedOffset);
+    ALOG(Editing, "posRenderer:            %p [%p]\n", posRenderer, b2);
+    ALOG(Editing, "posRenderedOffset:      %d\n", posRenderedOffset);
+    ALOG(Editing, "node min/max:           %d:%d\n", caretMinOffset(node()), caretMaxRenderedOffset(node()));
+    ALOG(Editing, "pos node min/max:       %d:%d\n", caretMinOffset(pos.node()), caretMaxRenderedOffset(pos.node()));
+    ALOG(Editing, "----------------------------------------------------------------------\n");
 
     if (!b1 || !b2) {
         return false;

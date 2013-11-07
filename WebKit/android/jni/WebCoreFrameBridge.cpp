@@ -254,26 +254,26 @@ WebFrame::WebFrame(JNIEnv* env, jobject obj, jobject historyList, WebCore::Page*
     mJavaFrame->mGetFileSize = env->GetMethodID(clazz, "getFileSize", "(Ljava/lang/String;)I");
     mJavaFrame->mGetFile = env->GetMethodID(clazz, "getFile", "(Ljava/lang/String;[BII)I");
 
-    LOG_ASSERT(mJavaFrame->mStartLoadingResource, "Could not find method startLoadingResource");
-    LOG_ASSERT(mJavaFrame->mLoadStarted, "Could not find method loadStarted");
-    LOG_ASSERT(mJavaFrame->mTransitionToCommitted, "Could not find method transitionToCommitted");
-    LOG_ASSERT(mJavaFrame->mLoadFinished, "Could not find method loadFinished");
-    LOG_ASSERT(mJavaFrame->mReportError, "Could not find method reportError");
-    LOG_ASSERT(mJavaFrame->mSetTitle, "Could not find method setTitle");
-    LOG_ASSERT(mJavaFrame->mWindowObjectCleared, "Could not find method windowObjectCleared");
-    LOG_ASSERT(mJavaFrame->mSetProgress, "Could not find method setProgress");
-    LOG_ASSERT(mJavaFrame->mDidReceiveIcon, "Could not find method didReceiveIcon");
-    LOG_ASSERT(mJavaFrame->mDidReceiveTouchIconUrl, "Could not find method didReceiveTouchIconUrl");
-    LOG_ASSERT(mJavaFrame->mUpdateVisitedHistory, "Could not find method updateVisitedHistory");
-    LOG_ASSERT(mJavaFrame->mHandleUrl, "Could not find method handleUrl");
-    LOG_ASSERT(mJavaFrame->mCreateWindow, "Could not find method createWindow");
-    LOG_ASSERT(mJavaFrame->mCloseWindow, "Could not find method closeWindow");
-    LOG_ASSERT(mJavaFrame->mDecidePolicyForFormResubmission, "Could not find method decidePolicyForFormResubmission");
-    LOG_ASSERT(mJavaFrame->mRequestFocus, "Could not find method requestFocus");
-    LOG_ASSERT(mJavaFrame->mGetRawResFilename, "Could not find method getRawResFilename");
-    LOG_ASSERT(mJavaFrame->mDensity, "Could not find method density");
-    LOG_ASSERT(mJavaFrame->mGetFileSize, "Could not find method getFileSize");
-    LOG_ASSERT(mJavaFrame->mGetFile, "Could not find method getFile");
+    ALOG_ASSERT(mJavaFrame->mStartLoadingResource, "Could not find method startLoadingResource");
+    ALOG_ASSERT(mJavaFrame->mLoadStarted, "Could not find method loadStarted");
+    ALOG_ASSERT(mJavaFrame->mTransitionToCommitted, "Could not find method transitionToCommitted");
+    ALOG_ASSERT(mJavaFrame->mLoadFinished, "Could not find method loadFinished");
+    ALOG_ASSERT(mJavaFrame->mReportError, "Could not find method reportError");
+    ALOG_ASSERT(mJavaFrame->mSetTitle, "Could not find method setTitle");
+    ALOG_ASSERT(mJavaFrame->mWindowObjectCleared, "Could not find method windowObjectCleared");
+    ALOG_ASSERT(mJavaFrame->mSetProgress, "Could not find method setProgress");
+    ALOG_ASSERT(mJavaFrame->mDidReceiveIcon, "Could not find method didReceiveIcon");
+    ALOG_ASSERT(mJavaFrame->mDidReceiveTouchIconUrl, "Could not find method didReceiveTouchIconUrl");
+    ALOG_ASSERT(mJavaFrame->mUpdateVisitedHistory, "Could not find method updateVisitedHistory");
+    ALOG_ASSERT(mJavaFrame->mHandleUrl, "Could not find method handleUrl");
+    ALOG_ASSERT(mJavaFrame->mCreateWindow, "Could not find method createWindow");
+    ALOG_ASSERT(mJavaFrame->mCloseWindow, "Could not find method closeWindow");
+    ALOG_ASSERT(mJavaFrame->mDecidePolicyForFormResubmission, "Could not find method decidePolicyForFormResubmission");
+    ALOG_ASSERT(mJavaFrame->mRequestFocus, "Could not find method requestFocus");
+    ALOG_ASSERT(mJavaFrame->mGetRawResFilename, "Could not find method getRawResFilename");
+    ALOG_ASSERT(mJavaFrame->mDensity, "Could not find method density");
+    ALOG_ASSERT(mJavaFrame->mGetFileSize, "Could not find method getFileSize");
+    ALOG_ASSERT(mJavaFrame->mGetFile, "Could not find method getFile");
 
     mUserAgent = WebCore::String();
     mUserInitiatedClick = false;
@@ -300,14 +300,14 @@ WebFrame* WebFrame::getWebFrame(const WebCore::Frame* frame)
 static jobject createJavaMapFromHTTPHeaders(JNIEnv* env, const WebCore::HTTPHeaderMap& map)
 {
     jclass mapClass = env->FindClass("java/util/HashMap");
-    LOG_ASSERT(mapClass, "Could not find HashMap class!");
+    ALOG_ASSERT(mapClass, "Could not find HashMap class!");
     jmethodID init = env->GetMethodID(mapClass, "<init>", "(I)V");
-    LOG_ASSERT(init, "Could not find constructor for HashMap");
+    ALOG_ASSERT(init, "Could not find constructor for HashMap");
     jobject hashMap = env->NewObject(mapClass, init, map.size());
-    LOG_ASSERT(hashMap, "Could not create a new HashMap");
+    ALOG_ASSERT(hashMap, "Could not create a new HashMap");
     jmethodID put = env->GetMethodID(mapClass, "put",
             "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-    LOG_ASSERT(put, "Could not find put method on HashMap");
+    ALOG_ASSERT(put, "Could not find put method on HashMap");
 
     WebCore::HTTPHeaderMap::const_iterator end = map.end();
     for (WebCore::HTTPHeaderMap::const_iterator i = map.begin(); i != end; ++i) {
@@ -363,7 +363,7 @@ WebFrame::startLoadingResource(WebCore::ResourceHandle* loader,
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOGV("::WebCore:: startLoadingResource(%p, %s)",
+    ALOGV("::WebCore:: startLoadingResource(%p, %s)",
             loader, request.url().string().latin1().data());
 
     WebCore::String method = request.httpMethod();
@@ -383,7 +383,7 @@ WebFrame::startLoadingResource(WebCore::ResourceHandle* loader,
                     + urlStr.substring(colon);
         }
     }
-    LOGV("%s lower=%s", __FUNCTION__, urlStr.latin1().data());
+    ALOGV("%s lower=%s", __FUNCTION__, urlStr.latin1().data());
     jstring jUrlStr = env->NewString(urlStr.characters(), urlStr.length());
     jstring jMethodStr = NULL;
     if (!method.isEmpty())
@@ -468,7 +468,7 @@ WebFrame::startLoadingResource(WebCore::ResourceHandle* loader,
             break;
     }
 
-    LOGV("::WebCore:: startLoadingResource %s with cacheMode %d", urlStr.ascii().data(), cacheMode);
+    ALOGV("::WebCore:: startLoadingResource %s with cacheMode %d", urlStr.ascii().data(), cacheMode);
 
     ResourceHandleInternal* loaderInternal = loader->getInternal();
     jstring jUsernameString = loaderInternal->m_user.isEmpty() ?
@@ -506,7 +506,7 @@ WebFrame::reportError(int errorCode, const WebCore::String& description,
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOGV("::WebCore:: reportError(%d, %s)", errorCode, description.ascii().data());
+    ALOGV("::WebCore:: reportError(%d, %s)", errorCode, description.ascii().data());
     JNIEnv* env = getJNIEnv();
 
     jstring descStr = env->NewString((unsigned short*)description.characters(), description.length());
@@ -531,7 +531,7 @@ WebFrame::loadStarted(WebCore::Frame* frame)
     const WebCore::KURL& url = documentLoader->url();
     if (url.isEmpty())
         return;
-    LOGV("::WebCore:: loadStarted %s", url.string().ascii().data());
+    ALOGV("::WebCore:: loadStarted %s", url.string().ascii().data());
 
     bool isMainFrame = (!frame->tree() || !frame->tree()->parent());
     WebCore::FrameLoadType loadType = frame->loader()->loadType();
@@ -551,7 +551,7 @@ WebFrame::loadStarted(WebCore::Frame* frame)
         WebCore::Image* icon = WebCore::iconDatabase()->iconForPageURL(urlString, WebCore::IntSize(16, 16));
         if (icon)
             favicon = webcoreImageToJavaBitmap(env, icon);
-        LOGV("favicons", "Starting load with icon %p for %s", icon, url.string().utf8().data());
+        ALOGV("favicons", "Starting load with icon %p for %s", icon, url.string().utf8().data());
     }
     jstring urlStr = env->NewString((unsigned short*)urlString.characters(), urlString.length());
 
@@ -604,7 +604,7 @@ WebFrame::didFinishLoad(WebCore::Frame* frame)
     const WebCore::KURL& url = documentLoader->url();
     if (url.isEmpty())
         return;
-    LOGV("::WebCore:: didFinishLoad %s", url.string().ascii().data());
+    ALOGV("::WebCore:: didFinishLoad %s", url.string().ascii().data());
 
     bool isMainFrame = (!frame->tree() || !frame->tree()->parent());
     WebCore::FrameLoadType loadType = loader->loadType();
@@ -622,7 +622,7 @@ WebFrame::addHistoryItem(WebCore::HistoryItem* item)
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOGV("::WebCore:: addHistoryItem");
+    ALOGV("::WebCore:: addHistoryItem");
     JNIEnv* env = getJNIEnv();
     WebHistory::AddItem(mJavaFrame->history(env), item);
 }
@@ -633,7 +633,7 @@ WebFrame::removeHistoryItem(int index)
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOGV("::WebCore:: removeHistoryItem at %d", index);
+    ALOGV("::WebCore:: removeHistoryItem at %d", index);
     JNIEnv* env = getJNIEnv();
     WebHistory::RemoveItem(mJavaFrame->history(env), index);
 }
@@ -644,7 +644,7 @@ WebFrame::updateHistoryIndex(int newIndex)
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOGV("::WebCore:: updateHistoryIndex to %d", newIndex);
+    ALOGV("::WebCore:: updateHistoryIndex to %d", newIndex);
     JNIEnv* env = getJNIEnv();
     WebHistory::UpdateHistoryIndex(mJavaFrame->history(env), newIndex);
 }
@@ -656,7 +656,7 @@ WebFrame::setTitle(const WebCore::String& title)
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
 #ifndef NDEBUG
-    LOGV("setTitle(%s)", title.ascii().data());
+    ALOGV("setTitle(%s)", title.ascii().data());
 #endif
     JNIEnv* env = getJNIEnv();
     jstring jTitleStr = env->NewString((unsigned short *)title.characters(), title.length());
@@ -673,7 +673,7 @@ WebFrame::windowObjectCleared(WebCore::Frame* frame)
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOGV("::WebCore:: windowObjectCleared");
+    ALOGV("::WebCore:: windowObjectCleared");
     JNIEnv* env = getJNIEnv();
 
     env->CallVoidMethod(mJavaFrame->frame(env).get(), mJavaFrame->mWindowObjectCleared, (int)frame);
@@ -704,7 +704,7 @@ WebFrame::didReceiveIcon(WebCore::Image* icon)
 #ifdef ANDROID_INSTRUMENT
     TimeCounterAuto counter(TimeCounter::JavaCallbackTimeCounter);
 #endif
-    LOG_ASSERT(icon, "DidReceiveIcon called without an image!");
+    ALOG_ASSERT(icon, "DidReceiveIcon called without an image!");
     JNIEnv* env = getJNIEnv();
     jobject bitmap = webcoreImageToJavaBitmap(env, icon);
     if (!bitmap)
@@ -854,9 +854,9 @@ static void CallPolicyFunction(JNIEnv* env, jobject obj, jint func, jint decisio
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeCallPolicyFunction must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeCallPolicyFunction must take a valid frame pointer!");
     PolicyFunctionWrapper* pFunc = (PolicyFunctionWrapper*)func;
-    LOG_ASSERT(pFunc, "nativeCallPolicyFunction must take a valid function pointer!");
+    ALOG_ASSERT(pFunc, "nativeCallPolicyFunction must take a valid function pointer!");
 
     // If we are resending the form then we should reset the multiple submission protection.
     if (decision == WebCore::PolicyUse)
@@ -930,7 +930,7 @@ static void CreateFrame(JNIEnv* env, jobject obj, jobject javaview, jobject jAss
     WebCore::SecurityOrigin::setLocalLoadPolicy(
             WebCore::SecurityOrigin::AllowLocalLoadsForLocalAndSubstituteData);
 
-    LOGV("::WebCore:: createFrame %p", frame);
+    ALOGV("::WebCore:: createFrame %p", frame);
 
     // Set the mNativeFrame field in Frame
     SET_NATIVE_FRAME(env, obj, (int)frame);
@@ -938,7 +938,7 @@ static void CreateFrame(JNIEnv* env, jobject obj, jobject javaview, jobject jAss
     String directory = webFrame->getRawResourceFilename(
             WebCore::PlatformBridge::DrawableDir);
     if (directory.isEmpty())
-        LOGE("Can't find the drawable directory");
+        ALOGE("Can't find the drawable directory");
     else {
         // Setup the asset manager.
         AssetManager* am = assetManagerForJavaObject(env, jAssetManager);
@@ -957,9 +957,9 @@ static void DestroyFrame(JNIEnv* env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeDestroyFrame must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeDestroyFrame must take a valid frame pointer!");
 
-    LOGV("::WebCore:: deleting frame %p", pFrame);
+    ALOGV("::WebCore:: deleting frame %p", pFrame);
 
     WebCore::FrameView* view = pFrame->view();
     view->ref();
@@ -984,7 +984,7 @@ static void LoadUrl(JNIEnv *env, jobject obj, jstring url, jobject headers)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeLoadUrl must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeLoadUrl must take a valid frame pointer!");
 
     WebCore::String webcoreUrl = to_string(env, url);
     WebCore::KURL kurl(WebCore::KURL(), webcoreUrl);
@@ -1028,7 +1028,7 @@ static void LoadUrl(JNIEnv *env, jobject obj, jstring url, jobject headers)
         env->DeleteLocalRef(set);
         env->DeleteLocalRef(mapClass);
     }
-    LOGV("LoadUrl %s", kurl.string().latin1().data());
+    ALOGV("LoadUrl %s", kurl.string().latin1().data());
     pFrame->loader()->load(request, false);
 }
 
@@ -1038,7 +1038,7 @@ static void PostUrl(JNIEnv *env, jobject obj, jstring url, jbyteArray postData)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativePostUrl must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativePostUrl must take a valid frame pointer!");
 
     WebCore::KURL kurl(WebCore::KURL(), to_string(env, url));
     WebCore::ResourceRequest request(kurl);
@@ -1056,7 +1056,7 @@ static void PostUrl(JNIEnv *env, jobject obj, jstring url, jbyteArray postData)
         env->ReleaseByteArrayElements(postData, bytes, 0);
     }
 
-    LOGV("PostUrl %s", kurl.string().latin1().data());
+    ALOGV("PostUrl %s", kurl.string().latin1().data());
     WebCore::FrameLoadRequest frameRequest(request);
     pFrame->loader()->loadFrameRequest(frameRequest, false, false, 0, 0, WebCore::SendReferrer);
 }
@@ -1068,7 +1068,7 @@ static void LoadData(JNIEnv *env, jobject obj, jstring baseUrl, jstring data,
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeLoadData must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeLoadData must take a valid frame pointer!");
 
     // Setup the resource request
     WebCore::ResourceRequest request(to_string(env, baseUrl));
@@ -1077,7 +1077,7 @@ static void LoadData(JNIEnv *env, jobject obj, jstring baseUrl, jstring data,
     const char* dataStr = env->GetStringUTFChars(data, NULL);
     WTF::PassRefPtr<WebCore::SharedBuffer> sharedBuffer =
         WebCore::SharedBuffer::create();
-    LOG_ASSERT(dataStr, "nativeLoadData has a null data string.");
+    ALOG_ASSERT(dataStr, "nativeLoadData has a null data string.");
     sharedBuffer->append(dataStr, strlen(dataStr));
     env->ReleaseStringUTFChars(data, dataStr);
 
@@ -1095,8 +1095,8 @@ static void StopLoading(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeStopLoading must take a valid frame pointer!");
-    LOGV("::WebCore:: stopLoading %p", pFrame);
+    ALOG_ASSERT(pFrame, "nativeStopLoading must take a valid frame pointer!");
+    ALOGV("::WebCore:: stopLoading %p", pFrame);
 
     // Stop loading the page and do not send an unload event
     pFrame->loader()->stopForUserCancel();
@@ -1108,7 +1108,7 @@ static jstring ExternalRepresentation(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "android_webcore_nativeExternalRepresentation must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "android_webcore_nativeExternalRepresentation must take a valid frame pointer!");
 
     // Request external representation of the render tree
     WebCore::String renderDump = WebCore::externalRepresentation(pFrame);
@@ -1124,7 +1124,7 @@ static jstring DocumentAsText(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "android_webcore_nativeDocumentAsText must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "android_webcore_nativeDocumentAsText must take a valid frame pointer!");
 
     WebCore::Element *documentElement = pFrame->document()->documentElement();
     if (!documentElement)
@@ -1143,7 +1143,7 @@ static void Reload(JNIEnv *env, jobject obj, jboolean allowStale)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeReload must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeReload must take a valid frame pointer!");
 
     WebCore::FrameLoader* loader = pFrame->loader();
     if (allowStale) {
@@ -1163,7 +1163,7 @@ static void GoBackOrForward(JNIEnv *env, jobject obj, jint pos)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "nativeGoBackOrForward must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeGoBackOrForward must take a valid frame pointer!");
 
     if (pos == 1)
         pFrame->page()->goForward();
@@ -1179,7 +1179,7 @@ static jobject StringByEvaluatingJavaScriptFromString(JNIEnv *env, jobject obj, 
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "stringByEvaluatingJavaScriptFromString must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "stringByEvaluatingJavaScriptFromString must take a valid frame pointer!");
 
     WebCore::ScriptValue value =
             pFrame->script()->executeScript(to_string(env, script), true);
@@ -1289,11 +1289,11 @@ static void AddJavascriptInterface(JNIEnv *env, jobject obj, jint nativeFramePoi
         pFrame = GET_NATIVE_FRAME(env, obj);
     else
         pFrame = (WebCore::Frame*)nativeFramePointer;
-    LOG_ASSERT(pFrame, "nativeAddJavascriptInterface must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "nativeAddJavascriptInterface must take a valid frame pointer!");
 
     JavaVM* vm;
     env->GetJavaVM(&vm);
-    LOGV("::WebCore:: addJSInterface: %p", pFrame);
+    ALOGV("::WebCore:: addJSInterface: %p", pFrame);
 
 #if USE(JSC)
     // Copied from qwebframe.cpp
@@ -1364,10 +1364,10 @@ static void ClearCache(JNIEnv *env, jobject obj)
 #if USE(JSC)
     JSC::JSLock lock(false);
     JSC::Heap::Statistics jsHeapStatistics = WebCore::JSDOMWindow::commonJSGlobalData()->heap.statistics();
-    LOGD("About to gc and JavaScript heap size is %d and has %d bytes free",
+    ALOGD("About to gc and JavaScript heap size is %d and has %d bytes free",
             jsHeapStatistics.size, jsHeapStatistics.free);
 #endif  // USE(JSC)           
-    LOGD("About to clear cache and current cache has %d bytes live and %d bytes dead", 
+    ALOGD("About to clear cache and current cache has %d bytes live and %d bytes dead", 
             cache()->getLiveSize(), cache()->getDeadSize());
 #endif  // ANDROID_INSTRUMENT
     if (!WebCore::cache()->disabled()) {
@@ -1399,7 +1399,7 @@ static jboolean DocumentHasImages(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "DocumentHasImages must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "DocumentHasImages must take a valid frame pointer!");
 
     return pFrame->document()->images()->length() > 0;
 }
@@ -1410,7 +1410,7 @@ static jboolean HasPasswordField(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "HasPasswordField must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "HasPasswordField must take a valid frame pointer!");
 
     bool found = false;
     WTF::PassRefPtr<WebCore::HTMLCollection> form = pFrame->document()->forms();
@@ -1441,7 +1441,7 @@ static jobjectArray GetUsernamePassword(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "GetUsernamePassword must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "GetUsernamePassword must take a valid frame pointer!");
     jobjectArray strArray = NULL;
 
     WebCore::String username, password;
@@ -1487,7 +1487,7 @@ static void SetUsernamePassword(JNIEnv *env, jobject obj,
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "SetUsernamePassword must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "SetUsernamePassword must take a valid frame pointer!");
 
     WebCore::HTMLInputElement* usernameEle = NULL;
     WebCore::HTMLInputElement* passwordEle = NULL;
@@ -1527,20 +1527,20 @@ static jobject GetFormTextData(JNIEnv *env, jobject obj)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOG_ASSERT(pFrame, "GetFormTextData must take a valid frame pointer!");
+    ALOG_ASSERT(pFrame, "GetFormTextData must take a valid frame pointer!");
     jobject hashMap = NULL;
 
     WTF::PassRefPtr<WebCore::HTMLCollection> collection = pFrame->document()->forms();
     if (collection->length() > 0) {
         jclass mapClass = env->FindClass("java/util/HashMap");
-        LOG_ASSERT(mapClass, "Could not find HashMap class!");
+        ALOG_ASSERT(mapClass, "Could not find HashMap class!");
         jmethodID init = env->GetMethodID(mapClass, "<init>", "(I)V");
-        LOG_ASSERT(init, "Could not find constructor for HashMap");
+        ALOG_ASSERT(init, "Could not find constructor for HashMap");
         hashMap = env->NewObject(mapClass, init, 1);
-        LOG_ASSERT(hashMap, "Could not create a new HashMap");
+        ALOG_ASSERT(hashMap, "Could not create a new HashMap");
         jmethodID put = env->GetMethodID(mapClass, "put",
                 "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-        LOG_ASSERT(put, "Could not find put method on HashMap");
+        ALOG_ASSERT(put, "Could not find put method on HashMap");
 
         WebCore::HTMLFormElement* form;
         WebCore::HTMLInputElement* input;
@@ -1563,7 +1563,7 @@ static jobject GetFormTextData(JNIEnv *env, jobject obj)
                                 const WebCore::AtomicString& name = input->name();
                                 jstring key = env->NewString((jchar *)name.characters(), name.length());
                                 jstring val = env->NewString((jchar *)value.characters(), len);
-                                LOG_ASSERT(key && val, "name or value not set");
+                                ALOG_ASSERT(key && val, "name or value not set");
                                 env->CallObjectMethod(hashMap, put, key, val);
                                 env->DeleteLocalRef(key);
                                 env->DeleteLocalRef(val);
@@ -1585,7 +1585,7 @@ static void OrientationChanged(JNIEnv *env, jobject obj, int orientation)
     TimeCounterAuto counter(TimeCounter::NativeCallbackTimeCounter);
 #endif
     WebCore::Frame* pFrame = GET_NATIVE_FRAME(env, obj);
-    LOGV("Sending orientation: %d", orientation);
+    ALOGV("Sending orientation: %d", orientation);
     pFrame->sendOrientationChangeEvent(orientation);
 }
 
@@ -1646,9 +1646,9 @@ static JNINativeMethod gBrowserFrameNativeMethods[] = {
 int register_webframe(JNIEnv* env)
 {
     jclass clazz = env->FindClass("android/webkit/BrowserFrame");
-    LOG_ASSERT(clazz, "Cannot find BrowserFrame");
+    ALOG_ASSERT(clazz, "Cannot find BrowserFrame");
     gFrameField = env->GetFieldID(clazz, "mNativeFrame", "I");
-    LOG_ASSERT(gFrameField, "Cannot find mNativeFrame on BrowserFrame");
+    ALOG_ASSERT(gFrameField, "Cannot find mNativeFrame on BrowserFrame");
 
     return jniRegisterNativeMethods(env, "android/webkit/BrowserFrame",
             gBrowserFrameNativeMethods, NELEM(gBrowserFrameNativeMethods));

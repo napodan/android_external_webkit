@@ -37,7 +37,7 @@
 #include "types.h"
 
 
-#define LOG(formatAndArgs...) { \
+#define ALOG(formatAndArgs...) { \
     fprintf (stderr, "%s:  ", __PRETTY_FUNCTION__); \
     fprintf(stderr, formatAndArgs); \
 }
@@ -55,7 +55,7 @@
 
 - init
 {
-    LOG ("\n");
+    ALOG ("\n");
     doubleValue = 666.666;
     return self;
 }
@@ -128,27 +128,27 @@
 
 - init
 {
-    LOG ("\n");
+    ALOG ("\n");
     mySecondInterface = [[MySecondInterface alloc] init];
     return self;
 }
 
 - (void)dealloc
 {
-    LOG ("\n");
+    ALOG ("\n");
     [mySecondInterface release];
     [super dealloc];
 }
 
 - (int)getInt 
 {
-    LOG ("myInt = %d\n", myInt);
+    ALOG ("myInt = %d\n", myInt);
     return myInt;
 }
 
 - (void)setInt: (int)anInt 
 {
-    LOG ("anInt = %d\n", anInt);
+    ALOG ("anInt = %d\n", anInt);
     myInt = anInt;
 }
 
@@ -159,7 +159,7 @@
 
 - (MySecondInterface *)getMySecondInterface 
 {
-    LOG ("\n");
+    ALOG ("\n");
     return mySecondInterface;
 }
 

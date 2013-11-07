@@ -323,7 +323,7 @@ int WebSocketHandshake::readServerHandshake(const char* header, size_t len)
         m_context->addMessage(JSMessageSource, LogMessageType, ErrorMessageLevel, "No response code found: " + trimConsoleMessage(header, lineLength), 0, clientOrigin());
         return len;
     }
-    LOG(Network, "response code: %s", code.utf8().data());
+    ALOG(Network, "response code: %s", code.utf8().data());
     if (code != "101") {
         m_mode = Failed;
         m_context->addMessage(JSMessageSource, LogMessageType, ErrorMessageLevel, "Unexpected response code:" + code, 0, clientOrigin());
@@ -341,12 +341,12 @@ int WebSocketHandshake::readServerHandshake(const char* header, size_t len)
     headerFields += 2; // skip "\r\n".
     const char* p = readHTTPHeaders(headerFields, header + len, &headers);
     if (!p) {
-        LOG(Network, "readHTTPHeaders failed");
+        ALOG(Network, "readHTTPHeaders failed");
         m_mode = Failed;
         return len;
     }
     if (!processHeaders(headers) || !checkResponseHeaders()) {
-        LOG(Network, "header process failed");
+        ALOG(Network, "header process failed");
         m_mode = Failed;
         return p - header;
     }
@@ -494,7 +494,7 @@ const char* WebSocketHandshake::readHTTPHeaders(const char* start, const char* e
             m_context->addMessage(JSMessageSource, LogMessageType, ErrorMessageLevel, "invalid UTF-8 sequence in header value", 0, clientOrigin());
             return 0;
         }
-        LOG(Network, "name=%s value=%s", nameStr.string().utf8().data(), valueStr.utf8().data());
+        ALOG(Network, "name=%s value=%s", nameStr.string().utf8().data(), valueStr.utf8().data());
         headers->add(nameStr, valueStr);
     }
     ASSERT_NOT_REACHED();

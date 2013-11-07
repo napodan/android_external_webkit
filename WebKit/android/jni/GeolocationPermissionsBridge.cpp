@@ -100,7 +100,7 @@ int register_geolocation_permissions(JNIEnv* env)
 {
     const char* kGeolocationPermissionsClass = "android/webkit/GeolocationPermissions";
     jclass geolocationPermissions = env->FindClass(kGeolocationPermissionsClass);
-    LOG_ASSERT(geolocationPermissions, "Unable to find class");
+    ALOG_ASSERT(geolocationPermissions, "Unable to find class");
 
     return jniRegisterNativeMethods(env, kGeolocationPermissionsClass,
             gGeolocationPermissionsMethods, NELEM(gGeolocationPermissionsMethods));

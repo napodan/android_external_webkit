@@ -30,7 +30,7 @@
 #include "Screen.h"
 
 // This include must come first.
-#undef LOG // FIXME: Still have to do this to get the log to show up
+#undef ALOG // FIXME: Still have to do this to get the log to show up
 #include "utils/Log.h"
 
 #include "FloatRect.h"

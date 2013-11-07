@@ -71,7 +71,7 @@ WebSocketChannel::~WebSocketChannel()
 
 void WebSocketChannel::connect()
 {
-    LOG(Network, "WebSocketChannel %p connect", this);
+    ALOG(Network, "WebSocketChannel %p connect", this);
     ASSERT(!m_handle);
     ASSERT(!m_suspended);
     m_handshake.reset();
@@ -81,7 +81,7 @@ void WebSocketChannel::connect()
 
 bool WebSocketChannel::send(const String& msg)
 {
-    LOG(Network, "WebSocketChannel %p send %s", this, msg.utf8().data());
+    ALOG(Network, "WebSocketChannel %p send %s", this, msg.utf8().data());
     ASSERT(m_handle);
     ASSERT(!m_suspended);
     Vector<char> buf;
@@ -93,7 +93,7 @@ bool WebSocketChannel::send(const String& msg)
 
 unsigned long WebSocketChannel::bufferedAmount() const
 {
-    LOG(Network, "WebSocketChannel %p bufferedAmount", this);
+    ALOG(Network, "WebSocketChannel %p bufferedAmount", this);
     ASSERT(m_handle);
     ASSERT(!m_suspended);
     return m_handle->bufferedAmount();
@@ -101,7 +101,7 @@ unsigned long WebSocketChannel::bufferedAmount() const
 
 void WebSocketChannel::close()
 {
-    LOG(Network, "WebSocketChannel %p close", this);
+    ALOG(Network, "WebSocketChannel %p close", this);
     ASSERT(!m_suspended);
     if (m_handle)
         m_handle->close();  // will call didClose()
@@ -109,7 +109,7 @@ void WebSocketChannel::close()
 
 void WebSocketChannel::disconnect()
 {
-    LOG(Network, "WebSocketChannel %p disconnect", this);
+    ALOG(Network, "WebSocketChannel %p disconnect", this);
     m_handshake.clearScriptExecutionContext();
     m_client = 0;
     m_context = 0;
@@ -135,7 +135,7 @@ void WebSocketChannel::resume()
 
 void WebSocketChannel::didOpen(SocketStreamHandle* handle)
 {
-    LOG(Network, "WebSocketChannel %p didOpen", this);
+    ALOG(Network, "WebSocketChannel %p didOpen", this);
     ASSERT(handle == m_handle);
     if (!m_context)
         return;
@@ -148,7 +148,7 @@ void WebSocketChannel::didOpen(SocketStreamHandle* handle)
 
 void WebSocketChannel::didClose(SocketStreamHandle* handle)
 {
-    LOG(Network, "WebSocketChannel %p didClose", this);
+    ALOG(Network, "WebSocketChannel %p didClose", this);
     ASSERT_UNUSED(handle, handle == m_handle || !m_handle);
     m_closed = true;
     if (m_handle) {
@@ -167,7 +167,7 @@ void WebSocketChannel::didClose(SocketStreamHandle* handle)
 
 void WebSocketChannel::didReceiveData(SocketStreamHandle* handle, const char* data, int len)
 {
-    LOG(Network, "WebSocketChannel %p didReceiveData %d", this, len);
+    ALOG(Network, "WebSocketChannel %p didReceiveData %d", this, len);
     RefPtr<WebSocketChannel> protect(this); // The client can close the channel, potentially removing the last reference.
     ASSERT(handle == m_handle);
     if (!m_context) {
@@ -188,7 +188,7 @@ void WebSocketChannel::didReceiveData(SocketStreamHandle* handle, const char* da
 
 void WebSocketChannel::didFail(SocketStreamHandle* handle, const SocketStreamError&)
 {
-    LOG(Network, "WebSocketChannel %p didFail", this);
+    ALOG(Network, "WebSocketChannel %p didFail", this);
     ASSERT(handle == m_handle || !m_handle);
     handle->close();
 }
@@ -249,13 +249,13 @@ bool WebSocketChannel::processBuffer()
                 }
             }
             // FIXME: handle set-cookie2.
-            LOG(Network, "WebSocketChannel %p connected", this);
+            ALOG(Network, "WebSocketChannel %p connected", this);
             skipBuffer(headerLength);
             m_client->didConnect();
-            LOG(Network, "remaining in read buf %ul", m_bufferSize);
+            ALOG(Network, "remaining in read buf %ul", m_bufferSize);
             return m_buffer;
         }
-        LOG(Network, "WebSocketChannel %p connection failed", this);
+        ALOG(Network, "WebSocketChannel %p connection failed", this);
         skipBuffer(headerLength);
         if (!m_closed)
             m_handle->close();
@@ -273,7 +273,7 @@ bool WebSocketChannel::processBuffer()
         int length = 0;
         while (p < end) {
             if (length > std::numeric_limits<int>::max() / 128) {
-                LOG(Network, "frame length overflow %d", length);
+                ALOG(Network, "frame length overflow %d", length);
                 skipBuffer(p + length - m_buffer);
                 m_client->didReceiveMessageError();
                 if (!m_client)

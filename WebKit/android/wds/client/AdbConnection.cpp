@@ -78,7 +78,7 @@ bool AdbConnection::connect() {
 
 bool AdbConnection::sendRequest(const char* fmt, ...) const {
     if (m_fd == -1) {
-        LOGE("Connection is closed");
+        ALOGE("Connection is closed");
         return false;
     }
 
@@ -89,7 +89,7 @@ bool AdbConnection::sendRequest(const char* fmt, ...) const {
     int res = vsnprintf(buf, MAX_COMMAND_LENGTH, fmt, args);
     va_end(args);
 
-    LOGV("Sending command: %04X%.*s", res, res, buf);
+    ALOGV("Sending command: %04X%.*s", res, res, buf);
 
     // Construct the payload length
     char payloadLen[PAYLOAD_LENGTH + 1];
@@ -115,7 +115,7 @@ static void printFailureMessage(int fd) {
     // Grab the payload length
     char lenStr[PAYLOAD_LENGTH + 1];
     int payloadLen = recv(fd, lenStr, sizeof(lenStr) - 1, 0);
-    LOG_ASSERT(payloadLen == PAYLOAD_LENGTH, "Incorrect payload size");
+    ALOG_ASSERT(payloadLen == PAYLOAD_LENGTH, "Incorrect payload size");
     lenStr[PAYLOAD_LENGTH] = 0;
 
     // Parse the hex payload
@@ -130,13 +130,13 @@ static void printFailureMessage(int fd) {
         log_errno("Failure reading failure message from adb");
         return;
     } else if (res != payloadLen) {
-        LOGE("Incorrect payload length %d - expected %d", res, payloadLen);
+        ALOGE("Incorrect payload length %d - expected %d", res, payloadLen);
         return;
     }
     msg[res] = 0;
 
     // Tell somebody about it
-    LOGE("Received failure from adb: %s", msg);
+    ALOGE("Received failure from adb: %s", msg);
 
     // Cleanup
     delete[] msg;
@@ -145,7 +145,7 @@ static void printFailureMessage(int fd) {
 #define ADB_RESPONSE_LENGTH 4
 
 bool AdbConnection::checkOkayResponse() const {
-    LOG_ASSERT(m_fd != -1, "Connection has been closed!");
+    ALOG_ASSERT(m_fd != -1, "Connection has been closed!");
 
     char buf[ADB_RESPONSE_LENGTH];
     int res = recv(m_fd, buf, sizeof(buf), 0);
@@ -156,14 +156,14 @@ bool AdbConnection::checkOkayResponse() const {
 
     // Check for a response other than OKAY/FAIL
     if ((res == ADB_RESPONSE_LENGTH) && (strncmp(buf, "OKAY", res) == 0)) {
-        LOGV("Command OKAY");
+        ALOGV("Command OKAY");
         return true;
     } else if (strncmp(buf, "FAIL", ADB_RESPONSE_LENGTH) == 0) {
         // Something happened, print out the reason for failure
         printFailureMessage(m_fd);
         return false;
     }
-    LOGE("Incorrect response from adb - '%.*s'", res, buf);
+    ALOGE("Incorrect response from adb - '%.*s'", res, buf);
     return false;
 }
 
@@ -178,13 +178,13 @@ const DeviceList& AdbConnection::getDeviceList() {
     clearDevices();
 
     if (m_fd == -1) {
-        LOGE("Connection is closed");
+        ALOGE("Connection is closed");
         return m_devices;
     }
 
     // Try to send the device list request
     if (!sendRequest("host:devices")) {
-        LOGE("Failed to get device list from adb");
+        ALOGE("Failed to get device list from adb");
         return m_devices;
     }
 
@@ -210,7 +210,7 @@ const DeviceList& AdbConnection::getDeviceList() {
         log_errno("Failure reading the device list");
         return m_devices;
     } else if (res != payloadLen) {
-        LOGE("Incorrect payload length %d - expected %d", res, payloadLen);
+        ALOGE("Incorrect payload length %d - expected %d", res, payloadLen);
         return m_devices;
     }
     msg[res] = 0;
@@ -224,7 +224,7 @@ const DeviceList& AdbConnection::getDeviceList() {
         static const char emulator[] = "emulator-";
         if (strncmp(serial, emulator, sizeof(emulator) - 1) == 0)
             t = Device::EMULATOR;
-        LOGV("Adding device %s (%s)", serial, state);
+        ALOGV("Adding device %s (%s)", serial, state);
         m_devices.add(new Device(serial, t, this));
 
         // Reset for the next line

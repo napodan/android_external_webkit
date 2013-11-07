@@ -33,13 +33,13 @@
 #include <tchar.h>
 #include <windows.h>
 
-#define LOG(header, ...) \
+#define ALOG(header, ...) \
     do { \
         _ftprintf(stderr, header); \
         _ftprintf(stderr, __VA_ARGS__); \
     } while (0)
-#define LOG_WARNING(...) LOG(TEXT("WARNING: "), __VA_ARGS__)
-#define LOG_ERROR(...) LOG(TEXT("ERROR: "), __VA_ARGS__)
+#define LOG_WARNING(...) ALOG(TEXT("WARNING: "), __VA_ARGS__)
+#define LOG_ERROR(...) ALOG(TEXT("ERROR: "), __VA_ARGS__)
 
 static TCHAR* getStringValue(HKEY key, LPCTSTR valueName)
 {

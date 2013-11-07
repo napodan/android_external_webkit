@@ -14567,7 +14567,7 @@
 
         * Plugins/WebBaseNetscapePluginStream.mm:
         (WebNetscapePluginStream::destroyStream):
-        added !LOG_DISABLED guard around declaration of npErr used only in LOG
+        added !LOG_DISABLED guard around declaration of npErr used only in ALOG
 
 2008-10-03  Anders Carlsson  <andersca@apple.com>
 
