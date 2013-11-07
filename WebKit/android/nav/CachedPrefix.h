@@ -34,8 +34,8 @@
 #include "CachedDebug.h"
 
 #ifndef _LIBS_CUTILS_LOG_H
-    #ifdef LOG
-    #undef LOG
+    #ifdef ALOG
+    #undef ALOG
     #endif
 
     #include <utils/Log.h>

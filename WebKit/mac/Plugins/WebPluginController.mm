@@ -169,7 +169,7 @@ static NSMutableSet *pluginViews = nil;
         return;
     
     if ([_views count] > 0)
-        LOG(Plugins, "starting WebKit plugins : %@", [_views description]);
+        ALOG(Plugins, "starting WebKit plugins : %@", [_views description]);
     
     int i, count = [_views count];
     for (i = 0; i < count; i++) {
@@ -191,7 +191,7 @@ static NSMutableSet *pluginViews = nil;
         return;
 
     if ([_views count] > 0) {
-        LOG(Plugins, "stopping WebKit plugins: %@", [_views description]);
+        ALOG(Plugins, "stopping WebKit plugins: %@", [_views description]);
     }
     
     int i, count = [_views count];
@@ -219,7 +219,7 @@ static NSMutableSet *pluginViews = nil;
         if (isKindOfClass(view, @"WmvPlugin"))
             installFlip4MacPlugInWorkaroundIfNecessary();
 
-        LOG(Plugins, "initializing plug-in %@", view);
+        ALOG(Plugins, "initializing plug-in %@", view);
         if ([view respondsToSelector:@selector(webPlugInInitialize)]) {
             JSC::JSLock::DropAllLocks dropAllLocks(JSC::SilenceAssertionsOnly);
             [view webPlugInInitialize];
@@ -232,7 +232,7 @@ static NSMutableSet *pluginViews = nil;
             [[self webView] setDefersCallbacks:NO];
         
         if (_started) {
-            LOG(Plugins, "starting plug-in %@", view);
+            ALOG(Plugins, "starting plug-in %@", view);
             if ([view respondsToSelector:@selector(webPlugInStart)]) {
                 JSC::JSLock::DropAllLocks dropAllLocks(JSC::SilenceAssertionsOnly);
                 [view webPlugInStart];
@@ -292,7 +292,7 @@ static void cancelOutstandingCheck(const void *item, void *context)
     [self stopAllPlugins];
 
     if ([_views count] > 0) {
-        LOG(Plugins, "destroying WebKit plugins: %@", [_views description]);
+        ALOG(Plugins, "destroying WebKit plugins: %@", [_views description]);
     }
 
     [self _cancelOutstandingChecks];

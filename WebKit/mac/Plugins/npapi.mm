@@ -51,18 +51,18 @@ void NPN_MemFree(void* ptr)
 
 uint32_t NPN_MemFlush(uint32_t size)
 {
-    LOG(Plugins, "NPN_MemFlush");
+    ALOG(Plugins, "NPN_MemFlush");
     return size;
 }
 
 void NPN_ReloadPlugins(NPBool reloadPages)
 {
-    LOG(Plugins, "NPN_ReloadPlugins");
+    ALOG(Plugins, "NPN_ReloadPlugins");
 }
 
 NPError NPN_RequestRead(NPStream* stream, NPByteRange* rangeList)
 {
-    LOG(Plugins, "NPN_RequestRead");
+    ALOG(Plugins, "NPN_RequestRead");
     return NPERR_GENERIC_ERROR;
 }
 
@@ -153,13 +153,13 @@ NPError NPN_SetValue(NPP instance, NPPVariable variable, void *value)
 
 void* NPN_GetJavaEnv(void)
 {
-    LOG(Plugins, "NPN_GetJavaEnv");
+    ALOG(Plugins, "NPN_GetJavaEnv");
     return NULL;
 }
 
 void* NPN_GetJavaPeer(NPP instance)
 {
-    LOG(Plugins, "NPN_GetJavaPeer");
+    ALOG(Plugins, "NPN_GetJavaPeer");
     return NULL;
 }
 

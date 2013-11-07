@@ -42,10 +42,10 @@
 
     #if 1 && defined LOG_TAG
         #ifndef _LIBS_UTILS_LOG_H
-            #undef LOG
+            #undef ALOG
             #include <utils/Log.h>
         #endif
-        #define notImplemented() LOGV("%s: notImplemented\n", __PRETTY_FUNCTION__)
+        #define notImplemented() ALOGV("%s: notImplemented\n", __PRETTY_FUNCTION__)
         #define lowPriority_notImplemented() //printf("%s\n", __PRETTY_FUNCTION__)
         #define verifiedOk()    // not a problem that it's not implemented
     #else

@@ -78,7 +78,7 @@ WebDownload::WebDownload()
 
 WebDownload::~WebDownload()
 {
-    LOG(Download, "WebDownload - Destroying download (%p)", this);
+    ALOG(Download, "WebDownload - Destroying download (%p)", this);
     cancel();
     gClassCount--;
     gClassNameCount.remove("WebDownload");

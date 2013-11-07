@@ -32,7 +32,7 @@
 #include <string.h>
 
 
-#define LOG(formatAndArgs...) { \
+#define ALOG(formatAndArgs...) { \
     fprintf (stderr, "%s:  ", __PRETTY_FUNCTION__); \
     fprintf(stderr, formatAndArgs); \
 }

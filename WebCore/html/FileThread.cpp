@@ -95,7 +95,7 @@ void* FileThread::runLoop()
         // Wait for FileThread::start() to complete to have m_threadID
         // established before starting the main loop.
         MutexLocker lock(m_threadCreationMutex);
-        LOG(FileAPI, "Started FileThread %p", this);
+        ALOG(FileAPI, "Started FileThread %p", this);
     }
 
     AutodrainedPool pool;
@@ -104,7 +104,7 @@ void* FileThread::runLoop()
         pool.cycle();
     }
 
-    LOG(FileAPI, "About to detach thread %i and clear the ref to FileThread %p, which currently has %i ref(s)", m_threadID, this, refCount());
+    ALOG(FileAPI, "About to detach thread %i and clear the ref to FileThread %p, which currently has %i ref(s)", m_threadID, this, refCount());
 
     detachThread(m_threadID);
 

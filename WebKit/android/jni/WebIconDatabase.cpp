@@ -139,7 +139,7 @@ static void Open(JNIEnv* env, jobject obj, jstring path)
         return;
     iconDb->setEnabled(true);
     iconDb->setClient(gIconDatabaseClient);
-    LOG_ASSERT(path, "No path given to nativeOpen");
+    ALOG_ASSERT(path, "No path given to nativeOpen");
     WebCore::String pathStr = to_string(env, path);
     WebCore::CString fullPath = WebCore::pathByAppendingComponent(pathStr,
             WebCore::IconDatabase::defaultDatabaseFilename()).utf8();
@@ -156,12 +156,12 @@ static void Open(JNIEnv* env, jobject obj, jstring path)
         }
     }
     if (didSetPermissions) {
-        LOGV("Opening WebIconDatabase file '%s'", pathStr.latin1().data());
+        ALOGV("Opening WebIconDatabase file '%s'", pathStr.latin1().data());
         bool res = iconDb->open(pathStr);
         if (!res)
-            LOGE("Open failed!");
+            ALOGE("Open failed!");
     } else
-        LOGE("Failed to set permissions on '%s'", fullPath.data());
+        ALOGE("Failed to set permissions on '%s'", fullPath.data());
 }
 
 static void Close(JNIEnv* env, jobject obj)
@@ -171,36 +171,36 @@ static void Close(JNIEnv* env, jobject obj)
 
 static void RemoveAllIcons(JNIEnv* env, jobject obj)
 {
-    LOGV("Removing all icons");
+    ALOGV("Removing all icons");
     WebCore::iconDatabase()->removeAllIcons();
 }
 
 static jobject IconForPageUrl(JNIEnv* env, jobject obj, jstring url)
 {
-    LOG_ASSERT(url, "No url given to iconForPageUrl");
+    ALOG_ASSERT(url, "No url given to iconForPageUrl");
     WebCore::String urlStr = to_string(env, url);
 
     WebCore::Image* icon = WebCore::iconDatabase()->iconForPageURL(urlStr,
             WebCore::IntSize(16, 16));
-    LOGV("Retrieving icon for '%s' %p", urlStr.latin1().data(), icon);
+    ALOGV("Retrieving icon for '%s' %p", urlStr.latin1().data(), icon);
     return webcoreImageToJavaBitmap(env, icon);
 }
 
 static void RetainIconForPageUrl(JNIEnv* env, jobject obj, jstring url)
 {
-    LOG_ASSERT(url, "No url given to retainIconForPageUrl");
+    ALOG_ASSERT(url, "No url given to retainIconForPageUrl");
     WebCore::String urlStr = to_string(env, url);
 
-    LOGV("Retaining icon for '%s'", urlStr.latin1().data());
+    ALOGV("Retaining icon for '%s'", urlStr.latin1().data());
     WebCore::iconDatabase()->retainIconForPageURL(urlStr);
 }
 
 static void ReleaseIconForPageUrl(JNIEnv* env, jobject obj, jstring url)
 {
-    LOG_ASSERT(url, "No url given to releaseIconForPageUrl");
+    ALOG_ASSERT(url, "No url given to releaseIconForPageUrl");
     WebCore::String urlStr = to_string(env, url);
 
-    LOGV("Releasing icon for '%s'", urlStr.latin1().data());
+    ALOGV("Releasing icon for '%s'", urlStr.latin1().data());
     WebCore::iconDatabase()->releaseIconForPageURL(urlStr);
 }
 
@@ -225,7 +225,7 @@ static JNINativeMethod gWebIconDatabaseMethods[] = {
 int register_webicondatabase(JNIEnv* env)
 {
     jclass webIconDB = env->FindClass("android/webkit/WebIconDatabase");
-    LOG_ASSERT(webIconDB, "Unable to find class android.webkit.WebIconDatabase");
+    ALOG_ASSERT(webIconDB, "Unable to find class android.webkit.WebIconDatabase");
 
     return jniRegisterNativeMethods(env, "android/webkit/WebIconDatabase",
             gWebIconDatabaseMethods, NELEM(gWebIconDatabaseMethods));

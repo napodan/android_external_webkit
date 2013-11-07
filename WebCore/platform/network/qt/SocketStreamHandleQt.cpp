@@ -160,26 +160,26 @@ void SocketStreamHandlePrivate::socketSslErrors(const QList<QSslError>&)
 SocketStreamHandle::SocketStreamHandle(const KURL& url, SocketStreamHandleClient* client)
     : SocketStreamHandleBase(url, client)
 {
-    LOG(Network, "SocketStreamHandle %p new client %p", this, m_client);
+    ALOG(Network, "SocketStreamHandle %p new client %p", this, m_client);
     m_p = new SocketStreamHandlePrivate(this, url);
 }
 
 SocketStreamHandle::~SocketStreamHandle()
 {
-    LOG(Network, "SocketStreamHandle %p delete", this);
+    ALOG(Network, "SocketStreamHandle %p delete", this);
     setClient(0);
     delete m_p;
 }
 
 int SocketStreamHandle::platformSend(const char* data, int len)
 {
-    LOG(Network, "SocketStreamHandle %p platformSend", this);
+    ALOG(Network, "SocketStreamHandle %p platformSend", this);
     return m_p->send(data, len);
 }
 
 void SocketStreamHandle::platformClose()
 {
-    LOG(Network, "SocketStreamHandle %p platformClose", this);
+    ALOG(Network, "SocketStreamHandle %p platformClose", this);
     m_p->close();
 }
 

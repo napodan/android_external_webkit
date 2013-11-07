@@ -1640,13 +1640,13 @@ static inline IMP getMethod(id o, SEL s)
 
 - (void)_didChangeValueForKey: (NSString *)key
 {
-    LOG (Bindings, "calling didChangeValueForKey: %@", key);
+    ALOG (Bindings, "calling didChangeValueForKey: %@", key);
     [self didChangeValueForKey: key];
 }
 
 - (void)_willChangeValueForKey: (NSString *)key
 {
-    LOG (Bindings, "calling willChangeValueForKey: %@", key);
+    ALOG (Bindings, "calling willChangeValueForKey: %@", key);
     [self willChangeValueForKey: key];
 }
 
@@ -2800,7 +2800,7 @@ static bool needsWebViewInitThreadWorkaround()
         if (![preferences isKindOfClass:[WebPreferences class]])
             preferences = nil;
 
-        LOG(Encoding, "FrameName = %@, GroupName = %@, useBackForwardList = %d\n", frameName, groupName, (int)useBackForwardList);
+        ALOG(Encoding, "FrameName = %@, GroupName = %@, useBackForwardList = %d\n", frameName, groupName, (int)useBackForwardList);
         [result _commonInitializationWithFrameName:frameName groupName:groupName usesDocumentViews:YES];
         [result page]->backForwardList()->setEnabled(useBackForwardList);
         result->_private->allowsUndo = allowsUndo;
@@ -2843,7 +2843,7 @@ static bool needsWebViewInitThreadWorkaround()
         // DO NOT encode any new fields here, doing so will break older WebKit releases.
     }
 
-    LOG(Encoding, "FrameName = %@, GroupName = %@, useBackForwardList = %d\n", [[self mainFrame] name], [self groupName], (int)useBackForwardList);
+    ALOG(Encoding, "FrameName = %@, GroupName = %@, useBackForwardList = %d\n", [[self mainFrame] name], [self groupName], (int)useBackForwardList);
 }
 
 - (void)dealloc
@@ -3735,7 +3735,7 @@ static WebFrame *incrementFrame(WebFrame *frame, BOOL forward, BOOL wrapFlag)
 
 - (BOOL)isLoading
 {
-    LOG (Bindings, "isLoading = %d", (int)[self _isLoading]);
+    ALOG (Bindings, "isLoading = %d", (int)[self _isLoading]);
     return [self _isLoading];
 }
 
@@ -4568,13 +4568,13 @@ static NSAppleEventDescriptor* aeDescFromJSValue(ExecState* exec, JSValue jsValu
 
 - (void)addObserver:(NSObject *)anObserver forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options context:(void *)context
 {
-    LOG (Bindings, "addObserver:%p forKeyPath:%@ options:%x context:%p", anObserver, keyPath, options, context);
+    ALOG (Bindings, "addObserver:%p forKeyPath:%@ options:%x context:%p", anObserver, keyPath, options, context);
     [super addObserver:anObserver forKeyPath:keyPath options:options context:context];
 }
 
 - (void)removeObserver:(NSObject *)anObserver forKeyPath:(NSString *)keyPath
 {
-    LOG (Bindings, "removeObserver:%p forKeyPath:%@", anObserver, keyPath);
+    ALOG (Bindings, "removeObserver:%p forKeyPath:%@", anObserver, keyPath);
     [super removeObserver:anObserver forKeyPath:keyPath];
 }
 

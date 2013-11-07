@@ -505,7 +505,7 @@ void DatabaseTracker::addOpenDatabase(Database* database)
 
         databaseSet->add(database);
 
-        LOG(StorageAPI, "Added open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
+        ALOG(StorageAPI, "Added open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
     }
 
     MutexLocker lockDatabase(m_databaseGuard);
@@ -540,7 +540,7 @@ void DatabaseTracker::removeOpenDatabase(Database* database)
 
         databaseSet->remove(database);
 
-        LOG(StorageAPI, "Removed open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
+        ALOG(StorageAPI, "Removed open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
 
         if (!databaseSet->isEmpty())
             return;

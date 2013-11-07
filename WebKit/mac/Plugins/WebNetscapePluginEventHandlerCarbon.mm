@@ -135,7 +135,7 @@ void WebNetscapePluginEventHandlerCarbon::drawRect(CGContextRef, const NSRect&)
     BOOL acceptedEvent;
     acceptedEvent = sendEvent(&event);
     
-    LOG(PluginEvents, "NPP_HandleEvent(updateEvt): %d", acceptedEvent);
+    ALOG(PluginEvents, "NPP_HandleEvent(updateEvt): %d", acceptedEvent);
 }
 
 void WebNetscapePluginEventHandlerCarbon::mouseDown(NSEvent* theEvent)
@@ -148,7 +148,7 @@ void WebNetscapePluginEventHandlerCarbon::mouseDown(NSEvent* theEvent)
     BOOL acceptedEvent;
     acceptedEvent = sendEvent(&event);
     
-    LOG(PluginEvents, "NPP_HandleEvent(mouseDown): %d pt.v=%d, pt.h=%d", acceptedEvent, event.where.v, event.where.h);    
+    ALOG(PluginEvents, "NPP_HandleEvent(mouseDown): %d pt.v=%d, pt.h=%d", acceptedEvent, event.where.v, event.where.h);    
 }
 
 void WebNetscapePluginEventHandlerCarbon::mouseUp(NSEvent* theEvent)
@@ -161,7 +161,7 @@ void WebNetscapePluginEventHandlerCarbon::mouseUp(NSEvent* theEvent)
     BOOL acceptedEvent;
     acceptedEvent = sendEvent(&event);
     
-    LOG(PluginEvents, "NPP_HandleEvent(mouseUp): %d pt.v=%d, pt.h=%d", acceptedEvent, event.where.v, event.where.h);    
+    ALOG(PluginEvents, "NPP_HandleEvent(mouseUp): %d pt.v=%d, pt.h=%d", acceptedEvent, event.where.v, event.where.h);    
 }
 
 bool WebNetscapePluginEventHandlerCarbon::scrollWheel(NSEvent* theEvent)
@@ -179,7 +179,7 @@ void WebNetscapePluginEventHandlerCarbon::mouseEntered(NSEvent* theEvent)
     BOOL acceptedEvent;
     acceptedEvent = sendEvent(&event);
     
-    LOG(PluginEvents, "NPP_HandleEvent(mouseEntered): %d", acceptedEvent);    
+    ALOG(PluginEvents, "NPP_HandleEvent(mouseEntered): %d", acceptedEvent);    
 }
 
 void WebNetscapePluginEventHandlerCarbon::mouseExited(NSEvent* theEvent)
@@ -192,7 +192,7 @@ void WebNetscapePluginEventHandlerCarbon::mouseExited(NSEvent* theEvent)
     BOOL acceptedEvent;
     acceptedEvent = sendEvent(&event);
     
-    LOG(PluginEvents, "NPP_HandleEvent(mouseExited): %d", acceptedEvent);    
+    ALOG(PluginEvents, "NPP_HandleEvent(mouseExited): %d", acceptedEvent);    
 }
 
 void WebNetscapePluginEventHandlerCarbon::mouseDragged(NSEvent*)
@@ -273,12 +273,12 @@ void WebNetscapePluginEventHandlerCarbon::focusChanged(bool hasFocus)
     if (hasFocus) {
         event.what = getFocusEvent;
         acceptedEvent = sendEvent(&event);
-        LOG(PluginEvents, "NPP_HandleEvent(getFocusEvent): %d", acceptedEvent);
+        ALOG(PluginEvents, "NPP_HandleEvent(getFocusEvent): %d", acceptedEvent);
         installKeyEventHandler();
     } else {
         event.what = loseFocusEvent;
         acceptedEvent = sendEvent(&event);
-        LOG(PluginEvents, "NPP_HandleEvent(loseFocusEvent): %d", acceptedEvent);
+        ALOG(PluginEvents, "NPP_HandleEvent(loseFocusEvent): %d", acceptedEvent);
         removeKeyEventHandler();
     }
 }
@@ -300,7 +300,7 @@ void WebNetscapePluginEventHandlerCarbon::windowFocusChanged(bool hasFocus)
     BOOL acceptedEvent;
     acceptedEvent = sendEvent(&event);
     
-    LOG(PluginEvents, "NPP_HandleEvent(activateEvent): %d  isActive: %d", acceptedEvent, hasFocus);    
+    ALOG(PluginEvents, "NPP_HandleEvent(activateEvent): %d  isActive: %d", acceptedEvent, hasFocus);    
 }
 
 OSStatus WebNetscapePluginEventHandlerCarbon::TSMEventHandler(EventHandlerCallRef inHandlerRef, EventRef inEvent, void *eventHandler)
@@ -342,7 +342,7 @@ OSStatus WebNetscapePluginEventHandlerCarbon::TSMEventHandler(EventHandlerCallRe
             BOOL acceptedEvent;
             acceptedEvent = static_cast<WebNetscapePluginEventHandlerCarbon*>(eventHandler)->sendEvent(&eventRec);
             
-            LOG(PluginEvents, "NPP_HandleEvent(keyDown): %d charCode:%c keyCode:%lu",
+            ALOG(PluginEvents, "NPP_HandleEvent(keyDown): %d charCode:%c keyCode:%lu",
                 acceptedEvent, (char) (eventRec.message & charCodeMask), (eventRec.message & keyCodeMask));
             
             // We originally thought that if the plug-in didn't accept this event,

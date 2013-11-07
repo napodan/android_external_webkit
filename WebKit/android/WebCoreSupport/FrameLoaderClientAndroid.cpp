@@ -263,11 +263,11 @@ void FrameLoaderClientAndroid::dispatchDidReceiveIcon() {
     // There is a bug in webkit where cancelling an icon load is treated as a
     // failure. When this is fixed, we can ASSERT again that we have an icon.
     if (icon) {
-        LOGV("Received icon (%p) for %s", icon,
+        ALOGV("Received icon (%p) for %s", icon,
                 url.utf8().data());
         m_webFrame->didReceiveIcon(icon);
     } else {
-        LOGV("Icon data for %s unavailable, registering for notification...",
+        ALOGV("Icon data for %s unavailable, registering for notification...",
                 url.utf8().data());
         registerForIconNotification();
     }
@@ -959,7 +959,7 @@ WTF::PassRefPtr<WebCore::Frame> FrameLoaderClientAndroid::createFrame(const KURL
     newFrame->setView(frameView);
     newFrame->init();
     newFrame->selection()->setFocused(true);
-    LOGV("::WebCore:: createSubFrame returning %p", newFrame);
+    ALOGV("::WebCore:: createSubFrame returning %p", newFrame);
 
     // The creation of the frame may have run arbitrary JavaScript that removed it from the page already.
     if (!pFrame->page())
@@ -1262,7 +1262,7 @@ void FrameLoaderClientAndroid::dispatchDidClearWindowObjectInWorld(DOMWrapperWor
         return;
 
     ASSERT(m_frame);
-    LOGV("::WebCore:: windowObjectCleared called on frame %p for %s\n",
+    ALOGV("::WebCore:: windowObjectCleared called on frame %p for %s\n",
     		m_frame, m_frame->loader()->url().string().ascii().data());
     m_webFrame->windowObjectCleared(m_frame);
 }

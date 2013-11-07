@@ -195,7 +195,7 @@ void SQLiteDatabase::setBusyTimeout(int ms)
     if (m_db)
         sqlite3_busy_timeout(m_db, ms);
     else
-        LOG(SQLDatabase, "BusyTimeout set on non-open database");
+        ALOG(SQLDatabase, "BusyTimeout set on non-open database");
 }
 
 void SQLiteDatabase::setBusyHandler(int(*handler)(void*, int))
@@ -203,7 +203,7 @@ void SQLiteDatabase::setBusyHandler(int(*handler)(void*, int))
     if (m_db)
         sqlite3_busy_handler(m_db, handler, NULL);
     else
-        LOG(SQLDatabase, "Busy handler set on non-open database");
+        ALOG(SQLDatabase, "Busy handler set on non-open database");
 }
 
 bool SQLiteDatabase::executeCommand(const String& sql)
@@ -233,7 +233,7 @@ void SQLiteDatabase::clearAllTables()
     String query = "SELECT name FROM sqlite_master WHERE type='table';";
     Vector<String> tables;
     if (!SQLiteStatement(*this, query).returnTextResults(0, tables)) {
-        LOG(SQLDatabase, "Unable to retrieve list of tables from database");
+        ALOG(SQLDatabase, "Unable to retrieve list of tables from database");
         return;
     }
     
@@ -241,14 +241,14 @@ void SQLiteDatabase::clearAllTables()
         if (*table == "sqlite_sequence")
             continue;
         if (!executeCommand("DROP TABLE " + *table))
-            LOG(SQLDatabase, "Unable to drop table %s", (*table).ascii().data());
+            ALOG(SQLDatabase, "Unable to drop table %s", (*table).ascii().data());
     }
 }
 
 void SQLiteDatabase::runVacuumCommand()
 {
     if (!executeCommand("VACUUM;"))
-        LOG(SQLDatabase, "Unable to vacuum database - %s", lastErrorMsg());
+        ALOG(SQLDatabase, "Unable to vacuum database - %s", lastErrorMsg());
 }
 
 void SQLiteDatabase::runIncrementalVacuumCommand()
@@ -257,7 +257,7 @@ void SQLiteDatabase::runIncrementalVacuumCommand()
     enableAuthorizer(false);
 
     if (!executeCommand("PRAGMA incremental_vacuum"))
-        LOG(SQLDatabase, "Unable to run incremental vacuum - %s", lastErrorMsg());
+        ALOG(SQLDatabase, "Unable to run incremental vacuum - %s", lastErrorMsg());
 
     enableAuthorizer(true);
 }

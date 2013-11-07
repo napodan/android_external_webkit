@@ -153,7 +153,7 @@ void SQLTransaction::checkAndHandleClosedDatabase()
         return;
 
     // If the database was stopped, don't do anything and cancel queued work
-    LOG(StorageAPI, "Database was stopped - cancelling work for this transaction");
+    ALOG(StorageAPI, "Database was stopped - cancelling work for this transaction");
     MutexLocker locker(m_statementMutex);
     m_statementQueue.clear();
     m_nextStep = 0;
@@ -175,7 +175,7 @@ void SQLTransaction::checkAndHandleClosedDatabase()
 
 bool SQLTransaction::performNextStep()
 {
-    LOG(StorageAPI, "Step %s\n", debugStepName(m_nextStep));
+    ALOG(StorageAPI, "Step %s\n", debugStepName(m_nextStep));
 
     ASSERT(m_nextStep == &SQLTransaction::acquireLock ||
            m_nextStep == &SQLTransaction::openTransactionAndPreflight ||
@@ -195,7 +195,7 @@ bool SQLTransaction::performNextStep()
 
 void SQLTransaction::performPendingCallback()
 {
-    LOG(StorageAPI, "Callback %s\n", debugStepName(m_nextStep));
+    ALOG(StorageAPI, "Callback %s\n", debugStepName(m_nextStep));
 
     ASSERT(m_nextStep == &SQLTransaction::deliverTransactionCallback ||
            m_nextStep == &SQLTransaction::deliverTransactionErrorCallback ||
@@ -228,7 +228,7 @@ void SQLTransaction::lockAcquired()
 {
     m_lockAcquired = true;
     m_nextStep = &SQLTransaction::openTransactionAndPreflight;
-    LOG(StorageAPI, "Scheduling openTransactionAndPreflight immediately for transaction %p\n", this);
+    ALOG(StorageAPI, "Scheduling openTransactionAndPreflight immediately for transaction %p\n", this);
     m_database->scheduleTransactionStep(this, true);
 }
 
@@ -237,7 +237,7 @@ void SQLTransaction::openTransactionAndPreflight()
     ASSERT(!m_database->sqliteDatabase().transactionInProgress());
     ASSERT(m_lockAcquired);
 
-    LOG(StorageAPI, "Opening and preflighting transaction %p", this);
+    ALOG(StorageAPI, "Opening and preflighting transaction %p", this);
 
     // If the database was deleted, jump to the error callback
     if (m_database->deleted()) {
@@ -281,7 +281,7 @@ void SQLTransaction::openTransactionAndPreflight()
 
     // Transaction Step 4 - Invoke the transaction callback with the new SQLTransaction object
     m_nextStep = &SQLTransaction::deliverTransactionCallback;
-    LOG(StorageAPI, "Scheduling deliverTransactionCallback for transaction %p\n", this);
+    ALOG(StorageAPI, "Scheduling deliverTransactionCallback for transaction %p\n", this);
     m_database->scheduleTransactionCallback(this);
 }
 
@@ -307,7 +307,7 @@ void SQLTransaction::deliverTransactionCallback()
 void SQLTransaction::scheduleToRunStatements()
 {
     m_nextStep = &SQLTransaction::runStatements;
-    LOG(StorageAPI, "Scheduling runStatements for transaction %p\n", this);
+    ALOG(StorageAPI, "Scheduling runStatements for transaction %p\n", this);
     m_database->scheduleTransactionStep(this);
 }
 
@@ -375,7 +375,7 @@ bool SQLTransaction::runCurrentStatement()
 
         if (m_currentStatement->hasStatementCallback()) {
             m_nextStep = &SQLTransaction::deliverStatementCallback;
-            LOG(StorageAPI, "Scheduling deliverStatementCallback for transaction %p\n", this);
+            ALOG(StorageAPI, "Scheduling deliverStatementCallback for transaction %p\n", this);
             m_database->scheduleTransactionCallback(this);
             return false;
         }
@@ -384,7 +384,7 @@ bool SQLTransaction::runCurrentStatement()
 
     if (m_currentStatement->lastExecutionFailedDueToQuota()) {
         m_nextStep = &SQLTransaction::deliverQuotaIncreaseCallback;
-        LOG(StorageAPI, "Scheduling deliverQuotaIncreaseCallback for transaction %p\n", this);
+        ALOG(StorageAPI, "Scheduling deliverQuotaIncreaseCallback for transaction %p\n", this);
         m_database->scheduleTransactionCallback(this);
         return false;
     }
@@ -400,7 +400,7 @@ void SQLTransaction::handleCurrentStatementError()
     // or the transaction was rolled back, jump to the transaction error callback
     if (m_currentStatement->hasStatementErrorCallback() && !m_sqliteTransaction->wasRolledBackBySqlite()) {
         m_nextStep = &SQLTransaction::deliverStatementCallback;
-        LOG(StorageAPI, "Scheduling deliverStatementCallback for transaction %p\n", this);
+        ALOG(StorageAPI, "Scheduling deliverStatementCallback for transaction %p\n", this);
         m_database->scheduleTransactionCallback(this);
     } else {
         m_transactionError = m_currentStatement->sqlError();
@@ -435,7 +435,7 @@ void SQLTransaction::deliverQuotaIncreaseCallback()
     m_shouldRetryCurrentStatement = m_database->transactionClient()->didExceedQuota(this);
 
     m_nextStep = &SQLTransaction::runStatements;
-    LOG(StorageAPI, "Scheduling runStatements for transaction %p\n", this);
+    ALOG(StorageAPI, "Scheduling runStatements for transaction %p\n", this);
     m_database->scheduleTransactionStep(this);
 }
 
@@ -481,7 +481,7 @@ void SQLTransaction::postflightAndCommit()
     // Transaction Step 10 - Deliver success callback, if there is one
     if (m_successCallback) {
         m_nextStep = &SQLTransaction::deliverSuccessCallback;
-        LOG(StorageAPI, "Scheduling deliverSuccessCallback for transaction %p\n", this);
+        ALOG(StorageAPI, "Scheduling deliverSuccessCallback for transaction %p\n", this);
         m_database->scheduleTransactionCallback(this);
     } else
         cleanupAfterSuccessCallback();
@@ -499,7 +499,7 @@ void SQLTransaction::deliverSuccessCallback()
     // Schedule a "post-success callback" step to return control to the database thread in case there
     // are further transactions queued up for this Database
     m_nextStep = &SQLTransaction::cleanupAfterSuccessCallback;
-    LOG(StorageAPI, "Scheduling cleanupAfterSuccessCallback for transaction %p\n", this);
+    ALOG(StorageAPI, "Scheduling cleanupAfterSuccessCallback for transaction %p\n", this);
     m_database->scheduleTransactionStep(this);
 }
 
@@ -509,7 +509,7 @@ void SQLTransaction::cleanupAfterSuccessCallback()
 
     // Transaction Step 11 - End transaction steps
     // There is no next step
-    LOG(StorageAPI, "Transaction %p is complete\n", this);
+    ALOG(StorageAPI, "Transaction %p is complete\n", this);
     ASSERT(!m_database->sqliteDatabase().transactionInProgress());
     m_sqliteTransaction.clear();
     m_nextStep = 0;
@@ -525,7 +525,7 @@ void SQLTransaction::handleTransactionError(bool inCallback)
             deliverTransactionErrorCallback();
         else {
             m_nextStep = &SQLTransaction::deliverTransactionErrorCallback;
-            LOG(StorageAPI, "Scheduling deliverTransactionErrorCallback for transaction %p\n", this);
+            ALOG(StorageAPI, "Scheduling deliverTransactionErrorCallback for transaction %p\n", this);
             m_database->scheduleTransactionCallback(this);
         }
         return;
@@ -535,7 +535,7 @@ void SQLTransaction::handleTransactionError(bool inCallback)
     // Transaction Step 12 - Rollback the transaction.
     if (inCallback) {
         m_nextStep = &SQLTransaction::cleanupAfterTransactionErrorCallback;
-        LOG(StorageAPI, "Scheduling cleanupAfterTransactionErrorCallback for transaction %p\n", this);
+        ALOG(StorageAPI, "Scheduling cleanupAfterTransactionErrorCallback for transaction %p\n", this);
         m_database->scheduleTransactionStep(this);
     } else {
         cleanupAfterTransactionErrorCallback();
@@ -552,7 +552,7 @@ void SQLTransaction::deliverTransactionErrorCallback()
         m_errorCallback->handleEvent(m_database->scriptExecutionContext(), m_transactionError.get());
 
     m_nextStep = &SQLTransaction::cleanupAfterTransactionErrorCallback;
-    LOG(StorageAPI, "Scheduling cleanupAfterTransactionErrorCallback for transaction %p\n", this);
+    ALOG(StorageAPI, "Scheduling cleanupAfterTransactionErrorCallback for transaction %p\n", this);
     m_database->scheduleTransactionStep(this);
 }
 
@@ -577,7 +577,7 @@ void SQLTransaction::cleanupAfterTransactionErrorCallback()
     }
 
     // Transaction is complete!  There is no next step
-    LOG(StorageAPI, "Transaction %p is complete with an error\n", this);
+    ALOG(StorageAPI, "Transaction %p is complete with an error\n", this);
     ASSERT(!m_database->sqliteDatabase().transactionInProgress());
     m_nextStep = 0;
 

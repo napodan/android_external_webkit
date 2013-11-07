@@ -74,7 +74,7 @@ void DatabaseTask::performTask()
     // Database tasks are meant to be used only once, so make sure this one hasn't been performed before.
     ASSERT(!m_complete);
 
-    LOG(StorageAPI, "Performing %s %p\n", debugTaskName(), this);
+    ALOG(StorageAPI, "Performing %s %p\n", debugTaskName(), this);
 
     m_database->resetAuthorizer();
     doPerformTask();

@@ -78,7 +78,7 @@ static jfieldID gWebViewField;
 static jmethodID GetJMethod(JNIEnv* env, jclass clazz, const char name[], const char signature[])
 {
     jmethodID m = env->GetMethodID(clazz, name, signature);
-    LOG_ASSERT(m, "Could not find method %s", name);
+    ALOG_ASSERT(m, "Could not find method %s", name);
     return m;
 }
 
@@ -156,13 +156,13 @@ WebView(JNIEnv* env, jobject javaWebView, int viewImpl) :
     m_javaGlue.m_postInvalidateDelayed = GetJMethod(env, clazz,
         "viewInvalidateDelayed", "(JIIII)V");
     jclass rectClass = env->FindClass("android/graphics/Rect");
-    LOG_ASSERT(rectClass, "Could not find Rect class");
+    ALOG_ASSERT(rectClass, "Could not find Rect class");
     m_javaGlue.m_rectLeft = env->GetFieldID(rectClass, "left", "I");
     m_javaGlue.m_rectTop = env->GetFieldID(rectClass, "top", "I");
     m_javaGlue.m_rectWidth = GetJMethod(env, rectClass, "width", "()I");
     m_javaGlue.m_rectHeight = GetJMethod(env, rectClass, "height", "()I");
     jclass rectClassF = env->FindClass("android/graphics/RectF");
-    LOG_ASSERT(rectClassF, "Could not find RectF class");
+    ALOG_ASSERT(rectClassF, "Could not find RectF class");
     m_javaGlue.m_rectFLeft = env->GetFieldID(rectClassF, "left", "F");
     m_javaGlue.m_rectFTop = env->GetFieldID(rectClassF, "top", "F");
     m_javaGlue.m_rectFWidth = GetJMethod(env, rectClassF, "width", "()F");
@@ -585,7 +585,7 @@ CachedRoot* getFrameCache(FrameCachePermission allowNewer)
                 && newFocus->isTextInput()
                 && newFocus != m_frameCacheUI->currentCursor()) {
             // The focus has changed.  We may need to update things.
-            LOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
+            ALOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
             JNIEnv* env = JSC::Bindings::getJNIEnv();
             env->CallVoidMethod(m_javaGlue.object(env).get(),
                     m_javaGlue.m_domChangedFocus);
@@ -599,7 +599,7 @@ CachedRoot* getFrameCache(FrameCachePermission allowNewer)
 
 int getScaledMaxXScroll()
 {
-    LOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
+    ALOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
     JNIEnv* env = JSC::Bindings::getJNIEnv();
     int result = env->CallIntMethod(m_javaGlue.object(env).get(), m_javaGlue.m_getScaledMaxXScroll);
     checkException(env);
@@ -608,7 +608,7 @@ int getScaledMaxXScroll()
 
 int getScaledMaxYScroll()
 {
-    LOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
+    ALOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
     JNIEnv* env = JSC::Bindings::getJNIEnv();
     int result = env->CallIntMethod(m_javaGlue.object(env).get(), m_javaGlue.m_getScaledMaxYScroll);
     checkException(env);
@@ -617,7 +617,7 @@ int getScaledMaxYScroll()
 
 void getVisibleRect(WebCore::IntRect* rect)
 {
-    LOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
+    ALOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
     JNIEnv* env = JSC::Bindings::getJNIEnv();
     jobject jRect = env->CallObjectMethod(m_javaGlue.object(env).get(), m_javaGlue.m_getVisibleRect);
     checkException(env);
@@ -1053,7 +1053,7 @@ void sendMoveMouse(WebCore::Frame* framePtr, WebCore::Node* nodePtr, int x, int 
 
 void sendMoveMouseIfLatest(bool disableFocusController)
 {
-    LOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
+    ALOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
     JNIEnv* env = JSC::Bindings::getJNIEnv();
     env->CallVoidMethod(m_javaGlue.object(env).get(),
             m_javaGlue.m_sendMoveMouseIfLatest, disableFocusController);
@@ -1066,7 +1066,7 @@ void sendMotionUp(
     m_viewImpl->m_touchGeneration = ++m_generation;
     DBG_NAV_LOGD("m_generation=%d framePtr=%p nodePtr=%p x=%d y=%d",
         m_generation, framePtr, nodePtr, x, y);
-    LOG_ASSERT(m_javaGlue.m_obj, "A WebView was not associated with this WebViewNative!");
+    ALOG_ASSERT(m_javaGlue.m_obj, "A WebView was not associated with this WebViewNative!");
     JNIEnv* env = JSC::Bindings::getJNIEnv();
     env->CallVoidMethod(m_javaGlue.object(env).get(), m_javaGlue.m_sendMotionUp,
         m_generation, (jint) framePtr, (jint) nodePtr, x, y);
@@ -1098,7 +1098,7 @@ int currentMatchIndex()
 
 bool scrollBy(int dx, int dy)
 {
-    LOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
+    ALOG_ASSERT(m_javaGlue.m_obj, "A java object was not associated with this native WebView!");
 
     JNIEnv* env = JSC::Bindings::getJNIEnv();
     bool result = env->CallBooleanMethod(m_javaGlue.object(env).get(),
@@ -1242,7 +1242,7 @@ static int nativeCacheHitNodePointer(JNIEnv *env, jobject obj)
 static void nativeClearCursor(JNIEnv *env, jobject obj)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     view->clearCursor();
 }
 
@@ -1426,7 +1426,7 @@ static void nativeDebugDump(JNIEnv *env, jobject obj)
 {
 #if DUMP_NAV_CACHE
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     view->debugDump();
 #endif
 }
@@ -1458,7 +1458,7 @@ static void nativeSetRootLayer(JNIEnv *env, jobject obj, jint layer)
 static jobject nativeImageURI(JNIEnv *env, jobject obj, jint x, jint y)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     WebCore::String uri = view->imageURI(x, y);
     jstring ret = 0;
     unsigned len = uri.length();
@@ -1627,14 +1627,14 @@ static jint nativeFocusNodePointer(JNIEnv *env, jobject obj)
 
 static bool nativeCursorWantsKeyEvents(JNIEnv* env, jobject jwebview) {
     WebView* view = GET_NATIVE_VIEW(env, jwebview);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     return view->cursorWantsKeyEvents();
 }
 
 static void nativeHideCursor(JNIEnv *env, jobject obj)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     view->hideCursor();
 }
 
@@ -1648,7 +1648,7 @@ static void nativeInstrumentReport(JNIEnv *env, jobject obj)
 static void nativeSelectBestAt(JNIEnv *env, jobject obj, jobject jrect)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     WebCore::IntRect rect = jrect_to_webrect(env, jrect);
     view->selectBestAt(rect);
 }
@@ -1688,7 +1688,7 @@ static bool nativeMotionUp(JNIEnv *env, jobject obj,
     int x, int y, int slop)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     return view->motionUp(x, y, slop);
 }
 
@@ -1707,7 +1707,7 @@ static bool nativeMoveCursor(JNIEnv *env, jobject obj,
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
     DBG_NAV_LOGD("env=%p obj=%p view=%p", env, obj, view);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     return view->moveCursor(key, count, ignoreScroll);
 }
 
@@ -1715,14 +1715,14 @@ static void nativeRecordButtons(JNIEnv* env, jobject obj, bool hasFocus,
         bool pressed, bool invalidate)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     view->nativeRecordButtons(hasFocus, pressed, invalidate);
 }
 
 static void nativeSetFindIsUp(JNIEnv *env, jobject obj, jboolean isUp)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     view->setFindIsUp(isUp);
 }
 
@@ -1736,7 +1736,7 @@ static void nativeSetFollowedLink(JNIEnv *env, jobject obj, bool followed)
     const CachedNode* cursor = getCursorNode(env, obj);
     if (cursor && !cursor->isSelect() && ! cursor->isContentEditable()) {
         WebView* view = GET_NATIVE_VIEW(env, obj);
-        LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+        ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
         view->setFollowedLink(followed);
     }
 }
@@ -1744,18 +1744,18 @@ static void nativeSetFollowedLink(JNIEnv *env, jobject obj, bool followed)
 static void nativeSetHeightCanMeasure(JNIEnv *env, jobject obj, bool measure)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in nativeSetHeightCanMeasure");
+    ALOG_ASSERT(view, "view not set in nativeSetHeightCanMeasure");
     view->setHeightCanMeasure(measure);
 }
 
 static jobject nativeGetCursorRingBounds(JNIEnv *env, jobject obj)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     jclass rectClass = env->FindClass("android/graphics/Rect");
-    LOG_ASSERT(rectClass, "Could not find Rect class!");
+    ALOG_ASSERT(rectClass, "Could not find Rect class!");
     jmethodID init = env->GetMethodID(rectClass, "<init>", "(IIII)V");
-    LOG_ASSERT(init, "Could not find constructor for Rect");
+    ALOG_ASSERT(init, "Could not find constructor for Rect");
     WebCore::IntRect webRect;
     view->cursorRingBounds(&webRect);
     jobject rect = env->NewObject(rectClass, init, webRect.x(),
@@ -1783,7 +1783,7 @@ static int nativeFindAll(JNIEnv *env, jobject obj, jstring findLower,
         return 0;
     }
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in nativeFindAll");
+    ALOG_ASSERT(view, "view not set in nativeFindAll");
     CachedRoot* root = view->getFrameCache(WebView::AllowNewer);
     if (!root) {
         env->ReleaseStringChars(findLower, findLowerChars);
@@ -1823,21 +1823,21 @@ static int nativeFindAll(JNIEnv *env, jobject obj, jstring findLower,
 static void nativeFindNext(JNIEnv *env, jobject obj, bool forward)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in nativeFindNext");
+    ALOG_ASSERT(view, "view not set in nativeFindNext");
     view->findNext(forward);
 }
 
 static int nativeFindIndex(JNIEnv *env, jobject obj)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in nativeFindIndex");
+    ALOG_ASSERT(view, "view not set in nativeFindIndex");
     return view->currentMatchIndex();
 }
 
 static void nativeUpdateCachedTextfield(JNIEnv *env, jobject obj, jstring updatedText, jint generation)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in nativeUpdateCachedTextfield");
+    ALOG_ASSERT(view, "view not set in nativeUpdateCachedTextfield");
     CachedRoot* root = view->getFrameCache(WebView::DontAllowNewer);
     if (!root)
         return;
@@ -1854,7 +1854,7 @@ static jint nativeGetBlockLeftEdge(JNIEnv *env, jobject obj, jint x, jint y,
         jfloat scale)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     if (!view)
         return -1;
     return view->getBlockLeftEdge(x, y, scale);
@@ -1863,8 +1863,8 @@ static jint nativeGetBlockLeftEdge(JNIEnv *env, jobject obj, jint x, jint y,
 static void nativeDestroy(JNIEnv *env, jobject obj)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOGD("nativeDestroy view: %p", view);
-    LOG_ASSERT(view, "view not set in nativeDestroy");
+    ALOGD("nativeDestroy view: %p", view);
+    ALOG_ASSERT(view, "view not set in nativeDestroy");
     delete view;
 }
 
@@ -1942,7 +1942,7 @@ static void nativeExtendSelection(JNIEnv *env, jobject obj, int x, int y)
 static jobject nativeGetSelection(JNIEnv *env, jobject obj)
 {
     WebView* view = GET_NATIVE_VIEW(env, obj);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
     String selection = view->getSelection();
     return env->NewString((jchar*)selection.characters(), selection.length());
 }
@@ -1979,7 +1979,7 @@ static void nativeDumpDisplayTree(JNIEnv* env, jobject jwebview, jstring jurl)
 {
 #ifdef ANDROID_DUMP_DISPLAY_TREE
     WebView* view = GET_NATIVE_VIEW(env, jwebview);
-    LOG_ASSERT(view, "view not set in %s", __FUNCTION__);
+    ALOG_ASSERT(view, "view not set in %s", __FUNCTION__);
 
     if (view && view->getWebViewCore()) {
         FILE* file = fopen(DISPLAY_TREE_LOG_FILE, "w");
@@ -2185,9 +2185,9 @@ static JNINativeMethod gJavaWebViewMethods[] = {
 int register_webview(JNIEnv* env)
 {
     jclass clazz = env->FindClass("android/webkit/WebView");
-    LOG_ASSERT(clazz, "Unable to find class android/webkit/WebView");
+    ALOG_ASSERT(clazz, "Unable to find class android/webkit/WebView");
     gWebViewField = env->GetFieldID(clazz, "mNativeClass", "I");
-    LOG_ASSERT(gWebViewField, "Unable to find android/webkit/WebView.mNativeClass");
+    ALOG_ASSERT(gWebViewField, "Unable to find android/webkit/WebView.mNativeClass");
 
     return jniRegisterNativeMethods(env, "android/webkit/WebView", gJavaWebViewMethods, NELEM(gJavaWebViewMethods));
 }

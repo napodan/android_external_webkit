@@ -277,7 +277,7 @@ void FTPDirectoryDocumentParser::parseAndAppendOneLine(const String& inputLine)
             return;
     }
 
-    LOG(FTP, "Appending entry - %s, %s", filename.ascii().data(), result.fileSize.ascii().data());
+    ALOG(FTP, "Appending entry - %s, %s", filename.ascii().data(), result.fileSize.ascii().data());
         
     appendEntry(filename, processFilesizeString(result.fileSize, result.type == FTPDirectoryEntry), processFileDateString(result.modifiedTime), result.type == FTPDirectoryEntry);
 }
@@ -288,7 +288,7 @@ static inline PassRefPtr<SharedBuffer> createTemplateDocumentData(Settings* sett
     if (settings)
         buffer = SharedBuffer::createWithContentsOfFile(settings->ftpDirectoryTemplatePath());
     if (buffer)
-        LOG(FTP, "Loaded FTPDirectoryTemplate of length %i\n", buffer->size());
+        ALOG(FTP, "Loaded FTPDirectoryTemplate of length %i\n", buffer->size());
     return buffer.release();
 }
     
@@ -340,7 +340,7 @@ bool FTPDirectoryDocumentParser::loadDocumentTemplate()
 
 void FTPDirectoryDocumentParser::createBasicDocument()
 {
-    LOG(FTP, "Creating a basic FTP document structure as no template was loaded");
+    ALOG(FTP, "Creating a basic FTP document structure as no template was loaded");
 
     // FIXME: Make this "basic document" more acceptable
 
@@ -406,7 +406,7 @@ void FTPDirectoryDocumentParser::write(const SegmentedString& s, bool /*appendDa
     while (cursor < m_dest) {
         if (*cursor == '\n') {
             m_carryOver.append(String(start, cursor - start));
-            LOG(FTP, "%s", m_carryOver.ascii().data());
+            ALOG(FTP, "%s", m_carryOver.ascii().data());
             parseAndAppendOneLine(m_carryOver);
             m_carryOver = String();
 

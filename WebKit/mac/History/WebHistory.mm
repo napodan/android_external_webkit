@@ -293,7 +293,7 @@ static inline WebHistoryDateKey dateKey(NSTimeInterval date)
     WebHistoryItem *entry = [_entriesByURL objectForKey:URLString];
 
     if (entry) {
-        LOG(History, "Updating global history entry %@", entry);
+        ALOG(History, "Updating global history entry %@", entry);
         // Remove the item from date caches before changing its last visited date.  Otherwise we might get duplicate entries
         // as seen in <rdar://problem/6570573>.
         BOOL itemWasInDateCaches = [self removeItemFromDateCaches:entry];
@@ -301,7 +301,7 @@ static inline WebHistoryDateKey dateKey(NSTimeInterval date)
 
         [entry _visitedWithTitle:title increaseVisitCount:increaseVisitCount];
     } else {
-        LOG(History, "Adding new global history entry for %@", url);
+        ALOG(History, "Adding new global history entry for %@", url);
         entry = [[WebHistoryItem alloc] initWithURLString:URLString title:title lastVisitedTimeInterval:[NSDate timeIntervalSinceReferenceDate]];
         [entry _recordInitialVisit];
         [_entriesByURL setObject:entry forKey:URLString];
@@ -588,7 +588,7 @@ static inline WebHistoryDateKey dateKey(NSTimeInterval date)
 
 #if !LOG_DISABLED
     double duration = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "loading %d history entries from %@ took %f seconds", numberOfItems, URL, duration);
+    ALOG(Timing, "loading %d history entries from %@ took %f seconds", numberOfItems, URL, duration);
 #endif
 
     return YES;
@@ -618,7 +618,7 @@ static inline WebHistoryDateKey dateKey(NSTimeInterval date)
 
 #if !LOG_DISABLED
     double duration = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "saving history to %@ took %f seconds", URL, duration);
+    ALOG(Timing, "saving history to %@ took %f seconds", URL, duration);
 #endif
 
     return result;
