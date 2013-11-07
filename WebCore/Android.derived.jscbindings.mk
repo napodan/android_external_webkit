@@ -69,10 +69,10 @@ GEN := \
     $(intermediates)/css/JSCSSVariablesDeclaration.h \
     $(intermediates)/css/JSCSSVariablesRule.h \
     $(intermediates)/css/JSCounter.h \
-    $(intermediates)/css/JSMedia.h \
     $(intermediates)/css/JSMediaList.h \
     $(intermediates)/css/JSRGBColor.h \
     $(intermediates)/css/JSRect.h \
+    $(intermediates)/css/JSStyleMedia.h \
     $(intermediates)/css/JSStyleSheet.h \
     $(intermediates)/css/JSStyleSheetList.h \
     $(intermediates)/css/JSWebKitCSSKeyframeRule.h \
@@ -159,6 +159,7 @@ GEN := \
     $(intermediates)/html/JSDataGridColumn.h \
     $(intermediates)/html/JSDataGridColumnList.h \
     $(intermediates)/html/JSFile.h \
+    $(intermediates)/html/JSFileError.h \
     $(intermediates)/html/JSFileList.h \
     $(intermediates)/html/JSHTMLAllCollection.h \
     $(intermediates)/html/JSHTMLAnchorElement.h \
@@ -336,10 +337,15 @@ $(patsubst %.h,%.cpp,$(GEN)): $(intermediates)/plugins/%.cpp : $(intermediates)/
 # Database
 GEN := \
     $(intermediates)/storage/JSDatabase.h \
+    $(intermediates)/storage/JSDatabaseCallback.h \
     $(intermediates)/storage/JSSQLError.h \
     $(intermediates)/storage/JSSQLResultSet.h \
     $(intermediates)/storage/JSSQLResultSetRowList.h \
-    $(intermediates)/storage/JSSQLTransaction.h
+    $(intermediates)/storage/JSSQLStatementCallback.h \
+    $(intermediates)/storage/JSSQLStatementErrorCallback.h \
+    $(intermediates)/storage/JSSQLTransaction.h \
+    $(intermediates)/storage/JSSQLTransactionCallback.h \
+    $(intermediates)/storage/JSSQLTransactionErrorCallback.h
 
 $(GEN): PRIVATE_PATH := $(LOCAL_PATH)
 $(GEN): PRIVATE_CUSTOM_TOOL = perl -I$(PRIVATE_PATH)/bindings/scripts $(PRIVATE_PATH)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS --include dom --include html --outputdir $(dir $@) $<

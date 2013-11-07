@@ -469,22 +469,48 @@ void CacheBuilder::Debug::groups() {
                     }
                 }
             }
-            count++;
-            newLine();
-#if USE(ACCELERATED_COMPOSITING)
-            if (renderer && layer) {
+            if (renderer) {
+                RenderStyle* style = renderer->style();
+                snprintf(scratch, sizeof(scratch), "// renderStyle:"
+                    " visibility=%s hasBackGround=%d"
+                    " tapHighlightColor().alpha()=0x%02x",
+                    style->visibility() == HIDDEN ? "HIDDEN" : "VISIBLE",
+                    style->hasBackground(), style->tapHighlightColor().alpha());
+                newLine();
+                print(scratch);
+                RenderBlock* renderBlock = static_cast<RenderBlock*>(renderer);
+                if (renderer->isRenderBlock() && renderBlock->hasColumns()) {
+                    const RenderBox* box = static_cast<RenderBox*>(renderer);
+                    const IntRect& oRect = box->visibleOverflowRect();
+                    snprintf(scratch, sizeof(scratch), "// renderBlock:"
+                        " columnRects=%d columnGap=%d direction=%d"
+                        " hasOverflowClip=%d overflow=(%d,%d,w=%d,h=%d)",
+                        renderBlock->columnRects(), renderBlock->columnGap(),
+                        renderBlock->style()->direction(), renderer->hasOverflowClip(),
+                        oRect.x(), oRect.y(), oRect.width(), oRect.height());
+                    newLine();
+                    print(scratch);
+                }
+            }
+ #if USE(ACCELERATED_COMPOSITING)
+            if (renderer && renderer->hasLayer()) {
+                RenderLayer* layer = toRenderBoxModelObject(renderer)->layer();
                 RenderLayerBacking* back = layer->backing();
                 GraphicsLayerAndroid* grLayer = static_cast
                     <GraphicsLayerAndroid*>(back ? back->graphicsLayer() : 0);
                 LayerAndroid* aLayer = grLayer ? grLayer->contentLayer() : 0;
                 const SkPicture* pict = aLayer ? aLayer->picture() : 0;
+                const IntRect& r = renderer->absoluteBoundingBoxRect();
                 snprintf(scratch, sizeof(scratch), "// layer:%p back:%p"
-                    " gLayer:%p aLayer:%p pict:%p", layer, back, grLayer,
-                    aLayer, pict);
-                print(scratch);
+                    " gLayer:%p aLayer:%p pict:%p r:(%d,%d,w=%d,h=%d)",
+                    layer, back, grLayer, aLayer, pict, r.x(), r.y(),
+                    r.width(), r.height());
                 newLine();
-           }
-#endif
+                print(scratch);
+            }
+ #endif
+            count++;
+            newLine();
         } while ((node = node->traverseNextNode()) != NULL);
         DUMP_NAV_LOGD("}; // focusables = %d\n", count - 1);
         DUMP_NAV_LOGD("\n");
@@ -841,6 +867,7 @@ bool CacheBuilder::AnyIsClick(Node* node)
 void CacheBuilder::buildCache(CachedRoot* root)
 {
     Frame* frame = FrameAnd(this);
+    mPictureSetDisabled = false;
     BuildFrame(frame, frame, root, (CachedFrame*) root);
     root->finishInit(); // set up frame parent pointers, child pointers
     setData((CachedFrame*) root);
@@ -1105,6 +1132,8 @@ void CacheBuilder::BuildFrame(Frame* root, Frame* frame,
 
         if (node->hasTagName(HTMLNames::bodyTag))
             bodyPos = originalAbsBounds.location();
+        else if (node->hasTagName(HTMLNames::canvasTag))
+            mPictureSetDisabled = true;
         if (checkForPluginViewThatWantsFocus(nodeRenderer)) {
             bounds = absBounds;
             isUnclipped = true;

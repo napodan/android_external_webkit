@@ -149,18 +149,19 @@ namespace WebCore {
         // NPN functions
         NPError getURLNotify(const char* url, const char* target, void* notifyData);
         NPError getURL(const char* url, const char* target);
-        NPError postURLNotify(const char* url, const char* target, uint32 len, const char* but, NPBool file, void* notifyData);
-        NPError postURL(const char* url, const char* target, uint32 len, const char* but, NPBool file);
+        NPError postURLNotify(const char* url, const char* target, uint32_t len, const char* but, NPBool file, void* notifyData);
+        NPError postURL(const char* url, const char* target, uint32_t len, const char* but, NPBool file);
         NPError newStream(NPMIMEType type, const char* target, NPStream** stream);
-        int32 write(NPStream* stream, int32 len, void* buffer);
+        int32_t write(NPStream* stream, int32_t len, void* buffer);
         NPError destroyStream(NPStream* stream, NPReason reason);
         const char* userAgent();
 #if ENABLE(NETSCAPE_PLUGIN_API)
         static const char* userAgentStatic();
 #endif
         void status(const char* message);
-        NPError getValue(NPNVariable variable, void* value);
+        
 #if ENABLE(NETSCAPE_PLUGIN_API)
+        NPError getValue(NPNVariable variable, void* value);
         static NPError getValueStatic(NPNVariable variable, void* value);
 #endif
         NPError setValue(NPPVariable variable, void* value);
@@ -170,9 +171,9 @@ namespace WebCore {
         void pushPopupsEnabledState(bool state);
         void popPopupsEnabledState();
 #ifdef PLUGIN_SCHEDULE_TIMER
-        uint32 scheduleTimer(NPP, uint32 interval, bool repeat,
-                             void (*timerFunc)(NPP, uint32 timerID));
-        void unscheduleTimer(NPP, uint32 timerID);
+        uint32_t scheduleTimer(NPP, uint32_t interval, bool repeat,
+                             void (*timerFunc)(NPP, uint32_t timerID));
+        void unscheduleTimer(NPP, uint32_t timerID);
 #endif
 
         virtual void invalidateRect(const IntRect&);
@@ -189,7 +190,7 @@ namespace WebCore {
         // Widget functions
         virtual void setFrameRect(const IntRect&);
         virtual void frameRectsChanged();
-        virtual void setFocus();
+        virtual void setFocus(bool);
         virtual void show();
         virtual void hide();
         virtual void paint(GraphicsContext*, const IntRect&);
@@ -260,8 +261,8 @@ namespace WebCore {
         void platformDestroy();
         static void setCurrentPluginView(PluginView*);
         NPError load(const FrameLoadRequest&, bool sendNotification, void* notifyData);
-        NPError handlePost(const char* url, const char* target, uint32 len, const char* buf, bool file, void* notifyData, bool sendNotification, bool allowHeaders);
-        NPError handlePostReadFile(Vector<char>& buffer, uint32 len, const char* buf);
+        NPError handlePost(const char* url, const char* target, uint32_t len, const char* buf, bool file, void* notifyData, bool sendNotification, bool allowHeaders);
+        NPError handlePostReadFile(Vector<char>& buffer, uint32_t len, const char* buf);
         static void freeStringArray(char** stringArray, int length);
         void setCallingPlugin(bool) const;
 

@@ -70,7 +70,6 @@ LOCAL_SRC_FILES := \
 	css/CSSVariablesRule.cpp \
 	css/FontFamilyValue.cpp \
 	css/FontValue.cpp \
-	css/Media.cpp \
 	css/MediaFeatureNames.cpp \
 	css/MediaList.cpp \
 	css/MediaQuery.cpp \
@@ -89,6 +88,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	css/ShadowValue.cpp \
 	css/StyleBase.cpp \
 	css/StyleList.cpp \
+	css/StyleMedia.cpp \
 	css/StyleSheet.cpp \
 	css/StyleSheetList.cpp \
 	css/WebKitCSSKeyframeRule.cpp \
@@ -251,6 +251,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/DOMFormData.cpp \
 	html/File.cpp \
 	html/FileList.cpp \
+	html/FileReader.cpp \
 	html/FormDataList.cpp \
 	html/HTMLAllCollection.cpp \
 	html/HTMLCollection.cpp \
@@ -448,7 +449,6 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	platform/graphics/FontFastPath.cpp \
 	platform/graphics/GeneratedImage.cpp \
 	platform/graphics/GlyphPageTreeNode.cpp \
-	platform/graphics/GlyphMetricsMap.cpp \
 	platform/graphics/Gradient.cpp \
 	platform/graphics/GraphicsContext.cpp \
 	platform/graphics/GraphicsLayer.cpp \
@@ -652,10 +652,16 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/RenderSVGInline.cpp \
 	rendering/RenderSVGInlineText.cpp \
 	rendering/RenderSVGModelObject.cpp \
+	rendering/RenderSVGResource.cpp \
 	rendering/RenderSVGResourceClipper.cpp \
 	rendering/RenderSVGResourceFilter.cpp \
+	rendering/RenderSVGResourceGradient.cpp \
+	rendering/RenderSVGResourceLinearGradient.cpp \
 	rendering/RenderSVGResourceMarker.cpp \
 	rendering/RenderSVGResourceMasker.cpp \
+	rendering/RenderSVGResourcePattern.cpp \
+	rendering/RenderSVGResourceRadialGradient.cpp \
+	rendering/RenderSVGResourceSolidColor.cpp \
 	rendering/RenderSVGRoot.cpp \
 	rendering/RenderSVGShadowTreeRootContainer.cpp \
 	rendering/RenderSVGTSpan.cpp \
@@ -690,6 +696,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 
 ifeq ($(ENABLE_SVG), true)
 LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
+	rendering/SVGCharacterData.cpp \
 	rendering/SVGCharacterLayoutInfo.cpp \
 	rendering/SVGInlineFlowBox.cpp \
 	rendering/SVGInlineTextBox.cpp \
@@ -739,6 +746,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	storage/ChangeVersionWrapper.cpp \
 	storage/Database.cpp \
 	storage/DatabaseAuthorizer.cpp \
+	storage/DatabaseSync.cpp \
 	storage/DatabaseTask.cpp \
 	storage/DatabaseThread.cpp \
 	storage/DatabaseTracker.cpp \
@@ -752,6 +760,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	storage/SQLTransaction.cpp \
 	storage/SQLTransactionClient.cpp \
 	storage/SQLTransactionCoordinator.cpp \
+	storage/SQLTransactionSync.cpp \
 	storage/Storage.cpp \
 	storage/StorageAreaImpl.cpp \
 	storage/StorageAreaSync.cpp \
@@ -901,13 +910,6 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	svg/animation/SVGSMILElement.cpp \
 	\
 	svg/graphics/SVGImage.cpp \
-	svg/graphics/SVGPaintServer.cpp \
-	svg/graphics/SVGPaintServerGradient.cpp \
-	svg/graphics/SVGPaintServerLinearGradient.cpp \
-	svg/graphics/SVGPaintServerPattern.cpp \
-	svg/graphics/SVGPaintServerRadialGradient.cpp \
-	svg/graphics/SVGPaintServerSolid.cpp \
-	svg/graphics/SVGResource.cpp \
 	\
 	svg/graphics/filters/SVGFEConvolveMatrix.cpp \
 	svg/graphics/filters/SVGFEDiffuseLighting.cpp \

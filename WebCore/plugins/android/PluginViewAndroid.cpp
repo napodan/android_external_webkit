@@ -357,7 +357,7 @@ void PluginView::handleKeyboardEvent(KeyboardEvent* event)
     }
 }
 
-NPError PluginView::handlePostReadFile(Vector<char>& buffer, uint32 len, const char* buf)
+NPError PluginView::handlePostReadFile(Vector<char>& buffer, uint32_t len, const char* buf)
 {
     notImplemented();
     return NPERR_GENERIC_ERROR;
@@ -595,9 +595,9 @@ void PluginView::forceRedraw()
     this->invalidateRect(0);
 }
 
-void PluginView::setFocus()
+void PluginView::setFocus(bool focused)
 {
-    Widget::setFocus();
+    Widget::setFocus(focused);
 //    SkDebugf("------------- setFocus %p\n", this);
 }
 

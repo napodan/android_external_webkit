@@ -52,10 +52,10 @@ GEN := \
     $(intermediates)/bindings/V8CSSVariablesDeclaration.h \
     $(intermediates)/bindings/V8CSSVariablesRule.h \
     $(intermediates)/bindings/V8Counter.h \
-    $(intermediates)/bindings/V8Media.h \
     $(intermediates)/bindings/V8MediaList.h \
     $(intermediates)/bindings/V8Rect.h \
     $(intermediates)/bindings/V8RGBColor.h \
+    $(intermediates)/bindings/V8StyleMedia.h \
     $(intermediates)/bindings/V8StyleSheet.h \
     $(intermediates)/bindings/V8StyleSheetList.h  \
     $(intermediates)/bindings/V8WebKitCSSKeyframeRule.h \
@@ -143,6 +143,7 @@ GEN := \
     $(intermediates)/bindings/V8DataGridColumn.h \
     $(intermediates)/bindings/V8DataGridColumnList.h \
     $(intermediates)/bindings/V8File.h \
+    $(intermediates)/bindings/V8FileError.h \
     $(intermediates)/bindings/V8FileList.h \
     $(intermediates)/bindings/V8HTMLAllCollection.h \
     $(intermediates)/bindings/V8HTMLAnchorElement.h \
@@ -331,10 +332,15 @@ $(patsubst %.h,%.cpp,$(GEN)): $(intermediates)/bindings/%.cpp : $(intermediates)
 # Database
 GEN := \
     $(intermediates)/bindings/V8Database.h \
+    $(intermediates)/bindings/V8DatabaseCallback.h \
     $(intermediates)/bindings/V8SQLError.h \
     $(intermediates)/bindings/V8SQLResultSet.h \
     $(intermediates)/bindings/V8SQLResultSetRowList.h \
-    $(intermediates)/bindings/V8SQLTransaction.h
+    $(intermediates)/bindings/V8SQLStatementCallback.h \
+    $(intermediates)/bindings/V8SQLStatementErrorCallback.h \
+    $(intermediates)/bindings/V8SQLTransaction.h \
+    $(intermediates)/bindings/V8SQLTransactionCallback.h \
+    $(intermediates)/bindings/V8SQLTransactionErrorCallback.h
 
 $(GEN): PRIVATE_PATH := $(LOCAL_PATH)
 $(GEN): PRIVATE_CUSTOM_TOOL = SOURCE_ROOT=$(PRIVATE_PATH) perl -I$(PRIVATE_PATH)/bindings/scripts $(PRIVATE_PATH)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator V8 --include dom --include html --outputdir $(dir $@) $<
