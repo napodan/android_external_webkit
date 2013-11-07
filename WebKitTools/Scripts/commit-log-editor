@@ -88,8 +88,8 @@ my $inChangesToBeCommitted = !isGit();
 my @changeLogs = ();
 my $logContents = "";
 my $existingLog = 0;
-open LOG, $log or die "Could not open the log file.";
-while (<LOG>) {
+open ALOG, $log or die "Could not open the log file.";
+while (<ALOG>) {
     if (isGit()) {
         if (/^# Changes to be committed:$/) {
             $inChangesToBeCommitted = 1;
@@ -108,7 +108,7 @@ while (<LOG>) {
 
     push @changeLogs, makeFilePathRelative($1) if $inChangesToBeCommitted && (/^(?:M|A)....(.*ChangeLog)\r?\n?$/ || /^#\t(?:modified|new file):   (.*ChangeLog)$/) && !/-ChangeLog$/;
 }
-close LOG;
+close ALOG;
 
 # We want to match the line endings of the existing log file in case they're
 # different from perl's line endings.
@@ -259,11 +259,11 @@ close NEWLOG;
 
 if ($foundComment) {
     open NEWLOG, "$log.edit" or die;
-    open LOG, ">$log" or die;
+    open ALOG, ">$log" or die;
     while (<NEWLOG>) {
-        print LOG;
+        print ALOG;
     }
-    close LOG;
+    close ALOG;
     close NEWLOG;
 }
 

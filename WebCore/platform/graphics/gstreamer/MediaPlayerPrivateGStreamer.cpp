@@ -1395,7 +1395,7 @@ void MediaPlayerPrivateGStreamer::createGSTPlayBin()
         } else {
             m_fpsSink = 0;
             g_object_set(m_playBin, "video-sink", m_videoSink, NULL);
-            LOG_VERBOSE(Media, "Can't display FPS statistics, you need gst-plugins-bad >= 0.10.18");
+            ALOG_VERBOSE(Media, "Can't display FPS statistics, you need gst-plugins-bad >= 0.10.18");
         }
     } else
         g_object_set(m_playBin, "video-sink", m_videoSink, NULL);

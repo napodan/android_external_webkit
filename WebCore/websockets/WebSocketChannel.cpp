@@ -68,7 +68,7 @@ WebSocketChannel::~WebSocketChannel()
 
 void WebSocketChannel::connect()
 {
-    LOG(Network, "WebSocketChannel %p connect", this);
+    ALOG(Network, "WebSocketChannel %p connect", this);
     ASSERT(!m_handle);
     m_handshake.reset();
     ref();
@@ -77,7 +77,7 @@ void WebSocketChannel::connect()
 
 bool WebSocketChannel::send(const String& msg)
 {
-    LOG(Network, "WebSocketChannel %p send %s", this, msg.utf8().data());
+    ALOG(Network, "WebSocketChannel %p send %s", this, msg.utf8().data());
     ASSERT(m_handle);
     Vector<char> buf;
     buf.append('\0');  // frame type
@@ -88,21 +88,21 @@ bool WebSocketChannel::send(const String& msg)
 
 unsigned long WebSocketChannel::bufferedAmount() const
 {
-    LOG(Network, "WebSocketChannel %p bufferedAmount", this);
+    ALOG(Network, "WebSocketChannel %p bufferedAmount", this);
     ASSERT(m_handle);
     return m_handle->bufferedAmount();
 }
 
 void WebSocketChannel::close()
 {
-    LOG(Network, "WebSocketChannel %p close", this);
+    ALOG(Network, "WebSocketChannel %p close", this);
     if (m_handle)
         m_handle->close();  // will call didClose()
 }
 
 void WebSocketChannel::disconnect()
 {
-    LOG(Network, "WebSocketChannel %p disconnect", this);
+    ALOG(Network, "WebSocketChannel %p disconnect", this);
     m_handshake.clearScriptExecutionContext();
     m_client = 0;
     m_context = 0;
@@ -112,7 +112,7 @@ void WebSocketChannel::disconnect()
 
 void WebSocketChannel::didOpen(SocketStreamHandle* handle)
 {
-    LOG(Network, "WebSocketChannel %p didOpen", this);
+    ALOG(Network, "WebSocketChannel %p didOpen", this);
     ASSERT(handle == m_handle);
     if (!m_context)
         return;
@@ -125,7 +125,7 @@ void WebSocketChannel::didOpen(SocketStreamHandle* handle)
 
 void WebSocketChannel::didClose(SocketStreamHandle* handle)
 {
-    LOG(Network, "WebSocketChannel %p didClose", this);
+    ALOG(Network, "WebSocketChannel %p didClose", this);
     ASSERT_UNUSED(handle, handle == m_handle || !m_handle);
     if (m_handle) {
         unsigned long unhandledBufferedAmount = m_handle->bufferedAmount();
@@ -141,7 +141,7 @@ void WebSocketChannel::didClose(SocketStreamHandle* handle)
 
 void WebSocketChannel::didReceiveData(SocketStreamHandle* handle, const char* data, int len)
 {
-    LOG(Network, "WebSocketChannel %p didReceiveData %d", this, len);
+    ALOG(Network, "WebSocketChannel %p didReceiveData %d", this, len);
     RefPtr<WebSocketChannel> protect(this); // The client can close the channel, potentially removing the last reference.
     ASSERT(handle == m_handle);
     if (!m_context) {
@@ -171,20 +171,20 @@ void WebSocketChannel::didReceiveData(SocketStreamHandle* handle, const char* da
                 }
             }
             // FIXME: handle set-cookie2.
-            LOG(Network, "WebSocketChannel %p connected", this);
+            ALOG(Network, "WebSocketChannel %p connected", this);
             m_client->didConnect();
             if (!m_client)
                 return;
             break;
         default:
-            LOG(Network, "WebSocketChannel %p connection failed", this);
+            ALOG(Network, "WebSocketChannel %p connection failed", this);
             handle->close();
             return;
         }
         skipBuffer(headerLength);
         if (!m_buffer)
             return;
-        LOG(Network, "remaining in read buf %ul", m_bufferSize);
+        ALOG(Network, "remaining in read buf %ul", m_bufferSize);
     }
     if (m_handshake.mode() != WebSocketHandshake::Connected)
         return;
@@ -198,7 +198,7 @@ void WebSocketChannel::didReceiveData(SocketStreamHandle* handle, const char* da
             int length = 0;
             while (p < end) {
                 if (length > std::numeric_limits<int>::max() / 128) {
-                    LOG(Network, "frame length overflow %d", length);
+                    ALOG(Network, "frame length overflow %d", length);
                     m_client->didReceiveMessageError();
                     if (!m_client)
                         return;
@@ -240,7 +240,7 @@ void WebSocketChannel::didReceiveData(SocketStreamHandle* handle, const char* da
 
 void WebSocketChannel::didFail(SocketStreamHandle* handle, const SocketStreamError&)
 {
-    LOG(Network, "WebSocketChannel %p didFail", this);
+    ALOG(Network, "WebSocketChannel %p didFail", this);
     ASSERT(handle == m_handle || !m_handle);
     handle->close();
 }

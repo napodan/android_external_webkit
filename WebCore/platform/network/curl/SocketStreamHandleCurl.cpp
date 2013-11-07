@@ -42,27 +42,27 @@ namespace WebCore {
 SocketStreamHandle::SocketStreamHandle(const KURL& url, SocketStreamHandleClient* client)
     : SocketStreamHandleBase(url, client)
 {
-    LOG(Network, "SocketStreamHandle %p new client %p", this, m_client);
+    ALOG(Network, "SocketStreamHandle %p new client %p", this, m_client);
     notImplemented();
 }
 
 SocketStreamHandle::~SocketStreamHandle()
 {
-    LOG(Network, "SocketStreamHandle %p delete", this);
+    ALOG(Network, "SocketStreamHandle %p delete", this);
     setClient(0);
     notImplemented();
 }
 
 int SocketStreamHandle::platformSend(const char*, int)
 {
-    LOG(Network, "SocketStreamHandle %p platformSend", this);
+    ALOG(Network, "SocketStreamHandle %p platformSend", this);
     notImplemented();
     return 0;
 }
 
 void SocketStreamHandle::platformClose()
 {
-    LOG(Network, "SocketStreamHandle %p platformClose", this);
+    ALOG(Network, "SocketStreamHandle %p platformClose", this);
     notImplemented();
 }
 

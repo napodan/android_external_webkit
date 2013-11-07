@@ -11267,7 +11267,7 @@ licitly cast or change the input and return types of functions to avoid conversi
 
         Reviewed by Adele.
 
-        <rdar://problem/4526114> REGRESSION (two days ago): LOG() just prints @ for NSObject substitutions
+        <rdar://problem/4526114> REGRESSION (two days ago): ALOG() just prints @ for NSObject substitutions
 
         * kxmlcore/Assertions.cpp:
         Changed sense of strstr("%@") check.  I already made the same fix to the WebBrowser assertions.

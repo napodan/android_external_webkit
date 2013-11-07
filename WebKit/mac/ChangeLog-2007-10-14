@@ -1241,7 +1241,7 @@
         recursive enumeration of all the subviews.
 
         This patch does two things:
-        1) Adds a check in debug builds that will LOG when any view is added or removed during layout.
+        1) Adds a check in debug builds that will ALOG when any view is added or removed during layout.
         Noting that added views will not recieve layout this round and might paint without first recieving layout.
 
         2) Recursivly builds up an array of descendant WebHTMLViews before calling layout on them.
@@ -1255,7 +1255,7 @@
         (-[WebHTMLView _web_setPrintingModeRecursiveAndAdjustViewSize]): Ditto.
         (-[WebHTMLView _web_layoutIfNeededRecursive]): Ditto.
         (-[WebHTMLView _layoutIfNeeded]): Moved to WebHTMLViewFileInternal category.
-        (-[WebHTMLView didAddSubview:]): LOG in debug builds.
+        (-[WebHTMLView didAddSubview:]): ALOG in debug builds.
         (-[WebHTMLView willRemoveSubview:]): Ditto.
         (-[NSView _web_addDescendantWebHTMLViewsToArray:]): Recursivly build an array of descendant WebHTMLViews.
         * WebView/WebHTMLViewInternal.h: Added a BOOL in WebHTMLViewPrivate to track subview changes (debug only.)
@@ -5320,7 +5320,7 @@
         -[WebBaseNetscapePluginView(WebNPPCallbacks) destroyStream:reason:] 
         navigating away from page with DivX movie plug-in (13203)
         
-        Changed LOG_ERROR to LOG so the layout test doesn't produce console spew
+        Changed LOG_ERROR to ALOG so the layout test doesn't produce console spew
         every time you run it.
 
         * Plugins/WebBaseNetscapePluginView.mm:
@@ -17076,7 +17076,7 @@
 
         * Plugins/WebNetscapePluginPackage.m:
         (-[WebNetscapePluginPackage _unloadWithShutdown:]):
-        Fixed a subtle problem with the 64-bit debug build -- as written, this would LOG() on 64-bit and do nothing on
+        Fixed a subtle problem with the 64-bit debug build -- as written, this would ALOG() on 64-bit and do nothing on
         32-bit!
         * Plugins/WebPluginDatabase.m:
         (-[WebPluginDatabase _scanForNewPlugins]):
@@ -22402,7 +22402,7 @@
 
         Reviewed by Geoff.
         
-        <rdar://problem/4525364> REGRESSION (yesterday?): LOG() mechanism is broken
+        <rdar://problem/4525364> REGRESSION (yesterday?): ALOG() mechanism is broken
         
         - initialize WebKit's log channels
 

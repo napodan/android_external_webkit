@@ -87,7 +87,7 @@ void IconLoader::didReceiveResponse(SubresourceLoader* resourceLoader, const Res
     // If we got a status code indicating an invalid response, then lets
     // ignore the data and not try to decode the error page as an icon.
     int status = response.httpStatusCode();
-    LOG(IconDatabase, "IconLoader::didReceiveResponse() - Loader %p, response %i", resourceLoader, status);
+    ALOG(IconDatabase, "IconLoader::didReceiveResponse() - Loader %p, response %i", resourceLoader, status);
 
     if (status && (status < 200 || status > 299)) {
         ResourceHandle* handle = resourceLoader->handle();
@@ -101,12 +101,12 @@ void IconLoader::didReceiveData(SubresourceLoader* unusedLoader, const char*, in
     UNUSED_PARAM(unusedLoader);
     UNUSED_PARAM(unusedSize);
 #endif
-    LOG(IconDatabase, "IconLoader::didReceiveData() - Loader %p, number of bytes %i", unusedLoader, unusedSize);
+    ALOG(IconDatabase, "IconLoader::didReceiveData() - Loader %p, number of bytes %i", unusedLoader, unusedSize);
 }
 
 void IconLoader::didFail(SubresourceLoader* resourceLoader, const ResourceError&)
 {
-    LOG(IconDatabase, "IconLoader::didFail() - Loader %p", resourceLoader);
+    ALOG(IconDatabase, "IconLoader::didFail() - Loader %p", resourceLoader);
     
     // Until <rdar://problem/5463392> is resolved and we can properly cancel SubresourceLoaders when they get an error response,
     // we need to be prepared to receive this call even after we've "finished loading" once.
@@ -128,7 +128,7 @@ void IconLoader::didReceiveAuthenticationChallenge(SubresourceLoader*, const Aut
 
 void IconLoader::didFinishLoading(SubresourceLoader* resourceLoader)
 {
-    LOG(IconDatabase, "IconLoader::didFinishLoading() - Loader %p", resourceLoader);
+    ALOG(IconDatabase, "IconLoader::didFinishLoading() - Loader %p", resourceLoader);
 
     // Until <rdar://problem/5463392> is resolved and we can properly cancel SubresourceLoaders when they get an error response,
     // we need to be prepared to receive this call even after we've "finished loading" once.
@@ -151,7 +151,7 @@ void IconLoader::finishLoading(const KURL& iconURL, PassRefPtr<SharedBuffer> dat
     // <rdar://problem/5463392> tracks that enhancement
     
     if (!iconURL.isEmpty() && m_loadIsInProgress) {
-        LOG(IconDatabase, "IconLoader::finishLoading() - Committing iconURL %s to database", iconURL.string().ascii().data());
+        ALOG(IconDatabase, "IconLoader::finishLoading() - Committing iconURL %s to database", iconURL.string().ascii().data());
         m_frame->loader()->commitIconURLToIconDatabase(iconURL);
         // Setting the icon data only after committing to the database ensures that the data is
         // kept in memory (so it does not have to be read from the database asynchronously), since

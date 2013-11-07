@@ -198,7 +198,7 @@ void PluginView::init()
         return;
     }
 
-    LOG(Plugins, "PluginView::init(): Initializing plug-in '%s'", m_plugin->name().utf8().data());
+    ALOG(Plugins, "PluginView::init(): Initializing plug-in '%s'", m_plugin->name().utf8().data());
 
     if (!m_plugin->load()) {
         m_plugin = 0;
@@ -300,7 +300,7 @@ void PluginView::mediaCanStart()
 
 PluginView::~PluginView()
 {
-    LOG(Plugins, "PluginView::~PluginView()");
+    ALOG(Plugins, "PluginView::~PluginView()");
 
     ASSERT(!m_lifeSupportTimer.isActive());
 
@@ -347,7 +347,7 @@ void PluginView::stop()
     if (parentFrame()->page())
         parentFrame()->page()->didStopPlugin(this);
 
-    LOG(Plugins, "PluginView::stop(): Stopping plug-in '%s'", m_plugin->name().utf8().data());
+    ALOG(Plugins, "PluginView::stop(): Stopping plug-in '%s'", m_plugin->name().utf8().data());
 
     HashSet<RefPtr<PluginStream> > streams = m_streams;
     HashSet<RefPtr<PluginStream> >::iterator end = streams.end();
@@ -661,7 +661,7 @@ void PluginView::status(const char* message)
 
 NPError PluginView::setValue(NPPVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::setValue(%s): ", prettyNameForNPPVariable(variable, value).data());
+    ALOG(Plugins, "PluginView::setValue(%s): ", prettyNameForNPPVariable(variable, value).data());
 
     switch (variable) {
     case NPPVpluginWindowBool:
@@ -686,7 +686,7 @@ NPError PluginView::setValue(NPPVariable variable, void* value)
 #endif
         case NPDrawingModelCoreAnimation:
         default:
-            LOG(Plugins, "Plugin asked for unsupported drawing model: %s",
+            ALOG(Plugins, "Plugin asked for unsupported drawing model: %s",
                     prettyNameForDrawingModel(newDrawingModel));
             return NPERR_GENERIC_ERROR;
         }
@@ -707,7 +707,7 @@ NPError PluginView::setValue(NPPVariable variable, void* value)
             return NPERR_NO_ERROR;
 
         default:
-            LOG(Plugins, "Plugin asked for unsupported event model: %s",
+            ALOG(Plugins, "Plugin asked for unsupported event model: %s",
                     prettyNameForEventModel(newEventModel));
             return NPERR_GENERIC_ERROR;
         }
@@ -1390,7 +1390,7 @@ void PluginView::keepAlive(NPP instance)
 
 NPError PluginView::getValueStatic(NPNVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::getValueStatic(%s)", prettyNameForNPNVariable(variable).data());
+    ALOG(Plugins, "PluginView::getValueStatic(%s)", prettyNameForNPNVariable(variable).data());
 
     NPError result;
     if (platformGetValueStatic(variable, value, &result))
@@ -1401,7 +1401,7 @@ NPError PluginView::getValueStatic(NPNVariable variable, void* value)
 
 NPError PluginView::getValue(NPNVariable variable, void* value)
 {
-    LOG(Plugins, "PluginView::getValue(%s)", prettyNameForNPNVariable(variable).data());
+    ALOG(Plugins, "PluginView::getValue(%s)", prettyNameForNPNVariable(variable).data());
 
     NPError result;
     if (platformGetValue(variable, value, &result))

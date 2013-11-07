@@ -10281,7 +10281,7 @@
 
 2007-11-13  Mark Rowe  <mrowe@apple.com>
 
-        Gtk build fix. Replace incorrect use of the LOG macro with g_print.
+        Gtk build fix. Replace incorrect use of the ALOG macro with g_print.
 
         * Api/webkitgtkpage.cpp:
 

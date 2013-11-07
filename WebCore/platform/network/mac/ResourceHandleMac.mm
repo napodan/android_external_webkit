@@ -152,7 +152,7 @@ ResourceHandle::~ResourceHandle()
     releaseDelegate();
     d->m_currentWebChallenge.setAuthenticationClient(0);
 
-    LOG(Network, "Handle %p destroyed", this);
+    ALOG(Network, "Handle %p destroyed", this);
 }
 
 static const double MaxFoundationVersionWithoutdidSendBodyDataDelegate = 677.21;
@@ -294,7 +294,7 @@ bool ResourceHandle::start(Frame* frame)
     isInitializingConnection = NO;
 #endif
 
-    LOG(Network, "Handle %p starting connection %p for %@", this, connection, d->m_request.nsURLRequest());
+    ALOG(Network, "Handle %p starting connection %p for %@", this, connection, d->m_request.nsURLRequest());
     
     d->m_connection = connection;
 
@@ -314,7 +314,7 @@ bool ResourceHandle::start(Frame* frame)
 
 void ResourceHandle::cancel()
 {
-    LOG(Network, "Handle %p cancel connection %p", this, d->m_connection.get());
+    ALOG(Network, "Handle %p cancel connection %p", this, d->m_connection.get());
 
     // Leaks were seen on HTTP tests without this; can be removed once <rdar://problem/6886937> is fixed.
     if (d->m_currentMacChallenge)
@@ -327,7 +327,7 @@ void ResourceHandle::cancel()
 
 void ResourceHandle::setDefersLoading(bool defers)
 {
-    LOG(Network, "Handle %p setDefersLoading(%s)", this, defers ? "true" : "false");
+    ALOG(Network, "Handle %p setDefersLoading(%s)", this, defers ? "true" : "false");
 
     d->m_defersLoading = defers;
     if (d->m_connection)
@@ -666,9 +666,9 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 
 #if !LOG_DISABLED
     if ([redirectResponse isKindOfClass:[NSHTTPURLResponse class]])
-        LOG(Network, "Handle %p delegate connection:%p willSendRequest:%@ redirectResponse:%d, Location:<%@>", m_handle, connection, [newRequest description], static_cast<int>([(id)redirectResponse statusCode]), [[(id)redirectResponse allHeaderFields] objectForKey:@"Location"]);
+        ALOG(Network, "Handle %p delegate connection:%p willSendRequest:%@ redirectResponse:%d, Location:<%@>", m_handle, connection, [newRequest description], static_cast<int>([(id)redirectResponse statusCode]), [[(id)redirectResponse allHeaderFields] objectForKey:@"Location"]);
     else
-        LOG(Network, "Handle %p delegate connection:%p willSendRequest:%@ redirectResponse:non-HTTP", m_handle, connection, [newRequest description]); 
+        ALOG(Network, "Handle %p delegate connection:%p willSendRequest:%@ redirectResponse:non-HTTP", m_handle, connection, [newRequest description]); 
 #endif
 
     if ([redirectResponse isKindOfClass:[NSHTTPURLResponse class]] && [(NSHTTPURLResponse *)redirectResponse statusCode] == 307) {
@@ -716,7 +716,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connectionShouldUseCredentialStorage:%p", m_handle, connection);
+    ALOG(Network, "Handle %p delegate connectionShouldUseCredentialStorage:%p", m_handle, connection);
 
     if (!m_handle)
         return NO;
@@ -729,7 +729,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connection:%p didReceiveAuthenticationChallenge:%p", m_handle, connection, challenge);
+    ALOG(Network, "Handle %p delegate connection:%p didReceiveAuthenticationChallenge:%p", m_handle, connection, challenge);
 
     if (!m_handle)
         return;
@@ -741,7 +741,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connection:%p didCancelAuthenticationChallenge:%p", m_handle, connection, challenge);
+    ALOG(Network, "Handle %p delegate connection:%p didCancelAuthenticationChallenge:%p", m_handle, connection, challenge);
 
     if (!m_handle)
         return;
@@ -766,7 +766,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connection:%p didReceiveResponse:%p (HTTP status %d, reported MIMEType '%s')", m_handle, connection, r, [r respondsToSelector:@selector(statusCode)] ? [(id)r statusCode] : 0, [[r MIMEType] UTF8String]);
+    ALOG(Network, "Handle %p delegate connection:%p didReceiveResponse:%p (HTTP status %d, reported MIMEType '%s')", m_handle, connection, r, [r respondsToSelector:@selector(statusCode)] ? [(id)r statusCode] : 0, [[r MIMEType] UTF8String]);
 
     if (!m_handle || !m_handle->client())
         return;
@@ -803,7 +803,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connection:%p didReceiveData:%p lengthReceived:%lld", m_handle, connection, data, lengthReceived);
+    ALOG(Network, "Handle %p delegate connection:%p didReceiveData:%p lengthReceived:%lld", m_handle, connection, data, lengthReceived);
 
     if (!m_handle || !m_handle->client())
         return;
@@ -818,7 +818,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connection:%p willStopBufferingData:%p", m_handle, connection, data);
+    ALOG(Network, "Handle %p delegate connection:%p willStopBufferingData:%p", m_handle, connection, data);
 
     if (!m_handle || !m_handle->client())
         return;
@@ -834,7 +834,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
     UNUSED_PARAM(connection);
     UNUSED_PARAM(bytesWritten);
 
-    LOG(Network, "Handle %p delegate connection:%p didSendBodyData:%d totalBytesWritten:%d totalBytesExpectedToWrite:%d", m_handle, connection, bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
+    ALOG(Network, "Handle %p delegate connection:%p didSendBodyData:%d totalBytesWritten:%d totalBytesExpectedToWrite:%d", m_handle, connection, bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
 
     if (!m_handle || !m_handle->client())
         return;
@@ -846,7 +846,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connectionDidFinishLoading:%p", m_handle, connection);
+    ALOG(Network, "Handle %p delegate connectionDidFinishLoading:%p", m_handle, connection);
 
     if (!m_handle || !m_handle->client())
         return;
@@ -862,7 +862,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "Handle %p delegate connection:%p didFailWithError:%@", m_handle, connection, error);
+    ALOG(Network, "Handle %p delegate connection:%p didFailWithError:%@", m_handle, connection, error);
 
     if (!m_handle || !m_handle->client())
         return;
@@ -887,7 +887,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 
 - (NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse
 {
-    LOG(Network, "Handle %p delegate connection:%p willCacheResponse:%p", m_handle, connection, cachedResponse);
+    ALOG(Network, "Handle %p delegate connection:%p willCacheResponse:%p", m_handle, connection, cachedResponse);
 
 #ifdef BUILDING_ON_TIGER
     // On Tiger CFURLConnection can sometimes call the connection:willCacheResponse: delegate method on
@@ -968,7 +968,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connection:%p willSendRequest:%@ redirectResponse:%p", connection, [newRequest description], redirectResponse);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connection:%p willSendRequest:%@ redirectResponse:%p", connection, [newRequest description], redirectResponse);
 
     // FIXME: This needs to be fixed to follow the redirect correctly even for cross-domain requests.
     if (m_url && !protocolHostAndPortAreEqual(m_url, [newRequest URL])) {
@@ -1001,7 +1001,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connectionShouldUseCredentialStorage:%p", connection);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connectionShouldUseCredentialStorage:%p", connection);
 
     // FIXME: We should ask FrameLoaderClient whether using credential storage is globally forbidden.
     return m_allowStoredCredentials;
@@ -1011,7 +1011,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connection:%p didReceiveAuthenticationChallenge:%p", connection, challenge);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connection:%p didReceiveAuthenticationChallenge:%p", connection, challenge);
 
     if (m_user && m_pass) {
         NSURLCredential *credential = [[NSURLCredential alloc] initWithUser:m_user
@@ -1046,7 +1046,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connection:%p didReceiveResponse:%p (HTTP status %d, reported MIMEType '%s')", connection, response, [response respondsToSelector:@selector(statusCode)] ? [(id)response statusCode] : 0, [[response MIMEType] UTF8String]);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connection:%p didReceiveResponse:%p (HTTP status %d, reported MIMEType '%s')", connection, response, [response respondsToSelector:@selector(statusCode)] ? [(id)response statusCode] : 0, [[response MIMEType] UTF8String]);
 
     NSURLResponse *r = [response copy];
     
@@ -1058,7 +1058,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connection:%p didReceiveData:%p", connection, data);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connection:%p didReceiveData:%p", connection, data);
 
     if (!m_data)
         m_data = [[NSMutableData alloc] init];
@@ -1070,7 +1070,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connectionDidFinishLoading:%p", connection);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connectionDidFinishLoading:%p", connection);
 
     m_isDone = YES;
 }
@@ -1079,7 +1079,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 {
     UNUSED_PARAM(connection);
 
-    LOG(Network, "WebCoreSynchronousLoader delegate connection:%p didFailWithError:%@", connection, error);
+    ALOG(Network, "WebCoreSynchronousLoader delegate connection:%p didFailWithError:%@", connection, error);
 
     ASSERT(!m_error);
     
@@ -1104,7 +1104,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
 
 + (NSData *)loadRequest:(NSURLRequest *)request allowStoredCredentials:(BOOL)allowStoredCredentials returningResponse:(NSURLResponse **)response error:(NSError **)error
 {
-    LOG(Network, "WebCoreSynchronousLoader loadRequest:%@ allowStoredCredentials:%u", request, allowStoredCredentials);
+    ALOG(Network, "WebCoreSynchronousLoader loadRequest:%@ allowStoredCredentials:%u", request, allowStoredCredentials);
 
     WebCoreSynchronousLoader *delegate = [[WebCoreSynchronousLoader alloc] init];
 
@@ -1150,7 +1150,7 @@ void ResourceHandle::receivedCancellation(const AuthenticationChallenge& challen
     [connection release];
     [delegate release];
 
-    LOG(Network, "WebCoreSynchronousLoader done");
+    ALOG(Network, "WebCoreSynchronousLoader done");
 
     return data;
 }
