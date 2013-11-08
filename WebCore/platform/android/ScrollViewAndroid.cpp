@@ -30,8 +30,8 @@
 #include "FloatRect.h"
 #include "FrameView.h"
 #include "IntRect.h"
+#include "PlatformBridge.h"
 #include "SkRegion.h"
-#include "WebCoreFrameBridge.h"
 #include "WebCoreViewBridge.h"
 #include "WebViewCore.h"
 
@@ -70,6 +70,8 @@ void ScrollView::platformSetScrollPosition(const WebCore::IntPoint& pt)
 {
     if (parent()) // don't attempt to scroll subframes; they're fully visible
         return;
+    if (isFrameView() && !PlatformBridge::canScroll(static_cast<FrameView*>(this)))
+        return;
     android::WebViewCore::getWebViewCore(this)->scrollTo(pt.x(), pt.y());
 }
 
@@ -97,12 +99,15 @@ void ScrollView::platformRepaintContentRectangle(const IntRect &rect, bool now)
 //  vis from rect. This can compute up to four rectangular slices.
 void ScrollView::platformOffscreenContentRectangle(const IntRect& vis, const IntRect& rect)
 {
+    android::WebViewCore* core = android::WebViewCore::getWebViewCore(this);
+    if (!core) // SVG does not instantiate webviewcore
+        return; // and doesn't need to record drawing offscreen
     SkRegion rectRgn = SkRegion(rect);
     rectRgn.op(vis, SkRegion::kDifference_Op);
     SkRegion::Iterator iter(rectRgn);
     for (; !iter.done(); iter.next()) {
         const SkIRect& diff = iter.rect();
-        android::WebViewCore::getWebViewCore(this)->offInvalidate(diff);
+        core->offInvalidate(diff);
     }
 }
 #endif
