@@ -119,7 +119,8 @@ public:
         DrawableDir,
         FileUploadLabel,
         ResetLabel,
-        SubmitLabel
+        SubmitLabel,
+        FileUploadNoFileChosenLabel
     };
     static String* globalLocalizedName(rawResId resId);
 
@@ -137,6 +138,7 @@ public:
     static bool isWebViewPaused(const FrameView*);
 
     static bool canScroll(const FrameView*);
+    static String resolveFileNameForContentUri(const String&);
 };
 
 }
