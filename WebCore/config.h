@@ -20,7 +20,11 @@
  */
 
 #if defined(HAVE_CONFIG_H) && HAVE_CONFIG_H
+#ifdef BUILDING_WITH_CMAKE
+#include "cmakeconfig.h"
+#else
 #include "autotoolsconfig.h"
+#endif
 #endif
 
 #include <wtf/Platform.h>
@@ -194,6 +198,9 @@
 
 // Enable prefetching when specified via the rel element of <link> elements.
 #define ENABLE_LINK_PREFETCH 1
+
+// Enable hit test with point plus a size
+#define ANDROID_HITTEST_WITHSIZE
 
 #endif /* PLATFORM(ANDROID) */
 

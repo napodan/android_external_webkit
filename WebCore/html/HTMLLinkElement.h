@@ -110,17 +110,16 @@ public:
     bool isLoading() const;
     virtual bool sheetLoaded();
 
-    bool isAlternate() const { return m_disabledState == 0 && m_rel.m_isAlternate; }
-    bool isDisabled() const { return m_disabledState == 2; }
-    bool isEnabledViaScript() const { return m_disabledState == 1; }
-    bool isIcon() const { return m_rel.m_isIcon; }
+    bool isAlternate() const { return m_disabledState == Unset && m_relAttribute.m_isAlternate; }
+    bool isDisabled() const { return m_disabledState == Disabled; }
+    bool isEnabledViaScript() const { return m_disabledState == EnabledViaScript; }
+    bool isIcon() const { return m_relAttribute.m_isIcon; }
     
-    int disabledState() { return m_disabledState; }
     void setDisabledState(bool _disabled);
 
     virtual bool isURLAttribute(Attribute*) const;
     
-    static void tokenizeRelAttribute(const AtomicString& value, RelAttribute& attribute);
+    static void tokenizeRelAttribute(const AtomicString& value, RelAttribute&);
 
     virtual void addSubresourceAttributeURLs(ListHashSet<KURL>&) const;
 
@@ -137,6 +136,12 @@ public:
 protected:
     void timerFired(Timer<HTMLLinkElement>*);
 
+    enum DisabledState {
+        Unset,
+        EnabledViaScript,
+        Disabled
+    };
+
     CachedResourceHandle<CachedCSSStyleSheet> m_cachedSheet;
     RefPtr<CSSStyleSheet> m_sheet;
 #if ENABLE(LINK_PREFETCH)
@@ -145,8 +150,8 @@ protected:
     KURL m_url;
     String m_type;
     String m_media;
-    int m_disabledState; // 0=unset(default), 1=enabled via script, 2=disabled
-    RelAttribute m_rel;
+    DisabledState m_disabledState;
+    RelAttribute m_relAttribute;
     bool m_loading;
     bool m_createdByParser;
     Timer<HTMLLinkElement> m_timer;

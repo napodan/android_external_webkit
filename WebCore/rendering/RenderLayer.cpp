@@ -587,72 +587,15 @@ bool RenderLayer::update3DTransformedDescendantStatus()
 
 void RenderLayer::updateLayerPosition()
 {
-    // Clear our cached clip rect information.
-    clearClipRects();
-
-    RenderBox* rendererBox = renderBox();
-    
-    int x = rendererBox ? rendererBox->x() : 0;
-    int y = rendererBox ? rendererBox->y() : 0;
-
-    if (!renderer()->isPositioned() && renderer()->parent()) {
-        // We must adjust our position by walking up the render tree looking for the
-        // nearest enclosing object with a layer.
-        RenderObject* curr = renderer()->parent();
-        while (curr && !curr->hasLayer()) {
-            if (curr->isBox() && !curr->isTableRow()) {
-                // Rows and cells share the same coordinate space (that of the section).
-                // Omit them when computing our xpos/ypos.
-                RenderBox* currBox = toRenderBox(curr);
-                x += currBox->x();
-                y += currBox->y();
-            }
-            curr = curr->parent();
-        }
-        if (curr->isBox() && curr->isTableRow()) {
-            // Put ourselves into the row coordinate space.
-            RenderBox* currBox = toRenderBox(curr);
-            x -= currBox->x();
-            y -= currBox->y();
-        }
-    }
-
-    m_relX = m_relY = 0;
-    if (renderer()->isRelPositioned()) {
-        m_relX = renderer()->relativePositionOffsetX();
-        m_relY = renderer()->relativePositionOffsetY();
-        x += m_relX; y += m_relY;
-    }
-    
-    // Subtract our parent's scroll offset.
-    if (renderer()->isPositioned() && enclosingPositionedAncestor()) {
-        RenderLayer* positionedParent = enclosingPositionedAncestor();
-
-        // For positioned layers, we subtract out the enclosing positioned layer's scroll offset.
-        IntSize offset = positionedParent->scrolledContentOffset();
-        x -= offset.width();
-        y -= offset.height();
-        
-        if (renderer()->isPositioned() && positionedParent->renderer()->isRelPositioned() && positionedParent->renderer()->isRenderInline()) {
-            IntSize offset = toRenderInline(positionedParent->renderer())->relativePositionedInlineOffset(toRenderBox(renderer()));
-            x += offset.width();
-            y += offset.height();
-        }
-    } else if (parent()) {
-        IntSize offset = parent()->scrolledContentOffset();
-        x -= offset.width();
-        y -= offset.height();
-    }
-    
-    // FIXME: We'd really like to just get rid of the concept of a layer rectangle and rely on the renderers.
-
-    setLocation(x, y);
-
+    IntPoint localPoint;
+    IntSize inlineBoundingBoxOffset; // We don't put this into the RenderLayer x/y for inlines, so we need to subtract it out when done.
     if (renderer()->isRenderInline()) {
         RenderInline* inlineFlow = toRenderInline(renderer());
         IntRect lineBox = inlineFlow->linesBoundingBox();
         setWidth(lineBox.width());
         setHeight(lineBox.height());
+        inlineBoundingBoxOffset = IntSize(lineBox.x(), lineBox.y());
+        localPoint += inlineBoundingBoxOffset;
     } else if (RenderBox* box = renderBox()) {
         setWidth(box->width());
         setHeight(box->height());
@@ -663,7 +606,62 @@ void RenderLayer::updateLayerPosition()
             if (box->bottomLayoutOverflow() > box->height())
                 setHeight(box->bottomLayoutOverflow());
         }
+        
+        localPoint += box->locationOffset();
     }
+
+    // Clear our cached clip rect information.
+    clearClipRects();
+ 
+    if (!renderer()->isPositioned() && renderer()->parent()) {
+        // We must adjust our position by walking up the render tree looking for the
+        // nearest enclosing object with a layer.
+        RenderObject* curr = renderer()->parent();
+        while (curr && !curr->hasLayer()) {
+            if (curr->isBox() && !curr->isTableRow()) {
+                // Rows and cells share the same coordinate space (that of the section).
+                // Omit them when computing our xpos/ypos.
+                localPoint += toRenderBox(curr)->locationOffset();
+            }
+            curr = curr->parent();
+        }
+        if (curr->isBox() && curr->isTableRow()) {
+            // Put ourselves into the row coordinate space.
+            localPoint -= toRenderBox(curr)->locationOffset();
+        }
+    }
+    
+    // Subtract our parent's scroll offset.
+    if (renderer()->isPositioned() && enclosingPositionedAncestor()) {
+        RenderLayer* positionedParent = enclosingPositionedAncestor();
+
+        // For positioned layers, we subtract out the enclosing positioned layer's scroll offset.
+        IntSize offset = positionedParent->scrolledContentOffset();
+        localPoint -= offset;
+        
+        if (renderer()->isPositioned() && positionedParent->renderer()->isRelPositioned() && positionedParent->renderer()->isRenderInline()) {
+            IntSize offset = toRenderInline(positionedParent->renderer())->relativePositionedInlineOffset(toRenderBox(renderer()));
+            localPoint += offset;
+        }
+    } else if (parent()) {
+        IntSize columnOffset;
+        parent()->renderer()->adjustForColumns(columnOffset, localPoint);
+        localPoint += columnOffset;
+        
+        IntSize scrollOffset = parent()->scrolledContentOffset();
+        localPoint -= scrollOffset;
+    }
+        
+    m_relX = m_relY = 0;
+    if (renderer()->isRelPositioned()) {
+        m_relX = renderer()->relativePositionOffsetX();
+        m_relY = renderer()->relativePositionOffsetY();
+        localPoint.move(m_relX, m_relY);
+    }
+
+    // FIXME: We'd really like to just get rid of the concept of a layer rectangle and rely on the renderers.
+    localPoint -= inlineBoundingBoxOffset;
+    setLocation(localPoint.x(), localPoint.y());
 }
 
 TransformationMatrix RenderLayer::perspectiveTransform() const
@@ -1158,7 +1156,7 @@ RenderLayer::convertToLayerCoords(const RenderLayer* ancestorLayer, int& xPos, i
         return;
     
     parentLayer->convertToLayerCoords(ancestorLayer, xPos, yPos);
-
+    
     xPos += x();
     yPos += y();
 }
@@ -2603,7 +2601,11 @@ RenderLayer* RenderLayer::hitTestLayer(RenderLayer* rootLayer, RenderLayer* cont
         if (parent()) {
             IntRect clipRect = backgroundClipRect(rootLayer, useTemporaryClipRects);
             // Go ahead and test the enclosing clip now.
+#ifdef ANDROID_HITTEST_WITHSIZE
+            if (!result.intersects(hitTestPoint.x(), hitTestPoint.y(), clipRect))
+#else
             if (!clipRect.contains(hitTestPoint))
+#endif
                 return 0;
         }
 
@@ -2700,9 +2702,20 @@ RenderLayer* RenderLayer::hitTestLayer(RenderLayer* rootLayer, RenderLayer* cont
     // Begin by walking our list of positive layers from highest z-index down to the lowest z-index.
     if (m_posZOrderList) {
         for (int i = m_posZOrderList->size() - 1; i >= 0; --i) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+            HitTestResult tempResult(result.point(), result.pointPadding());
+#else
             HitTestResult tempResult(result.point());
+#endif
             RenderLayer* hitLayer = m_posZOrderList->at(i)->hitTestLayer(rootLayer, this, request, tempResult, hitTestRect, hitTestPoint, false, localTransformState.get(), zOffsetForDescendantsPtr);
+#ifdef ANDROID_HITTEST_WITHSIZE
+            if (result.isRegionTest())
+                result.merge(tempResult);
+#endif
             if (isHitCandidate(hitLayer, depthSortDescendants, zOffset, unflattenedTransformState.get())) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+                if (!result.isRegionTest())
+#endif
                 result = tempResult;
                 if (!depthSortDescendants)
                     return hitLayer;
@@ -2716,9 +2729,20 @@ RenderLayer* RenderLayer::hitTestLayer(RenderLayer* rootLayer, RenderLayer* cont
     if (m_normalFlowList) {
         for (int i = m_normalFlowList->size() - 1; i >= 0; --i) {
             RenderLayer* currLayer = m_normalFlowList->at(i);
+#ifdef ANDROID_HITTEST_WITHSIZE
+            HitTestResult tempResult(result.point(), result.pointPadding());
+#else
             HitTestResult tempResult(result.point());
+#endif
             RenderLayer* hitLayer = currLayer->hitTestLayer(rootLayer, this, request, tempResult, hitTestRect, hitTestPoint, false, localTransformState.get(), zOffsetForDescendantsPtr);
+#ifdef ANDROID_HITTEST_WITHSIZE
+            if (result.isRegionTest())
+                result.merge(tempResult);
+#endif
             if (isHitCandidate(hitLayer, depthSortDescendants, zOffset, unflattenedTransformState.get())) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+                if (!result.isRegionTest())
+#endif
                 result = tempResult;
                 if (!depthSortDescendants)
                     return hitLayer;
@@ -2729,25 +2753,53 @@ RenderLayer* RenderLayer::hitTestLayer(RenderLayer* rootLayer, RenderLayer* cont
     }
 
     // Next we want to see if the mouse pos is inside the child RenderObjects of the layer.
+#ifdef ANDROID_HITTEST_WITHSIZE
+    if (result.intersects(hitTestPoint.x(), hitTestPoint.y(), fgRect) && isSelfPaintingLayer()) {
+#else
     if (fgRect.contains(hitTestPoint) && isSelfPaintingLayer()) {
+#endif
         // Hit test with a temporary HitTestResult, because we only want to commit to 'result' if we know we're frontmost.
+#ifdef ANDROID_HITTEST_WITHSIZE
+        HitTestResult tempResult(result.point(), result.pointPadding());
+#else
         HitTestResult tempResult(result.point());
+#endif
         if (hitTestContents(request, tempResult, layerBounds, hitTestPoint, HitTestDescendants) &&
             isHitCandidate(this, false, zOffsetForContentsPtr, unflattenedTransformState.get())) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+            if (result.isRegionTest())
+                result.merge(tempResult);
+            else
+#endif
             result = tempResult;
             if (!depthSortDescendants)
                 return this;
             // Foreground can depth-sort with descendant layers, so keep this as a candidate.
             candidateLayer = this;
         }
+#ifdef ANDROID_HITTEST_WITHSIZE
+        else if (result.isRegionTest())
+            result.merge(tempResult);
+#endif
     }
 
     // Now check our negative z-index children.
     if (m_negZOrderList) {
         for (int i = m_negZOrderList->size() - 1; i >= 0; --i) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+            HitTestResult tempResult(result.point(), result.pointPadding());
+#else
             HitTestResult tempResult(result.point());
+#endif
             RenderLayer* hitLayer = m_negZOrderList->at(i)->hitTestLayer(rootLayer, this, request, tempResult, hitTestRect, hitTestPoint, false, localTransformState.get(), zOffsetForDescendantsPtr);
+#ifdef ANDROID_HITTEST_WITHSIZE
+            if (result.isRegionTest())
+                result.merge(tempResult);
+#endif
             if (isHitCandidate(hitLayer, depthSortDescendants, zOffset, unflattenedTransformState.get())) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+                if (!result.isRegionTest())
+#endif
                 result = tempResult;
                 if (!depthSortDescendants)
                     return hitLayer;
@@ -2761,13 +2813,27 @@ RenderLayer* RenderLayer::hitTestLayer(RenderLayer* rootLayer, RenderLayer* cont
     if (candidateLayer)
         return candidateLayer;
 
+#ifdef ANDROID_HITTEST_WITHSIZE
+    if (result.intersects(hitTestPoint.x(), hitTestPoint.y(), bgRect) && isSelfPaintingLayer()) {
+        HitTestResult tempResult(result.point(), result.pointPadding());
+#else
     if (bgRect.contains(hitTestPoint) && isSelfPaintingLayer()) {
         HitTestResult tempResult(result.point());
+#endif
         if (hitTestContents(request, tempResult, layerBounds, hitTestPoint, HitTestSelf) &&
             isHitCandidate(this, false, zOffsetForContentsPtr, unflattenedTransformState.get())) {
+#ifdef ANDROID_HITTEST_WITHSIZE
+            if (result.isRegionTest())
+                result.merge(tempResult);
+            else
+#endif
             result = tempResult;
             return this;
         }
+#ifdef ANDROID_HITTEST_WITHSIZE
+        else if (result.isRegionTest())
+            result.merge(tempResult);
+#endif
     }
     
     return 0;
@@ -3439,16 +3505,17 @@ void RenderLayer::repaintIncludingNonCompositingDescendants(RenderBoxModelObject
 
 bool RenderLayer::shouldBeNormalFlowOnly() const
 {
-    return (renderer()->hasOverflowClip() || renderer()->hasReflection() || renderer()->hasMask() || renderer()->isVideo() || renderer()->isEmbeddedObject()) &&
-           !renderer()->isPositioned() &&
-           !renderer()->isRelPositioned() &&
-           !renderer()->hasTransform() &&
-           !isTransparent();
+    return (renderer()->hasOverflowClip() || renderer()->hasReflection() || renderer()->hasMask() || renderer()->isVideo() || renderer()->isEmbeddedObject() || 
+            renderer()->isRenderIFrame() || renderer()->style()->specifiesColumns())
+            && !renderer()->isPositioned()
+            && !renderer()->isRelPositioned()
+            && !renderer()->hasTransform()
+            && !isTransparent();
 }
 
 bool RenderLayer::isSelfPaintingLayer() const
 {
-    return !isNormalFlowOnly() || renderer()->hasReflection() || renderer()->hasMask() || renderer()->isTableRow() || renderer()->isVideo() || renderer()->isEmbeddedObject();
+    return !isNormalFlowOnly() || renderer()->hasReflection() || renderer()->hasMask() || renderer()->isTableRow() || renderer()->isVideo() || renderer()->isEmbeddedObject() || renderer()->isRenderIFrame();
 }
 
 void RenderLayer::styleChanged(StyleDifference diff, const RenderStyle*)

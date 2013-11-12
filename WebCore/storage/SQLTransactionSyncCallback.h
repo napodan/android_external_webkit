@@ -31,6 +31,8 @@
 
 #if ENABLE(DATABASE)
 
+// ANDROID
+#include <wtf/RefCounted.h>
 #include <wtf/Threading.h>
 
 namespace WebCore {
@@ -42,7 +44,7 @@ class SQLTransactionSync;
 class SQLTransactionSyncCallback : public RefCounted<SQLTransactionSyncCallback> {
 public:
     virtual ~SQLTransactionSyncCallback() { }
-    virtual void handleEvent(ScriptExecutionContext*, SQLTransactionSync*, bool& raisedException) = 0;
+    virtual bool handleEvent(ScriptExecutionContext*, SQLTransactionSync*) = 0;
 };
 
 }

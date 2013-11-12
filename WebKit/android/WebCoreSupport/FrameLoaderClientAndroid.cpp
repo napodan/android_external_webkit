@@ -395,7 +395,9 @@ void FrameLoaderClientAndroid::dispatchDidFinishLoad() {
 
 void FrameLoaderClientAndroid::dispatchDidFirstLayout() {
     ASSERT(m_frame);
-    m_frame->document()->setExtraLayoutDelay(EXTRA_LAYOUT_DELAY);
+    // set EXTRA_LAYOUT_DELAY if the loader is not completed yet
+    if (!m_frame->loader()->isComplete())
+        m_frame->document()->setExtraLayoutDelay(EXTRA_LAYOUT_DELAY);
     // we need to do this here instead of dispatchDidFirstVisuallyNonEmptyLayout
     // so that about:blank will update the screen.
     if (!m_frame->tree()->parent()) {
@@ -461,8 +463,11 @@ void FrameLoaderClientAndroid::dispatchDecidePolicyForMIMEType(FramePolicyFuncti
     ASSERT(func);
     if (!func)
         return;
+
+    PolicyChecker* policy = m_frame->loader()->policyChecker();
+
     if (request.isNull()) {
-        (m_frame->loader()->policyChecker()->*func)(PolicyIgnore);
+        (policy->*func)(PolicyIgnore);
         return;
     }
     // Default to Use (display internally).
@@ -470,30 +475,33 @@ void FrameLoaderClientAndroid::dispatchDecidePolicyForMIMEType(FramePolicyFuncti
     // Check if we should Download instead.
     const ResourceResponse& response = m_frame->loader()->activeDocumentLoader()->response();
     const String& content_disposition = response.httpHeaderField("Content-Disposition");
-    if (!content_disposition.isEmpty()) {
+    if (!content_disposition.isEmpty() &&
+            TreatAsAttachment(content_disposition)) {
         // Server wants to override our normal policy.
-        if (TreatAsAttachment(content_disposition)) {
-            // Check to see if we are a sub frame (main frame has no owner element)
-            if (m_frame->ownerElement() != 0)
-                action = PolicyIgnore;
-            else
-                action = PolicyDownload;
-        }
-    } else {
-        // Ask if it can be handled internally.
-        if (!canShowMIMEType(MIMEType)) {
-            // Check to see if we are a sub frame (main frame has no owner element)
-            if (m_frame->ownerElement() != 0)
-                action = PolicyIgnore;
-            else
-                action = PolicyDownload;
-        }
+        // Check to see if we are a sub frame (main frame has no owner element)
+        if (m_frame->ownerElement() != 0)
+            action = PolicyIgnore;
+        else
+            action = PolicyDownload;
+        (policy->*func)(action);
+        return;
+    }
+
+    // Ask if it can be handled internally.
+    if (!canShowMIMEType(MIMEType)) {
+        // Check to see if we are a sub frame (main frame has no owner element)
+        if (m_frame->ownerElement() != 0)
+            action = PolicyIgnore;
+        else
+            action = PolicyDownload;
+        (policy->*func)(action);
+        return;
     }
     // A status code of 204 indicates no content change. Ignore the result.
     WebCore::DocumentLoader* docLoader = m_frame->loader()->activeDocumentLoader();
     if (docLoader->response().httpStatusCode() == 204)
         action = PolicyIgnore;
-    (m_frame->loader()->policyChecker()->*func)(action);
+    (policy->*func)(action);
 }
 
 void FrameLoaderClientAndroid::dispatchDecidePolicyForNewWindowAction(FramePolicyFunction func,

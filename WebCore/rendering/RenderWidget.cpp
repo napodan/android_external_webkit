@@ -286,10 +286,15 @@ void RenderWidget::paint(PaintInfo& paintInfo, int tx, int ty)
             if (!paintOffset.isZero())
                 paintInfo.context->translate(-paintOffset);
         }
-        if (m_widget->isFrameView() && paintInfo.overlapTestRequests && !static_cast<FrameView*>(m_widget.get())->useSlowRepaintsIfNotOverlapped()) {
-            ASSERT(!paintInfo.overlapTestRequests->contains(this));
-            paintInfo.overlapTestRequests->set(this, m_widget->frameRect());
-        }
+
+        if (m_widget->isFrameView()) {
+            FrameView* frameView = static_cast<FrameView*>(m_widget.get());
+            bool runOverlapTests = !frameView->useSlowRepaintsIfNotOverlapped() || frameView->hasCompositedContent();
+            if (paintInfo.overlapTestRequests && runOverlapTests) {
+                ASSERT(!paintInfo.overlapTestRequests->contains(this));
+                paintInfo.overlapTestRequests->set(this, m_widget->frameRect());
+            }
+         }
     }
 
     if (style()->hasBorderRadius())
@@ -382,6 +387,12 @@ bool RenderWidget::nodeAtPoint(const HitTestRequest& request, HitTestResult& res
     // Check to see if we are really over the widget itself (and not just in the border/padding area).
     if (inside && !hadResult && result.innerNode() == node())
         result.setIsOverWidget(contentBoxRect().contains(result.localPoint()));
+#ifdef ANDROID_HITTEST_WITHSIZE
+    else if (result.isRegionTest() && !hadResult && result.innerNode() == node()) {
+        result.setIsOverWidget(contentBoxRect().contains(result.localPoint()));
+        return false;
+    }
+#endif
     return inside;
 }
 
