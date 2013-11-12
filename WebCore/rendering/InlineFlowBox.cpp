@@ -211,7 +211,7 @@ void InlineFlowBox::determineSpacingForFlowBoxes(bool lastLine, RenderObject* en
         // Check to see if all initial lines are unconstructed.  If so, then
         // we know the inline began on this line (unless we are a continuation).
         RenderLineBoxList* lineBoxList = rendererLineBoxes();
-        if (!lineBoxList->firstLineBox()->isConstructed() && !renderer()->isInlineContinuation()) {
+        if (!lineBoxList->firstLineBox()->isConstructed() && !renderer()->isInlineElementContinuation()) {
             if (ltr && lineBoxList->firstLineBox() == this)
                 includeLeftEdge = true;
             else if (!ltr && lineBoxList->lastLineBox() == this)
@@ -663,7 +663,7 @@ void InlineFlowBox::paint(RenderObject::PaintInfo& paintInfo, int tx, int ty)
                 RenderInline* inlineFlow = toRenderInline(renderer());
 
                 RenderBlock* cb = 0;
-                bool containingBlockPaintsContinuationOutline = inlineFlow->continuation() || inlineFlow->isInlineContinuation();
+                bool containingBlockPaintsContinuationOutline = inlineFlow->continuation() || inlineFlow->isInlineElementContinuation();
                 if (containingBlockPaintsContinuationOutline) {
                     cb = renderer()->containingBlock()->containingBlock();
 
@@ -679,7 +679,7 @@ void InlineFlowBox::paint(RenderObject::PaintInfo& paintInfo, int tx, int ty)
                     // Add ourselves to the containing block of the entire continuation so that it can
                     // paint us atomically.
                     cb->addContinuationWithOutline(toRenderInline(renderer()->node()->renderer()));
-                } else if (!inlineFlow->isInlineContinuation())
+                } else if (!inlineFlow->isInlineElementContinuation())
                     paintInfo.outlineObjects->add(inlineFlow);
             }
         } else if (paintInfo.phase == PaintPhaseMask) {

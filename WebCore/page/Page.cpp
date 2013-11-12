@@ -29,6 +29,7 @@
 #include "ContextMenuClient.h"
 #include "ContextMenuController.h"
 #include "DOMWindow.h"
+#include "DeviceOrientation.h"
 #include "DragController.h"
 #include "EditorClient.h"
 #include "Event.h"
@@ -123,7 +124,7 @@ static void onPackageResultAvailable()
 }
 #endif
 
-Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, EditorClient* editorClient, DragClient* dragClient, InspectorClient* inspectorClient, PluginHalterClient* pluginHalterClient, GeolocationControllerClient* geolocationControllerClient)
+Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, EditorClient* editorClient, DragClient* dragClient, InspectorClient* inspectorClient, PluginHalterClient* pluginHalterClient, GeolocationControllerClient* geolocationControllerClient, DeviceOrientationClient* deviceOrientationClient)
     : m_chrome(new Chrome(this, chromeClient))
     , m_dragCaretController(new SelectionController(0, true))
 #if ENABLE(DRAG_SUPPORT)
@@ -138,6 +139,9 @@ Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, Edi
 #endif
 #if ENABLE(CLIENT_BASED_GEOLOCATION)
     , m_geolocationController(new GeolocationController(this, geolocationControllerClient))
+#endif
+#if ENABLE(DEVICE_ORIENTATION)
+    , m_deviceOrientation(new DeviceOrientation(this, deviceOrientationClient))
 #endif
     , m_settings(new Settings(this))
     , m_progress(new ProgressTracker)
@@ -172,6 +176,9 @@ Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, Edi
 #endif
 #if !ENABLE(CLIENT_BASED_GEOLOCATION)
     UNUSED_PARAM(geolocationControllerClient);
+#endif
+#if !ENABLE(CLIENT_DEVICE_ORIENTATION)
+    UNUSED_PARAM(deviceOrientationClient);
 #endif
 
     if (!allPages) {

@@ -1055,7 +1055,7 @@ void CacheBuilder::BuildFrame(Frame* root, Frame* frame,
             RenderStyle* style = nodeRenderer->style();
             if (style->visibility() == HIDDEN)
                 continue;
-            isTransparent = style->hasBackground() == false;
+            isTransparent = nodeRenderer->hasBackground() == false;
 #ifdef ANDROID_CSS_TAP_HIGHLIGHT_COLOR
             hasCursorRing = style->tapHighlightColor().alpha() > 0;
 #endif
@@ -1152,9 +1152,7 @@ void CacheBuilder::BuildFrame(Frame* root, Frame* frame,
             RenderBlock* renderBlock = (RenderBlock*) nodeRenderer;
             if (renderBlock->hasColumns()) {
                 columns = renderBlock->columnRects();
-#ifdef ANDROID_EXPOSE_COLUMN_GAP
                 columnGap = renderBlock->columnGap();
-#endif
                 direction = renderBlock->style()->direction();
             }
         }

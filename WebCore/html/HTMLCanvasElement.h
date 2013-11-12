@@ -88,13 +88,29 @@ public:
     bool is3D() const;
 #endif
 
+#ifdef ANDROID_INSTRUMENT
+    void* operator new(size_t size) {
+        return HTMLElement::operator new(size);
+    }
+    void* operator new[](size_t size) {
+        return HTMLElement::operator new[](size);
+    }
+
+    void operator delete(void* p, size_t size) {
+        HTMLElement::operator delete(p, size);
+    }
+    void operator delete[](void* p, size_t size) {
+        HTMLElement::operator delete[](p, size);
+    }
+#endif
+
 private:
 #if ENABLE(DASHBOARD_SUPPORT)
     virtual HTMLTagStatus endTagRequirement() const;
     virtual int tagPriority() const;
 #endif
 
-    virtual void parseMappedAttribute(MappedAttribute*);
+    virtual void parseMappedAttribute(Attribute*);
     virtual RenderObject* createRenderer(RenderArena*, RenderStyle*);
 
     void reset();

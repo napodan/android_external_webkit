@@ -797,9 +797,9 @@ PassRefPtr<JSC::Bindings::Instance> PluginView::bindingInstance()
     return instance.release();
 #else
     return 0;
-#endif  // NETSCAPE_PLUGIN_API
+#endif
 }
-#endif  // JSC
+#endif
 
 #if USE(V8)
 // This is really JS engine independent
@@ -920,6 +920,7 @@ PluginView::PluginView(Frame* parentFrame, const IntSize& size, PluginPackage* p
     , m_isJavaScriptPaused(false)
     , m_isHalted(false)
     , m_hasBeenHalted(false)
+    , m_haveCalledSetWindow(false)
 {
 #if defined(ANDROID_PLUGINS)
     platformInit();

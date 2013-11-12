@@ -52,6 +52,7 @@ LOCAL_SRC_FILES := \
 	jit/JITArithmetic.cpp \
 	jit/JITArithmetic32_64.cpp \
 	jit/JITCall.cpp \
+	jit/JITCall32_64.cpp \
 	jit/JITOpcodes.cpp \
 	jit/JITPropertyAccess.cpp \
 	jit/JITStubs.cpp \
@@ -117,6 +118,7 @@ LOCAL_SRC_FILES := \
 	runtime/JSNumberCell.cpp \
 	runtime/JSONObject.cpp \
 	runtime/JSObject.cpp \
+	runtime/JSObjectWithGlobalObject.cpp \
 	runtime/JSPropertyNameIterator.cpp \
 	runtime/JSStaticScopeObject.cpp \
 	runtime/JSString.cpp \
