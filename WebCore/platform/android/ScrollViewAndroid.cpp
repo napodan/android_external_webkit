@@ -54,7 +54,7 @@ namespace WebCore {
 
 IntRect ScrollView::platformVisibleContentRect(bool includeScrollbars) const
 {
-    IntRect rect = platformWidget()->getBounds();
+    IntRect rect = platformWidget()->getVisibleBounds();
     // This makes subframes draw correctly, since subframes cannot scroll.
     if (parent())
         return IntRect(0, 0, rect.width(), rect.height());
@@ -64,6 +64,34 @@ IntRect ScrollView::platformVisibleContentRect(bool includeScrollbars) const
 IntSize ScrollView::platformContentsSize() const
 {
     return m_contentsSize;
+}
+
+int ScrollView::platformActualWidth() const
+{
+    if (parent())
+        return width();
+    return platformWidget()->visibleWidth();
+}
+
+int ScrollView::platformActualHeight() const
+{
+    if (parent())
+        return height();
+    return platformWidget()->visibleHeight();
+}
+
+int ScrollView::platformActualScrollX() const
+{
+    if (parent())
+        return scrollX();
+    return platformWidget()->visibleX();
+}
+
+int ScrollView::platformActualScrollY() const
+{
+    if (parent())
+        return scrollY();
+    return platformWidget()->visibleY();
 }
 
 void ScrollView::platformSetScrollPosition(const WebCore::IntPoint& pt)
