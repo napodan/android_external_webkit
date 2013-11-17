@@ -65,7 +65,9 @@ public:
     void suspend();
     void resume();
 
+#if PLATFORM(ANDROID)
     void stop();
+#endif // PLATFORM(ANDROID)
 
     void setIsAllowed(bool);
     Frame* frame() const { return m_frame; }

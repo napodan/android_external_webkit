@@ -60,11 +60,8 @@ public:
             { };
     };
 
-    HTMLLinkElement(const QualifiedName&, Document*, bool createdByParser);
-    ~HTMLLinkElement();
-
-    virtual HTMLTagStatus endTagRequirement() const { return TagStatusForbidden; }
-    virtual int tagPriority() const { return 0; }
+    static PassRefPtr<HTMLLinkElement> create(const QualifiedName&, Document*, bool createdByParser);
+    virtual ~HTMLLinkElement();
 
     bool disabled() const;
     void setDisabled(bool);
@@ -95,7 +92,16 @@ public:
 
     StyleSheet* sheet() const;
 
-    // overload from HTMLElement
+    bool isLoading() const;
+
+    bool isDisabled() const { return m_disabledState == Disabled; }
+    bool isEnabledViaScript() const { return m_disabledState == EnabledViaScript; }
+    bool isIcon() const { return m_relAttribute.m_isIcon; }
+
+private:
+    virtual HTMLTagStatus endTagRequirement() const { return TagStatusForbidden; }
+    virtual int tagPriority() const { return 0; }
+
     virtual void parseMappedAttribute(Attribute*);
 
     void process();
@@ -107,20 +113,18 @@ public:
     virtual void setCSSStyleSheet(const String& href, const KURL& baseURL, const String& charset, const CachedCSSStyleSheet* sheet);
     virtual void notifyFinished(CachedResource*);
 
-    bool isLoading() const;
     virtual bool sheetLoaded();
 
     bool isAlternate() const { return m_disabledState == Unset && m_relAttribute.m_isAlternate; }
-    bool isDisabled() const { return m_disabledState == Disabled; }
-    bool isEnabledViaScript() const { return m_disabledState == EnabledViaScript; }
-    bool isIcon() const { return m_relAttribute.m_isIcon; }
     
     void setDisabledState(bool _disabled);
 
     virtual bool isURLAttribute(Attribute*) const;
     
+public:
     static void tokenizeRelAttribute(const AtomicString& value, RelAttribute&);
 
+private:
     virtual void addSubresourceAttributeURLs(ListHashSet<KURL>&) const;
 
     virtual void finishParsingChildren();
@@ -133,8 +137,9 @@ public:
     void operator delete[](void* p, size_t size);
 #endif
 
-protected:
+private:
     void timerFired(Timer<HTMLLinkElement>*);
+    HTMLLinkElement(const QualifiedName&, Document*, bool createdByParser);
 
     enum DisabledState {
         Unset,

@@ -31,7 +31,6 @@
 
 #if ENABLE(DATABASE)
 
-// ANDROID
 #include <wtf/RefCounted.h>
 #include <wtf/Threading.h>
 

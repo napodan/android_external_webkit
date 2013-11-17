@@ -343,10 +343,6 @@ GEN := \
     $(intermediates)/storage/JSDatabase.h \
     $(intermediates)/storage/JSDatabaseCallback.h \
     $(intermediates)/storage/JSDatabaseSync.h \
-    $(intermediates)/storage/JSIDBErrorEvent.h \
-    $(intermediates)/storage/JSIDBEvent.h \
-    $(intermediates)/storage/JSIDBRequest.h \
-    $(intermediates)/storage/JSIDBSuccessEvent.h \
     $(intermediates)/storage/JSSQLError.h \
     $(intermediates)/storage/JSSQLResultSet.h \
     $(intermediates)/storage/JSSQLResultSetRowList.h \
@@ -375,6 +371,29 @@ GEN := \
 
 $(GEN): PRIVATE_PATH := $(LOCAL_PATH)
 $(GEN): PRIVATE_CUSTOM_TOOL = perl -I$(PRIVATE_PATH)/bindings/scripts $(PRIVATE_PATH)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS --include dom --include html --outputdir $(dir $@) $<
+$(GEN): $(intermediates)/storage/JS%.h : $(LOCAL_PATH)/storage/%.idl $(js_binding_scripts)
+	$(transform-generated-source)
+LOCAL_GENERATED_SOURCES += $(GEN) $(GEN:%.h=%.cpp)
+
+# We also need the .cpp files, which are generated as side effects of the
+# above rules.  Specifying this explicitly makes -j2 work.
+$(patsubst %.h,%.cpp,$(GEN)): $(intermediates)/storage/%.cpp : $(intermediates)/storage/%.h
+
+# Indexed Database
+GEN := \
+    $(intermediates)/storage/JSIDBAny.h \
+    $(intermediates)/storage/JSIDBDatabaseError.h \
+    $(intermediates)/storage/JSIDBDatabaseException.h \
+    $(intermediates)/storage/JSIDBDatabaseRequest.h \
+    $(intermediates)/storage/JSIDBErrorEvent.h \
+    $(intermediates)/storage/JSIDBEvent.h \
+    $(intermediates)/storage/JSIDBIndexRequest.h \
+    $(intermediates)/storage/JSIDBRequest.h \
+    $(intermediates)/storage/JSIDBSuccessEvent.h \
+    $(intermediates)/storage/JSIndexedDatabaseRequest.h
+
+$(GEN): PRIVATE_PATH := $(LOCAL_PATH)
+$(GEN): PRIVATE_CUSTOM_TOOL = perl -I$(PRIVATE_PATH)/bindings/scripts $(PRIVATE_PATH)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator JS --include dom --include html --include storage --outputdir $(dir $@) $<
 $(GEN): $(intermediates)/storage/JS%.h : $(LOCAL_PATH)/storage/%.idl $(js_binding_scripts)
 	$(transform-generated-source)
 LOCAL_GENERATED_SOURCES += $(GEN) $(GEN:%.h=%.cpp)

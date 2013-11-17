@@ -337,10 +337,6 @@ GEN := \
     $(intermediates)/bindings/V8Database.h \
     $(intermediates)/bindings/V8DatabaseCallback.h \
     $(intermediates)/bindings/V8DatabaseSync.h \
-    $(intermediates)/bindings/V8IDBEvent.h \
-    $(intermediates)/bindings/V8IDBErrorEvent.h \
-    $(intermediates)/bindings/V8IDBRequest.h \
-    $(intermediates)/bindings/V8IDBSuccessEvent.h \
     $(intermediates)/bindings/V8SQLError.h \
     $(intermediates)/bindings/V8SQLResultSet.h \
     $(intermediates)/bindings/V8SQLResultSetRowList.h \
@@ -372,6 +368,29 @@ $(GEN): PRIVATE_CUSTOM_TOOL = SOURCE_ROOT=$(PRIVATE_PATH) perl -I$(PRIVATE_PATH)
 $(GEN): $(intermediates)/bindings/V8%.h : $(LOCAL_PATH)/storage/%.idl $(js_binding_scripts)
 	$(transform-generated-source)
 LOCAL_GENERATED_SOURCES += $(GEN) $(GEN:%.h=%.cpp)
+
+# We also need the .cpp files, which are generated as side effects of the
+# above rules.  Specifying this explicitly makes -j2 work.
+$(patsubst %.h,%.cpp,$(GEN)): $(intermediates)/bindings/%.cpp : $(intermediates)/bindings/%.h
+
+# Indexed Database
+GEN := \
+    $(intermediates)/bindings/V8IDBAny.h \
+    $(intermediates)/bindings/V8IDBDatabaseError.h \
+    $(intermediates)/bindings/V8IDBDatabaseException.h \
+    $(intermediates)/bindings/V8IDBDatabaseRequest.h \
+    $(intermediates)/bindings/V8IDBErrorEvent.h \
+    $(intermediates)/bindings/V8IDBEvent.h \
+    $(intermediates)/bindings/V8IDBIndexRequest.h \
+    $(intermediates)/bindings/V8IDBRequest.h \
+    $(intermediates)/bindings/V8IDBSuccessEvent.h \
+    $(intermediates)/bindings/V8IndexedDatabaseRequest.h
+
+$(GEN): PRIVATE_PATH := $(LOCAL_PATH)
+$(GEN): PRIVATE_CUSTOM_TOOL = SOURCE_ROOT=$(PRIVATE_PATH) perl -I$(PRIVATE_PATH)/bindings/scripts $(PRIVATE_PATH)/bindings/scripts/generate-bindings.pl --defines "$(FEATURE_DEFINES) LANGUAGE_JAVASCRIPT" --generator V8 --include dom --include html --include storage --outputdir $(dir $@) $<
+$(GEN): $(intermediates)/bindings/V8%.h : $(LOCAL_PATH)/storage/%.idl $(js_binding_scripts)
+	$(transform-generated-source)
+LOCAL_GENERATED_SOURCES += $(GEN)
 
 # We also need the .cpp files, which are generated as side effects of the
 # above rules.  Specifying this explicitly makes -j2 work.

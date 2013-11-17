@@ -697,12 +697,12 @@ v8::Handle<v8::Value> V8DOMWindow::openCallback(const v8::Arguments& args)
         windowFeatures.ySet = false;
     }
     if (!rawFeatures.widthSet) {
-        windowFeatures.width = 0;
-        windowFeatures.widthSet = false;
+      windowFeatures.width = 0;
+      windowFeatures.widthSet = false;
     }
     if (!rawFeatures.heightSet) {
-        windowFeatures.height = 0;
-        windowFeatures.heightSet = false;
+      windowFeatures.height = 0;
+      windowFeatures.heightSet = false;
     }
 
     frame = V8BindingDOMWindow::createWindow(V8BindingState::Only(), callingFrame, enteredFrame, frame, urlString, frameName, windowFeatures, v8::Local<v8::Value>());
@@ -809,7 +809,7 @@ v8::Handle<v8::Value> V8DOMWindow::openDatabaseCallback(const v8::Arguments& arg
         if (!args[4]->IsObject())
             return throwError(TYPE_MISMATCH_ERR);
 
-        creationCallback = V8DatabaseCallback::create(args[4], imp->frame());
+        creationCallback = V8DatabaseCallback::create(args[4]);
     }
 
     ExceptionCode ec = 0;

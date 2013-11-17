@@ -955,9 +955,9 @@ int DOMWindow::innerHeight() const
         return 0;
     
 #if PLATFORM(ANDROID)
-    return static_cast<int>(view->actualHeight() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->actualHeight() / view->pageZoomFactor());
 #else
-    return static_cast<int>(view->height() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->height() / view->pageZoomFactor());
 #endif
 }
 
@@ -971,9 +971,9 @@ int DOMWindow::innerWidth() const
         return 0;
 
 #if PLATFORM(ANDROID)
-    return static_cast<int>(view->actualWidth() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->actualWidth() / view->pageZoomFactor());
 #else
-    return static_cast<int>(view->width() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->width() / view->pageZoomFactor());
 #endif
 }
 
@@ -1013,9 +1013,9 @@ int DOMWindow::scrollX() const
     m_frame->document()->updateLayoutIgnorePendingStylesheets();
 
 #if PLATFORM(ANDROID)
-    return static_cast<int>(view->actualScrollX() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->actualScrollX() / view->pageZoomFactor());
 #else
-    return static_cast<int>(view->scrollX() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->scrollX() / view->pageZoomFactor());
 #endif
 }
 
@@ -1031,9 +1031,9 @@ int DOMWindow::scrollY() const
     m_frame->document()->updateLayoutIgnorePendingStylesheets();
 
 #if PLATFORM(ANDROID)
-    return static_cast<int>(view->actualScrollY() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->actualScrollY() / view->pageZoomFactor());
 #else
-    return static_cast<int>(view->scrollY() / m_frame->pageZoomFactor());
+    return static_cast<int>(view->scrollY() / view->pageZoomFactor());
 #endif
 }
 
@@ -1256,8 +1256,8 @@ void DOMWindow::scrollTo(int x, int y) const
     if (!view)
         return;
 
-    int zoomedX = static_cast<int>(x * m_frame->pageZoomFactor());
-    int zoomedY = static_cast<int>(y * m_frame->pageZoomFactor());
+    int zoomedX = static_cast<int>(x * view->pageZoomFactor());
+    int zoomedY = static_cast<int>(y * view->pageZoomFactor());
     view->setScrollPosition(IntPoint(zoomedX, zoomedY));
 }
 

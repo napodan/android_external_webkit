@@ -406,11 +406,12 @@ void Page::refreshPlugins(bool reload)
             page->m_pluginData = 0;
         }
 
-        if (reload) {
-            for (Frame* frame = (*it)->mainFrame(); frame; frame = frame->tree()->traverseNext()) {
-                if (frame->loader()->containsPlugins())
-                    framesNeedingReload.append(frame);
-            }
+        if (!reload)
+            continue;
+        
+        for (Frame* frame = (*it)->mainFrame(); frame; frame = frame->tree()->traverseNext()) {
+            if (frame->loader()->containsPlugins())
+                framesNeedingReload.append(frame);
         }
     }
 

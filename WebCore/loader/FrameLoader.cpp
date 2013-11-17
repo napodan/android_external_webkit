@@ -60,7 +60,9 @@
 #include "FrameLoaderClient.h"
 #include "FrameTree.h"
 #include "FrameView.h"
+#if PLATFORM(ANDROID)
 #include "Geolocation.h"
+#endif // PLATFORM(ANDROID)
 #include "HTMLAnchorElement.h"
 #include "HTMLAppletElement.h"
 #include "HTMLFormElement.h"
@@ -78,7 +80,9 @@
 #include "Logging.h"
 #include "MIMETypeRegistry.h"
 #include "MainResourceLoader.h"
+#if PLATFORM(ANDROID)
 #include "Navigator.h"
+#endif // PLATFORM(ANDROID)
 #include "Page.h"
 #include "PageCache.h"
 #include "PageGroup.h"
@@ -624,10 +628,12 @@ void FrameLoader::stopLoading(UnloadEventPolicy unloadEventPolicy, DatabasePolic
 #endif
     }
 
+#if PLATFORM(ANDROID)
      // Stop the Geolocation object, if present. This call is made after the unload
      // event has fired, so no new Geolocation activity is possible.
     if (m_frame->domWindow()->navigator()->optionalGeolocation())
         m_frame->domWindow()->navigator()->optionalGeolocation()->stop();
+#endif // PLATFORM(ANDROID)
 
     // tell all subframes to stop as well
     for (Frame* child = m_frame->tree()->firstChild(); child; child = child->tree()->nextSibling())
@@ -2196,6 +2202,7 @@ static bool canAccessAncestor(const SecurityOrigin* activeSecurityOrigin, Frame*
     if (!targetFrame)
         return false;
 
+    const bool isLocalActiveOrigin = activeSecurityOrigin->isLocal();
     for (Frame* ancestorFrame = targetFrame; ancestorFrame; ancestorFrame = ancestorFrame->tree()->parent()) {
         Document* ancestorDocument = ancestorFrame->document();
         if (!ancestorDocument)
@@ -2203,6 +2210,10 @@ static bool canAccessAncestor(const SecurityOrigin* activeSecurityOrigin, Frame*
 
         const SecurityOrigin* ancestorSecurityOrigin = ancestorDocument->securityOrigin();
         if (activeSecurityOrigin->canAccess(ancestorSecurityOrigin))
+            return true;
+        
+        // Allow file URL descendant navigation even when allowFileAccessFromFileURLs is false.
+        if (isLocalActiveOrigin && ancestorSecurityOrigin->isLocal())
             return true;
     }
 

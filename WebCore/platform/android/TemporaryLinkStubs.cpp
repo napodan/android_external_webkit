@@ -65,7 +65,6 @@
 #include "PageCache.h"
 #include "Pasteboard.h"
 #include "Path.h"
-#include "PluginInfoStore.h"
 #include "PluginWidget.h"
 #include "ResourceError.h"
 #include "ResourceHandle.h"
@@ -104,49 +103,9 @@ String WebCore::defaultLanguage()
 
 namespace WebCore {
 
-#if !defined(ANDROID_PLUGINS)
-// If plugins support is turned on, don't use these stubs.
-
-// Except for supportsMIMEType(), these Plugin functions are used by javascript's
-// navigator.plugins[] object to provide the list of available plugins. This is most
-// often used with to check to see if the browser supports Flash or which video
-// codec to use.
-// The supportsMIMEType() is used by the Frame to determine if a full screen instance
-// of a plugin can be used to render a mimetype that is not native to the browser.
-PluginInfo* PluginInfoStore::createPluginInfoForPluginAtIndex(unsigned)
-{
-    ASSERT_NOT_REACHED();
-    return 0;
-}
-
-unsigned PluginInfoStore::pluginCount() const
-{
-    verifiedOk();
-    return 0;
-}
-
-String PluginInfoStore::pluginNameForMIMEType(const String&)
-{
-    notImplemented();
-    return String();
-}
-
-bool PluginInfoStore::supportsMIMEType(const String&)
-{
-    verifiedOk();
-    return false;
-}
-
-void refreshPlugins(bool)
-{
-    verifiedOk();
-}
-
-#endif // !defined(ANDROID_PLUGINS)
-
 // Needed to link with PluginWidget as a parent class of PluginToggleWidget. Mac
 // defines this in plugins/mac/PluginWidgetMac.mm
-void PluginWidget::invalidateRect(const IntRect&) {}
+void PluginWidget::invalidateRect(const IntRect&) { }
 
 // This function tells the bridge that a resource was loaded from the cache and thus
 // the app may update progress with the amount of data loaded.
