@@ -69,7 +69,7 @@ static String& pageCacheLogPrefix(int indentLevel)
 
 static void pageCacheLog(const String& prefix, const String& message)
 {
-    LOG(PageCache, "%s%s", prefix.utf8().data(), message.utf8().data());
+    ALOG(PageCache, "%s%s", prefix.utf8().data(), message.utf8().data());
 }
     
 #define PCLOG(...) pageCacheLog(pageCacheLogPrefix(indentLevel), String::format(__VA_ARGS__))
@@ -356,7 +356,7 @@ CachedPage* PageCache::get(HistoryItem* item)
         if (currentTime() - cachedPage->timeStamp() <= 1800)
             return cachedPage;
         
-        LOG(PageCache, "Not restoring page for %s from back/forward cache because cache entry has expired", item->url().string().ascii().data());
+        ALOG(PageCache, "Not restoring page for %s from back/forward cache because cache entry has expired", item->url().string().ascii().data());
         pageCache()->remove(item);
     }
     return 0;
