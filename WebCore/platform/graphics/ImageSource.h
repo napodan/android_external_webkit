@@ -61,6 +61,7 @@ class BBitmap;
 
 namespace WebCore {
 
+class IntPoint;
 class IntSize;
 class SharedBuffer;
 class String;
@@ -172,6 +173,7 @@ public:
     bool isSizeAvailable();
     IntSize size() const;
     IntSize frameSizeAtIndex(size_t) const;
+    bool getHotSpot(IntPoint&) const;
 
     int repetitionCount();
 
@@ -185,10 +187,16 @@ public:
     bool frameHasAlphaAtIndex(size_t); // Whether or not the frame actually used any alpha.
     bool frameIsCompleteAtIndex(size_t); // Whether or not the frame is completely decoded.
 
+#if ENABLE(IMAGE_DECODER_DOWN_SAMPLING)
+    static unsigned maxPixelsPerDecodedImage() { return s_maxPixelsPerDecodedImage; }
+    static void setMaxPixelsPerDecodedImage(unsigned maxPixels) { s_maxPixelsPerDecodedImage = maxPixels; }
+#endif
+
 #if PLATFORM(ANDROID)
     void clearURL();
     void setURL(const String& url);
 #endif
+
 private:
 #if PLATFORM(ANDROID)
     // FIXME: This is protected only to allow ImageSourceSkia to set ICO decoder
@@ -196,6 +204,9 @@ private:
 protected:
 #endif
     NativeImageSourcePtr m_decoder;
+#if ENABLE(IMAGE_DECODER_DOWN_SAMPLING)
+    static unsigned s_maxPixelsPerDecodedImage;
+#endif
 };
 
 }

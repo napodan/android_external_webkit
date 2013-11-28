@@ -42,6 +42,7 @@
 #include "RenderFlexibleBox.h"
 #include "RenderImageGeneratedContent.h"
 #include "RenderInline.h"
+#include "RenderLayer.h"
 #include "RenderListItem.h"
 #include "RenderRuby.h"
 #include "RenderRubyText.h"
@@ -222,7 +223,7 @@ RenderObject::RenderObject(Node* node)
 
 RenderObject::~RenderObject()
 {
-    ASSERT(!node() || documentBeingDestroyed() || !document()->frame()->view() || document()->frame()->view()->layoutRoot() != this);
+    ASSERT(!node() || documentBeingDestroyed() || !frame()->view() || frame()->view()->layoutRoot() != this);
 #ifndef NDEBUG
     ASSERT(!m_hasAXObject);
     renderObjectCounter.decrement();
@@ -1402,7 +1403,7 @@ Color RenderObject::selectionBackgroundColor() const
         if (pseudoStyle && pseudoStyle->visitedDependentColor(CSSPropertyBackgroundColor).isValid())
             color = pseudoStyle->visitedDependentColor(CSSPropertyBackgroundColor).blendWithWhite();
         else
-            color = document()->frame()->selection()->isFocusedAndActive() ?
+            color = frame()->selection()->isFocusedAndActive() ?
                     theme()->activeSelectionBackgroundColor() :
                     theme()->inactiveSelectionBackgroundColor();
     }
@@ -1421,7 +1422,7 @@ Color RenderObject::selectionForegroundColor() const
         if (!color.isValid())
             color = pseudoStyle->visitedDependentColor(CSSPropertyColor);
     } else
-        color = document()->frame()->selection()->isFocusedAndActive() ?
+        color = frame()->selection()->isFocusedAndActive() ?
                 theme()->activeSelectionForegroundColor() :
                 theme()->inactiveSelectionForegroundColor();
 
@@ -1961,9 +1962,9 @@ void RenderObject::destroy()
     // FIXME: RenderObject::destroy should not get called with a renderer whose document
     // has a null frame, so we assert this. However, we don't want release builds to crash which is why we
     // check that the frame is not null.
-    ASSERT(document()->frame());
-    if (document()->frame() && document()->frame()->eventHandler()->autoscrollRenderer() == this)
-        document()->frame()->eventHandler()->stopAutoscrollTimer(true);
+    ASSERT(frame());
+    if (frame() && frame()->eventHandler()->autoscrollRenderer() == this)
+        frame()->eventHandler()->stopAutoscrollTimer(true);
 
     if (m_hasCounterNodeMap)
         RenderCounter::destroyCounterNodes(this);
@@ -2289,8 +2290,8 @@ void RenderObject::addDashboardRegions(Vector<DashboardRegionValue>& regions)
         region.bounds.setX(absPos.x() + styleRegion.offset.left().value());
         region.bounds.setY(absPos.y() + styleRegion.offset.top().value());
 
-        if (document()->frame()) {
-            float pageScaleFactor = document()->frame()->page()->chrome()->scaleFactor();
+        if (frame()) {
+            float pageScaleFactor = frame()->page()->chrome()->scaleFactor();
             if (pageScaleFactor != 1.0f) {
                 region.bounds.scale(pageScaleFactor);
                 region.clip.scale(pageScaleFactor);
@@ -2395,7 +2396,7 @@ void RenderObject::adjustRectForOutlineAndShadow(IntRect& rect) const
 
 AnimationController* RenderObject::animation() const
 {
-    return document()->frame()->animation();
+    return frame()->animation();
 }
 
 void RenderObject::imageChanged(CachedImage* image, const IntRect* rect)

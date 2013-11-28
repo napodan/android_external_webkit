@@ -28,6 +28,7 @@
 #include "GraphicsContext.h"
 #include "HitTestResult.h"
 #include "RenderCounter.h"
+#include "RenderLayer.h"
 #include "RenderView.h"
 #include "RenderWidgetProtector.h"
 
@@ -337,7 +338,7 @@ void RenderWidget::updateWidgetPosition()
 #ifndef ANDROID_FLATTEN_IFRAME
     // if the frame bounds got changed, or if view needs layout (possibly indicating
     // content size is wrong) we have to do a layout to set the right widget size
-    if (m_widget->isFrameView()) {
+    if (m_widget && m_widget->isFrameView()) {
         FrameView* frameView = static_cast<FrameView*>(m_widget.get());
         if (boundsChanged || frameView->needsLayout())
             frameView->layout();

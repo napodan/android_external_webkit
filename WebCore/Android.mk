@@ -46,6 +46,7 @@ LOCAL_SRC_FILES := \
 	css/CSSInitialValue.cpp \
 	css/CSSMediaRule.cpp \
 	css/CSSMutableStyleDeclaration.cpp \
+	css/CSSOMUtils.cpp \
 	css/CSSPageRule.cpp \
 	css/CSSParser.cpp \
 	css/CSSParserValues.cpp \
@@ -185,9 +186,9 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/WebKitAnimationEvent.cpp \
 	dom/WebKitTransitionEvent.cpp \
 	dom/WheelEvent.cpp \
-	dom/XMLTokenizer.cpp \
-	dom/XMLTokenizerLibxml2.cpp \
-	dom/XMLTokenizerScope.cpp \
+	dom/XMLDocumentParser.cpp \
+	dom/XMLDocumentParserLibxml2.cpp \
+	dom/XMLDocumentParserScope.cpp \
 	dom/default/PlatformMessagePortChannel.cpp \
 	\
 	editing/AppendNodeCommand.cpp \
@@ -246,6 +247,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	\
 	history/android/HistoryItemAndroid.cpp \
 	\
+	html/AsyncImageResizer.cpp \
 	html/Blob.cpp \
 	html/CollectionCache.cpp \
 	html/DateComponents.cpp \
@@ -257,26 +259,28 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/FileStreamProxy.cpp \
 	html/FileThread.cpp \
 	html/FormDataList.cpp \
+	html/HTML5EntityParser.cpp \
 	html/HTML5Lexer.cpp \
-	html/HTML5Tokenizer.cpp \
+	html/HTML5DocumentParser.cpp \
 	html/HTML5TreeBuilder.cpp \
 	html/HTML5ScriptRunner.cpp \
 	html/HTMLAllCollection.cpp \
 	html/HTMLCollection.cpp \
 	html/HTMLDataListElement.cpp \
 	html/HTMLDocument.cpp \
+	html/HTMLDocumentParser.cpp \
 	html/HTMLElementsAllInOne.cpp \
 	html/HTMLFormCollection.cpp \
 	html/HTMLImageLoader.cpp \
 	html/HTMLNameCollection.cpp \
 	html/HTMLOptionsCollection.cpp \
-	html/HTMLParser.cpp \
 	html/HTMLParserErrorCodes.cpp \
 	html/HTMLTableRowsCollection.cpp \
-	html/HTMLTokenizer.cpp \
 	html/HTMLViewSourceDocument.cpp \
 	html/ImageData.cpp \
+	html/ImageResizerThread.cpp \
 	html/LabelsNodeList.cpp \
+	html/LegacyHTMLTreeConstructor.cpp \
 	html/PreloadScanner.cpp \
 	html/StepRange.cpp \
 	html/TimeRanges.cpp \
@@ -290,6 +294,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/canvas/CanvasRenderingContext.cpp \
 	html/canvas/CanvasRenderingContext2D.cpp \
 	html/canvas/CanvasStyle.cpp \
+	html/canvas/Float32Array.cpp \
 	\
 	loader/Cache.cpp \
 	loader/CachedCSSStyleSheet.cpp \
@@ -363,6 +368,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	page/GeolocationPositionCache.cpp \
 	page/History.cpp \
 	page/Location.cpp \
+	page/MemoryInfo.cpp \
 	page/MouseEventWithHitTestResults.cpp \
 	page/Navigator.cpp \
 	page/NavigatorBase.cpp \
@@ -392,9 +398,11 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	page/animation/KeyframeAnimation.cpp \
 	\
 	platform/Arena.cpp \
+	platform/BlobItem.cpp \
 	platform/ContentType.cpp \
 	platform/ContextMenu.cpp \
 	platform/CrossThreadCopier.cpp \
+	platform/Cursor.cpp \
 	platform/DeprecatedPtrListImpl.cpp \
 	platform/DragData.cpp \
 	platform/DragImage.cpp \
@@ -724,6 +732,7 @@ endif
 
 LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/ScrollBehavior.cpp \
+	rendering/ShadowElement.cpp \
 	rendering/TextControlInnerElements.cpp \
 	rendering/TransformState.cpp \
 	rendering/break_lines.cpp \
@@ -772,7 +781,8 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	storage/IDBEvent.cpp \
 	storage/IDBIndexImpl.cpp \
 	storage/IDBIndexRequest.cpp \
-	storage/IDBObjectStore.cpp \
+	storage/IDBKeyRange.cpp \
+	storage/IDBObjectStoreImpl.cpp \
 	storage/IDBObjectStoreRequest.cpp \
 	storage/IDBRequest.cpp \
 	storage/IDBSuccessEvent.cpp \

@@ -74,7 +74,8 @@ CONFIG(QTDIR_build) {
     !static: DEFINES += QT_MAKEDLL
     symbian: TARGET =$$TARGET$${QT_LIBINFIX}
 }
-include($$PWD/../WebKit/qt/qtwebkit_version.pri)
+moduleFile=$$PWD/../WebKit/qt/qt_webkit_version.pri
+include($$moduleFile)
 VERSION = $${QT_WEBKIT_MAJOR_VERSION}.$${QT_WEBKIT_MINOR_VERSION}.$${QT_WEBKIT_PATCH_VERSION}
 
 unix {
@@ -340,7 +341,6 @@ SOURCES += \
     bindings/js/JSTreeWalkerCustom.cpp \
     bindings/js/JSWebKitCSSMatrixConstructor.cpp \
     bindings/js/JSWebKitPointConstructor.cpp \
-    bindings/js/JSXMLHttpRequestConstructor.cpp \
     bindings/js/JSXMLHttpRequestCustom.cpp \
     bindings/js/JSXMLHttpRequestUploadCustom.cpp \
     bindings/js/JSPluginCustom.cpp \
@@ -406,6 +406,7 @@ SOURCES += \
     css/CSSInitialValue.cpp \
     css/CSSMediaRule.cpp \
     css/CSSMutableStyleDeclaration.cpp \
+    css/CSSOMUtils.cpp \
     css/CSSPageRule.cpp \
     css/CSSParser.cpp \
     css/CSSParserValues.cpp \
@@ -535,8 +536,8 @@ SOURCES += \
     dom/WebKitAnimationEvent.cpp \
     dom/WebKitTransitionEvent.cpp \
     dom/WheelEvent.cpp \
-    dom/XMLTokenizer.cpp \
-    dom/XMLTokenizerQt.cpp \
+    dom/XMLDocumentParser.cpp \
+    dom/XMLDocumentParserQt.cpp \
     dom/default/PlatformMessagePortChannel.cpp \
     editing/AppendNodeCommand.cpp \
     editing/ApplyStyleCommand.cpp \
@@ -590,6 +591,7 @@ SOURCES += \
     history/HistoryItem.cpp \
     history/qt/HistoryItemQt.cpp \
     history/PageCache.cpp \
+    html/AsyncImageResizer.cpp \
     html/Blob.cpp \
     html/canvas/CanvasGradient.cpp \
     html/canvas/CanvasPattern.cpp \
@@ -610,8 +612,9 @@ SOURCES += \
     html/FileStreamProxy.cpp \
     html/FileThread.cpp \
     html/FormDataList.cpp \
+    html/HTML5EntityParser.cpp \
     html/HTML5Lexer.cpp \
-    html/HTML5Tokenizer.cpp \
+    html/HTML5DocumentParser.cpp \
     html/HTML5TreeBuilder.cpp \
     html/HTML5ScriptRunner.cpp \
     html/HTMLAllCollection.cpp \
@@ -674,7 +677,7 @@ SOURCES += \
     html/HTMLOptionsCollection.cpp \
     html/HTMLParagraphElement.cpp \
     html/HTMLParamElement.cpp \
-    html/HTMLParser.cpp \
+    html/LegacyHTMLTreeConstructor.cpp \
     html/HTMLParserErrorCodes.cpp \
     html/HTMLPlugInElement.cpp \
     html/HTMLPlugInImageElement.cpp \
@@ -694,10 +697,11 @@ SOURCES += \
     html/HTMLTableSectionElement.cpp \
     html/HTMLTextAreaElement.cpp \
     html/HTMLTitleElement.cpp \
-    html/HTMLTokenizer.cpp \
+    html/HTMLDocumentParser.cpp \
     html/HTMLUListElement.cpp \
     html/HTMLViewSourceDocument.cpp \
     html/ImageData.cpp \
+    html/ImageResizerThread.cpp \
     html/LabelsNodeList.cpp \
     html/PreloadScanner.cpp \
     html/StepRange.cpp \
@@ -791,6 +795,7 @@ SOURCES += \
     page/GeolocationPositionCache.cpp \
     page/History.cpp \
     page/Location.cpp \
+    page/MemoryInfo.cpp \
     page/MouseEventWithHitTestResults.cpp \
     page/OriginAccessEntry.cpp \
     page/Page.cpp \
@@ -815,6 +820,7 @@ SOURCES += \
     platform/animation/Animation.cpp \
     platform/animation/AnimationList.cpp \
     platform/Arena.cpp \
+    platform/BlobItem.cpp \
     platform/text/Base64.cpp \
     platform/text/BidiContext.cpp \
     platform/ContentType.cpp \
@@ -984,6 +990,7 @@ SOURCES += \
     rendering/RootInlineBox.cpp \
     rendering/SVGRenderTreeAsText.cpp \
     rendering/ScrollBehavior.cpp \
+    rendering/ShadowElement.cpp \
     rendering/TextControlInnerElements.cpp \
     rendering/TransformState.cpp \
     rendering/style/BindingURI.cpp \
@@ -1077,7 +1084,6 @@ HEADERS += \
     bindings/js/JSWorkerConstructor.h \
     bindings/js/JSWorkerContextBase.h \
     bindings/js/JSWorkerContextErrorHandler.h \
-    bindings/js/JSXMLHttpRequestConstructor.h \
     bindings/js/JSXSLTProcessorConstructor.h \
     bindings/js/JavaScriptCallFrame.h \
     bindings/js/ScheduledAction.h \
@@ -1140,6 +1146,7 @@ HEADERS += \
     css/CSSInitialValue.h \
     css/CSSMediaRule.h \
     css/CSSMutableStyleDeclaration.h \
+    css/CSSOMUtils.h \
     css/CSSPageRule.h \
     css/CSSParser.h \
     css/CSSParserValues.h \
@@ -1269,7 +1276,7 @@ HEADERS += \
     dom/WebKitAnimationEvent.h \
     dom/WebKitTransitionEvent.h \
     dom/WheelEvent.h \
-    dom/XMLTokenizer.h \
+    dom/XMLDocumentParser.h \
     editing/AppendNodeCommand.h \
     editing/ApplyStyleCommand.h \
     editing/BreakBlockquoteCommand.h \
@@ -1280,6 +1287,7 @@ HEADERS += \
     editing/DeleteFromTextNodeCommand.h \
     editing/DeleteSelectionCommand.h \
     editing/EditCommand.h \
+    editing/EditingBehavior.h \
     editing/Editor.h \
     editing/FormatBlockCommand.h \
     editing/htmlediting.h \
@@ -1320,6 +1328,7 @@ HEADERS += \
     history/CachedPage.h \
     history/HistoryItem.h \
     history/PageCache.h \
+    html/AsyncImageResizer.h \
     html/Blob.h \
     html/canvas/CanvasGradient.h \
     html/canvas/CanvasPattern.h \
@@ -1406,7 +1415,7 @@ HEADERS += \
     html/HTMLParagraphElement.h \
     html/HTMLParamElement.h \
     html/HTMLParserErrorCodes.h \
-    html/HTMLParser.h \
+    html/LegacyHTMLTreeConstructor.h \
     html/HTMLPlugInElement.h \
     html/HTMLPlugInImageElement.h \
     html/HTMLPreElement.h \
@@ -1426,11 +1435,12 @@ HEADERS += \
     html/HTMLTableSectionElement.h \
     html/HTMLTextAreaElement.h \
     html/HTMLTitleElement.h \
-    html/HTMLTokenizer.h \
+    html/HTMLDocumentParser.h \
     html/HTMLUListElement.h \
     html/HTMLVideoElement.h \
     html/HTMLViewSourceDocument.h \
     html/ImageData.h \
+    html/ImageResizerThread.h \
     html/LabelsNodeList.h \
     html/PreloadScanner.h \
     html/StepRange.h \
@@ -1564,6 +1574,7 @@ HEADERS += \
     platform/animation/Animation.h \
     platform/animation/AnimationList.h \
     platform/Arena.h \
+    platform/BlobItem.h \
     platform/ContentType.h \
     platform/ContextMenu.h \
     platform/CrossThreadCopier.h \
@@ -1795,6 +1806,7 @@ HEADERS += \
     rendering/RenderWordBreak.h \
     rendering/RootInlineBox.h \
     rendering/ScrollBehavior.h \
+    rendering/ShadowElement.h \
     rendering/style/BindingURI.h \
     rendering/style/ContentData.h \
     rendering/style/CounterDirectives.h \
@@ -2104,6 +2116,7 @@ SOURCES += \
     platform/network/qt/QNetworkReplyHandler.cpp \
     editing/qt/EditorQt.cpp \
     editing/qt/SmartReplaceQt.cpp \
+    platform/Cursor.cpp \
     platform/qt/ClipboardQt.cpp \
     platform/qt/ContextMenuItemQt.cpp \
     platform/qt/ContextMenuQt.cpp \
@@ -2230,7 +2243,7 @@ contains(DEFINES, ENABLE_NETSCAPE_PLUGIN_API=1) {
             mac {
                 SOURCES += \
                     plugins/mac/PluginPackageMac.cpp \
-                    plugins/mac/PluginViewMac.cpp
+                    plugins/mac/PluginViewMac.mm
                 OBJECTIVE_SOURCES += \
                     platform/text/mac/StringImplMac.mm \
                     platform/mac/WebCoreNSStringExtras.mm
@@ -2349,7 +2362,9 @@ contains(DEFINES, ENABLE_INDEXED_DATABASE=1) {
         storage/IDBIndex.h \
         storage/IDBIndexImpl.h \
         storage/IDBIndexRequest.h \
+        storage/IDBKeyRange.h \
         storage/IDBObjectStore.h \
+        storage/IDBObjectStoreImpl.h \
         storage/IDBObjectStoreRequest.h \
         storage/IDBRequest.h \
         storage/IDBSuccessEvent.h \
@@ -2366,7 +2381,8 @@ contains(DEFINES, ENABLE_INDEXED_DATABASE=1) {
         storage/IDBEvent.cpp \
         storage/IDBIndexImpl.cpp \
         storage/IDBIndexRequest.cpp \
-        storage/IDBObjectStore.cpp \
+        storage/IDBKeyRange.cpp \
+        storage/IDBObjectStoreImpl.cpp \
         storage/IDBObjectStoreRequest.cpp \
         storage/IDBRequest.cpp \
         storage/IDBSuccessEvent.cpp \
@@ -2621,8 +2637,22 @@ contains(DEFINES, ENABLE_QT_BEARER=1) {
     SOURCES += \
         platform/network/qt/NetworkStateNotifierQt.cpp
 
+    # Bearer management is part of Qt 4.7, so don't accidentially
+    # pull in Qt Mobility when building against >= 4.7
+    !greaterThan(QT_MINOR_VERSION, 6) {
+        CONFIG += mobility
+        MOBILITY += bearer
+    }
+}
+
+contains(DEFINES, ENABLE_GEOLOCATION=1) {
+    HEADERS += \
+        platform/qt/GeolocationServiceQt.h
+    SOURCES += \
+        platform/qt/GeolocationServiceQt.cpp
+
     CONFIG += mobility
-    MOBILITY += bearer
+    MOBILITY += location
 }
 
 contains(DEFINES, ENABLE_SVG=1) {
@@ -2885,7 +2915,7 @@ HEADERS += \
 	bindings/js/JSArrayBufferConstructor.h \
 	bindings/js/JSArrayBufferViewHelper.h \
 	bindings/js/JSInt8ArrayConstructor.h \
-	bindings/js/JSFloatArrayConstructor.h \
+	bindings/js/JSFloat32ArrayConstructor.h \
 	bindings/js/JSInt32ArrayConstructor.h \
 	bindings/js/JSInt16ArrayConstructor.h \
 	bindings/js/JSUint8ArrayConstructor.h \
@@ -2899,7 +2929,7 @@ HEADERS += \
 	html/canvas/WebGLBuffer.h \
 	html/canvas/Int8Array.h \
 	html/canvas/WebGLContextAttributes.h \
-	html/canvas/FloatArray.h \
+	html/canvas/Float32Array.h \
 	html/canvas/WebGLFramebuffer.h \
 	html/canvas/WebGLGetInfo.h \
 	html/canvas/Int32Array.h \
@@ -2920,8 +2950,8 @@ SOURCES += \
 	bindings/js/JSArrayBufferViewCustom.cpp \
 	bindings/js/JSInt8ArrayConstructor.cpp \
 	bindings/js/JSInt8ArrayCustom.cpp \
-	bindings/js/JSFloatArrayConstructor.cpp \
-	bindings/js/JSFloatArrayCustom.cpp \
+	bindings/js/JSFloat32ArrayConstructor.cpp \
+	bindings/js/JSFloat32ArrayCustom.cpp \
 	bindings/js/JSInt32ArrayConstructor.cpp \
 	bindings/js/JSInt32ArrayCustom.cpp \
 	bindings/js/JSWebGLRenderingContextCustom.cpp \
@@ -2940,7 +2970,7 @@ SOURCES += \
 	html/canvas/WebGLBuffer.cpp \
 	html/canvas/Int8Array.cpp \
 	html/canvas/WebGLContextAttributes.cpp \
-	html/canvas/FloatArray.cpp \
+	html/canvas/Float32Array.cpp \
 	html/canvas/WebGLFramebuffer.cpp \
 	html/canvas/WebGLGetInfo.cpp \
 	html/canvas/Int32Array.cpp \
@@ -2970,31 +3000,45 @@ contains(DEFINES, ENABLE_SYMBIAN_DIALOG_PROVIDERS) {
 include($$PWD/../WebKit/qt/Api/headers.pri)
 HEADERS += $$WEBKIT_API_HEADERS
 
-!CONFIG(QTDIR_build) {
+CONFIG(QTDIR_build) {
+    modfile.files = $$moduleFile
+    modfile.path = $$[QMAKE_MKSPECS]/modules
+
+    INSTALLS += modfile
+} else {
     exists($$OUTPUT_DIR/include/QtWebKit/classheaders.pri): include($$OUTPUT_DIR/include/QtWebKit/classheaders.pri)
     WEBKIT_INSTALL_HEADERS = $$WEBKIT_API_HEADERS $$WEBKIT_CLASS_HEADERS
 
     !symbian {
         headers.files = $$WEBKIT_INSTALL_HEADERS
 
-        headers.path = $$INSTALL_HEADERS/QtWebKit
-        target.path = $$INSTALL_LIBS
+        !isEmpty(INSTALL_HEADERS): headers.path = $$INSTALL_HEADERS/QtWebKit
+        else: headers.path = $$[QT_INSTALL_HEADERS]/QtWebKit
 
-        isEmpty(INSTALL_HEADERS): headers.path = $$[QT_INSTALL_HEADERS]/QtWebKit
-        isEmpty(INSTALL_LIBS): target.path = $$[QT_INSTALL_LIBS]
+        !isEmpty(INSTALL_LIBS): target.path = $$INSTALL_LIBS
+        else: target.path = $$[QT_INSTALL_LIBS]
 
-        INSTALLS += target headers
+        modfile.files = $$moduleFile
+        modfile.path = $$[QMAKE_MKSPECS]/modules
+
+        INSTALLS += target headers modfile
     } else {
         # INSTALLS is not implemented in qmake's s60 generators, copy headers manually
         inst_headers.commands = $$QMAKE_COPY ${QMAKE_FILE_NAME} ${QMAKE_FILE_OUT}
         inst_headers.input = WEBKIT_INSTALL_HEADERS
 
-        isEmpty(INSTALL_HEADERS): inst_headers.output = $$[QT_INSTALL_HEADERS]/QtWebKit/${QMAKE_FILE_BASE}${QMAKE_FILE_EXT}
-        inst_headers.output = $$INSTALL_HEADERS/QtWebKit/${QMAKE_FILE_BASE}${QMAKE_FILE_EXT}
+        !isEmpty(INSTALL_HEADERS): inst_headers.output = $$INSTALL_HEADERS/QtWebKit/${QMAKE_FILE_BASE}${QMAKE_FILE_EXT}
+        else: inst_headers.output = $$[QT_INSTALL_HEADERS]/QtWebKit/${QMAKE_FILE_BASE}${QMAKE_FILE_EXT}
 
         QMAKE_EXTRA_COMPILERS += inst_headers
 
-        install.depends += compiler_inst_headers_make_all
+        inst_modfile.commands = $$inst_headers.commands
+        inst_modfile.input = moduleFile
+        inst_modfile.output = $$[QMAKE_MKSPECS]/modules
+
+        QMAKE_EXTRA_COMPILERS += inst_modfile
+
+        install.depends += compiler_inst_headers_make_all compiler_inst_modfile_make_all
         QMAKE_EXTRA_TARGETS += install
     }
 
@@ -3012,7 +3056,7 @@ HEADERS += $$WEBKIT_API_HEADERS
         QMAKE_PKGCONFIG_LIBDIR = $$target.path
         QMAKE_PKGCONFIG_INCDIR = $$headers.path
         QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-        lib_replace.match = $$DESTDIR
+        lib_replace.match = $$re_escape($$DESTDIR)
         lib_replace.replace = $$[QT_INSTALL_LIBS]
         QMAKE_PKGCONFIG_INSTALL_REPLACE += lib_replace
     }

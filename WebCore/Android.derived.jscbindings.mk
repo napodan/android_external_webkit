@@ -261,7 +261,7 @@ GEN := \
     $(intermediates)/html/canvas/JSCanvasPattern.h \
     $(intermediates)/html/canvas/JSCanvasRenderingContext.h \
     $(intermediates)/html/canvas/JSCanvasRenderingContext2D.h \
-    $(intermediates)/html/canvas/JSFloatArray.h \
+    $(intermediates)/html/canvas/JSFloat32Array.h \
     $(intermediates)/html/canvas/JSInt8Array.h \
     $(intermediates)/html/canvas/JSInt16Array.h \
     $(intermediates)/html/canvas/JSInt32Array.h \
@@ -306,6 +306,7 @@ GEN := \
     $(intermediates)/page/JSGeoposition.h \
     $(intermediates)/page/JSHistory.h \
     $(intermediates)/page/JSLocation.h \
+    $(intermediates)/page/JSMemoryInfo.h \
     $(intermediates)/page/JSNavigator.h \
     $(intermediates)/page/JSPositionError.h \
     $(intermediates)/page/JSScreen.h \
@@ -388,6 +389,7 @@ GEN := \
     $(intermediates)/storage/JSIDBErrorEvent.h \
     $(intermediates)/storage/JSIDBEvent.h \
     $(intermediates)/storage/JSIDBIndexRequest.h \
+    $(intermediates)/storage/JSIDBKeyRange.h \
     $(intermediates)/storage/JSIDBRequest.h \
     $(intermediates)/storage/JSIDBSuccessEvent.h \
     $(intermediates)/storage/JSIndexedDatabaseRequest.h
