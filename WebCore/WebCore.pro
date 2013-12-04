@@ -26,7 +26,7 @@ symbian: {
     webkitbackup.path = /private/10202D56/import/packages/$$replace(TARGET.UID3, 0x,)
 
     contains(QT_CONFIG, declarative) {
-         declarativeImport.sources = qmlwebkitplugin$${QT_LIBINFIX}.dll
+         declarativeImport.sources = $$QT_BUILD_TREE/imports/QtWebKit/qmlwebkitplugin$${QT_LIBINFIX}.dll
          declarativeImport.sources += ../WebKit/qt/declarative/qmldir
          declarativeImport.path = c:$$QT_IMPORTS_BASE_DIR/QtWebKit
          DEPLOYMENT += declarativeImport
@@ -35,8 +35,10 @@ symbian: {
     DEPLOYMENT += webkitlibs webkitbackup
 
     # Need to guarantee that these come before system includes of /epoc32/include
-    MMP_RULES += "USERINCLUDE rendering"
+    MMP_RULES += "USERINCLUDE bridge"
+    MMP_RULES += "USERINCLUDE platform/animation"
     MMP_RULES += "USERINCLUDE platform/text"
+    MMP_RULES += "USERINCLUDE rendering"
     symbian-abld|symbian-sbsv2 {
         # RO text (code) section in qtwebkit.dll exceeds allocated space for gcce udeb target.
         # Move RW-section base address to start from 0xE00000 instead of the toolchain default 0x400000.
@@ -299,6 +301,7 @@ SOURCES += \
     bindings/js/JSDocumentCustom.cpp \
     bindings/js/JSDOMFormDataCustom.cpp \
     bindings/js/JSDOMGlobalObject.cpp \
+    bindings/js/JSDOMStringMapCustom.cpp \
     bindings/js/JSDOMWindowBase.cpp \
     bindings/js/JSDOMWindowCustom.cpp \
     bindings/js/JSDOMWindowShell.cpp \
@@ -321,7 +324,6 @@ SOURCES += \
     bindings/js/JSHTMLFormElementCustom.cpp \
     bindings/js/JSHTMLFrameElementCustom.cpp \
     bindings/js/JSHTMLFrameSetElementCustom.cpp \
-    bindings/js/JSHTMLIFrameElementCustom.cpp \
     bindings/js/JSHTMLInputElementCustom.cpp \
     bindings/js/JSHTMLObjectElementCustom.cpp \
     bindings/js/JSHTMLOptionsCollectionCustom.cpp \
@@ -456,6 +458,7 @@ SOURCES += \
     dom/ActiveDOMObject.cpp \
     dom/Attr.cpp \
     dom/Attribute.cpp \
+    dom/BeforeProcessEvent.cpp \
     dom/BeforeTextInsertedEvent.cpp \
     dom/BeforeUnloadEvent.cpp \
     dom/CDATASection.cpp \
@@ -473,13 +476,17 @@ SOURCES += \
     dom/ContainerNode.cpp \
     dom/CSSMappedAttributeDeclaration.cpp \
     dom/CustomEvent.cpp \
+    dom/DecodedDataDocumentParser.cpp \
     dom/DeviceOrientation.cpp \
     dom/DeviceOrientationEvent.cpp \
     dom/Document.cpp \
     dom/DocumentFragment.cpp \
+    dom/DocumentParser.cpp \
     dom/DocumentType.cpp \
     dom/DOMImplementation.cpp \
     dom/DOMStringList.cpp \
+    dom/DOMStringMap.cpp \
+    dom/DatasetDOMStringMap.cpp \
     dom/DynamicNodeList.cpp \
     dom/EditingText.cpp \
     dom/Element.cpp \
@@ -521,6 +528,7 @@ SOURCES += \
     dom/Range.cpp \
     dom/RawDataDocumentParser.h \
     dom/RegisteredEventListener.cpp \
+    dom/ScriptableDocumentParser.cpp \
     dom/ScriptElement.cpp \
     dom/ScriptExecutionContext.cpp \
     dom/SelectElement.cpp \
@@ -650,9 +658,11 @@ SOURCES += \
     html/HTMLDListElement.cpp \
     html/HTMLDocument.cpp \
     html/HTMLElement.cpp \
+    html/HTMLElementStack.cpp \
     html/HTMLEmbedElement.cpp \
     html/HTMLFieldSetElement.cpp \
     html/HTMLFontElement.cpp \
+    html/HTMLFormattingElementList.cpp \
     html/HTMLFormCollection.cpp \
     html/HTMLFormElement.cpp \
     html/HTMLFrameElementBase.cpp \
@@ -797,6 +807,7 @@ SOURCES += \
     page/DOMSelection.cpp \
     page/DOMTimer.cpp \
     page/DOMWindow.cpp \
+    page/Navigation.cpp \
     page/Navigator.cpp \
     page/NavigatorBase.cpp \
     page/DragController.cpp \
@@ -817,6 +828,7 @@ SOURCES += \
     page/Page.cpp \
     page/PageGroup.cpp \
     page/PageGroupLoadDeferrer.cpp \
+    page/Performance.cpp \
     page/PluginHalter.cpp \
     page/PrintContext.cpp \
     page/SecurityOrigin.cpp \
@@ -824,6 +836,7 @@ SOURCES += \
     page/Settings.cpp \
     page/SpatialNavigation.cpp \
     page/SuspendableTimer.cpp \
+    page/Timing.cpp \
     page/UserContentURLPattern.cpp \
     page/WindowFeatures.cpp \
     page/XSSAuditor.cpp \
@@ -1073,7 +1086,7 @@ HEADERS += \
     bindings/js/JSDebugWrapperSet.h \
     bindings/js/JSDOMBinding.h \
     bindings/js/JSDOMGlobalObject.h \
-    bindings/js/JSDOMWindowBase.h \
+    bindings/js/JSDOMStringMapCustom.h \
     bindings/js/JSDOMWindowBase.h \
     bindings/js/JSDOMWindowCustom.h \
     bindings/js/JSDOMWindowShell.h \
@@ -1225,6 +1238,8 @@ HEADERS += \
     dom/DocumentType.h \
     dom/DOMImplementation.h \
     dom/DOMStringList.h \
+    dom/DOMStringMap.h \
+    dom/DatasetDOMStringMap.h \
     dom/DynamicNodeList.h \
     dom/EditingText.h \
     dom/Element.h \
@@ -1668,6 +1683,7 @@ HEADERS += \
     platform/network/qt/QNetworkReplyHandler.h \
     platform/network/ResourceErrorBase.h \
     platform/network/ResourceHandle.h \
+    platform/network/ResourceLoadTiming.h \
     platform/network/ResourceRequestBase.h \
     platform/network/ResourceResponseBase.h \
     platform/PlatformTouchEvent.h \
@@ -1732,6 +1748,8 @@ HEADERS += \
     rendering/InlineTextBox.h \
     rendering/LayoutState.h \
     rendering/MediaControlElements.h \
+    rendering/PaintInfo.h \
+    rendering/PaintPhase.h \
     rendering/PointerEventsHitRules.h \
     rendering/RenderApplet.h \
     rendering/RenderArena.h \
@@ -1756,6 +1774,7 @@ HEADERS += \
     rendering/RenderImage.h \
     rendering/RenderIndicator.h \
     rendering/RenderInline.h \
+    rendering/RenderInputSpeech.h \
     rendering/RenderLayer.h \
     rendering/RenderLineBoxList.h \
     rendering/RenderListBox.h \
@@ -1918,6 +1937,7 @@ HEADERS += \
     svg/SVGFEColorMatrixElement.h \
     svg/SVGFEComponentTransferElement.h \
     svg/SVGFECompositeElement.h \
+    svg/SVGFEConvolveMatrixElement.h \
     svg/SVGFEDiffuseLightingElement.h \
     svg/SVGFEDisplacementMapElement.h \
     svg/SVGFEDistantLightElement.h \
@@ -2499,6 +2519,11 @@ contains(DEFINES, ENABLE_SHARED_WORKERS=1) {
         workers/SharedWorkerThread.cpp
 }
 
+contains(DEFINES, ENABLE_INPUT_SPEECH=1) {
+    SOURCES += \
+        rendering/RenderInputSpeech.cpp
+}
+
 contains(DEFINES, ENABLE_VIDEO=1) {
     SOURCES += \
         html/HTMLAudioElement.cpp \
@@ -2716,6 +2741,7 @@ contains(DEFINES, ENABLE_SVG=1) {
         svg/SVGFEColorMatrixElement.cpp \
         svg/SVGFEComponentTransferElement.cpp \
         svg/SVGFECompositeElement.cpp \
+        svg/SVGFEConvolveMatrixElement.cpp \
         svg/SVGFEDiffuseLightingElement.cpp \
         svg/SVGFEDisplacementMapElement.cpp \
         svg/SVGFEDistantLightElement.cpp \
@@ -3045,7 +3071,7 @@ HEADERS += $$WEBKIT_API_HEADERS
 
     win32-*|wince* {
         DLLDESTDIR = $$OUTPUT_DIR/bin
-        TARGET = $$qtLibraryTarget($$TARGET)
+        build_pass: TARGET = $$qtLibraryTarget($$TARGET)
 
         dlltarget.commands = $(COPY_FILE) $(DESTDIR_TARGET) $$[QT_INSTALL_BINS]
         dlltarget.CONFIG = no_path

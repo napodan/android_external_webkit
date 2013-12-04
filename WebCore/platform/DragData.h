@@ -52,8 +52,10 @@ typedef struct IDataObject* DragDataRef;
 #elif PLATFORM(WX)
 typedef class wxDataObject* DragDataRef;
 #elif PLATFORM(GTK)
-// FIXME: this should probably be something gdk-specific
-typedef void* DragDataRef;
+namespace WebCore {
+class DataObjectGtk;
+}
+typedef WebCore::DataObjectGtk* DragDataRef;
 #elif defined ANDROID
 typedef void* DragDataRef;
 #elif PLATFORM(CHROMIUM)
@@ -120,4 +122,3 @@ namespace WebCore {
 } //namespace WebCore
 
 #endif //!DragData_h
-

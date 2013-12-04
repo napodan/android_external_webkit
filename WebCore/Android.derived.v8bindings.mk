@@ -89,6 +89,7 @@ GEN := \
     $(intermediates)/bindings/V8DOMCoreException.h \
     $(intermediates)/bindings/V8DOMImplementation.h \
     $(intermediates)/bindings/V8DOMStringList.h \
+    $(intermediates)/bindings/V8DOMStringMap.h \
     $(intermediates)/bindings/V8DeviceOrientationEvent.h \
     $(intermediates)/bindings/V8Document.h \
     $(intermediates)/bindings/V8DocumentFragment.h \
@@ -429,6 +430,7 @@ GEN += \
     $(intermediates)/bindings/V8SVGFEColorMatrixElement.h \
     $(intermediates)/bindings/V8SVGFEComponentTransferElement.h \
     $(intermediates)/bindings/V8SVGFECompositeElement.h \
+    $(intermediates)/bindings/V8SVGFEConvolveMatrixElement.h \
     $(intermediates)/bindings/V8SVGFEDiffuseLightingElement.h \
     $(intermediates)/bindings/V8SVGFEDisplacementMapElement.h \
     $(intermediates)/bindings/V8SVGFEDistantLightElement.h \

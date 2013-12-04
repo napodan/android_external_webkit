@@ -61,7 +61,7 @@ const int listboxPadding = 5;
 // the color of selection in TextViews in the system.
 const RGBA32 selectionColor = makeRGB(255, 146, 0);
 
-static SkCanvas* getCanvasFromInfo(const RenderObject::PaintInfo& info)
+static SkCanvas* getCanvasFromInfo(const PaintInfo& info)
 {
     return info.context->platformContext()->mCanvas;
 }
@@ -209,13 +209,13 @@ void RenderThemeAndroid::adjustButtonStyle(CSSStyleSelector*, RenderStyle* style
     style->setMinHeight(Length(style->fontSize() + buttonPadding, Fixed));
 }
 
-bool RenderThemeAndroid::paintCheckbox(RenderObject* obj, const RenderObject::PaintInfo& info, const IntRect& rect)
+bool RenderThemeAndroid::paintCheckbox(RenderObject* obj, const PaintInfo& info, const IntRect& rect)
 {
     RenderSkinRadio::Draw(getCanvasFromInfo(info), obj->node(), rect, true);
     return false;
 }
 
-bool RenderThemeAndroid::paintButton(RenderObject* obj, const RenderObject::PaintInfo& info, const IntRect& rect)
+bool RenderThemeAndroid::paintButton(RenderObject* obj, const PaintInfo& info, const IntRect& rect)
 {
     // If it is a disabled button, simply paint it to the master picture.
     Node* node = obj->node();
@@ -259,13 +259,13 @@ bool RenderThemeAndroid::shouldRenderMediaControlPart(ControlPart part, Element*
       }
 }
 
-bool RenderThemeAndroid::paintMediaMuteButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaMuteButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& rect)
 {
       RenderSkinMediaButton::Draw(getCanvasFromInfo(paintInfo), rect, RenderSkinMediaButton::MUTE);
       return false;
 }
 
-bool RenderThemeAndroid::paintMediaPlayButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaPlayButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& rect)
 {
       if (MediaControlPlayButtonElement* btn = static_cast<MediaControlPlayButtonElement*>(o->node())) {
           if (btn->displayType() == MediaPlayButton)
@@ -277,31 +277,31 @@ bool RenderThemeAndroid::paintMediaPlayButton(RenderObject* o, const RenderObjec
       return true;
 }
 
-bool RenderThemeAndroid::paintMediaSeekBackButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaSeekBackButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& rect)
 {
       RenderSkinMediaButton::Draw(getCanvasFromInfo(paintInfo), rect, RenderSkinMediaButton::REWIND);
       return false;
 }
 
-bool RenderThemeAndroid::paintMediaSeekForwardButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaSeekForwardButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& rect)
 {
       RenderSkinMediaButton::Draw(getCanvasFromInfo(paintInfo), rect, RenderSkinMediaButton::FORWARD);
       return false;
 }
 
-bool RenderThemeAndroid::paintMediaControlsBackground(RenderObject* object, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaControlsBackground(RenderObject* object, const PaintInfo& paintInfo, const IntRect& rect)
 {
       RenderSkinMediaButton::Draw(getCanvasFromInfo(paintInfo), rect, RenderSkinMediaButton::BACKGROUND_SLIDER);
       return false;
 }
 
-bool RenderThemeAndroid::paintMediaSliderTrack(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaSliderTrack(RenderObject* o, const PaintInfo& paintInfo, const IntRect& rect)
 {
       RenderSkinMediaButton::Draw(getCanvasFromInfo(paintInfo), rect, RenderSkinMediaButton::SLIDER_TRACK);
       return false;
 }
 
-bool RenderThemeAndroid::paintMediaSliderThumb(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& rect)
+bool RenderThemeAndroid::paintMediaSliderThumb(RenderObject* o, const PaintInfo& paintInfo, const IntRect& rect)
 {
       RenderSkinMediaButton::Draw(getCanvasFromInfo(paintInfo), rect, RenderSkinMediaButton::SLIDER_THUMB);
       return false;
@@ -319,7 +319,7 @@ void RenderThemeAndroid::adjustSliderThumbSize(RenderObject* o) const
 
 #endif
 
-bool RenderThemeAndroid::paintRadio(RenderObject* obj, const RenderObject::PaintInfo& info, const IntRect& rect)
+bool RenderThemeAndroid::paintRadio(RenderObject* obj, const PaintInfo& info, const IntRect& rect)
 {
     RenderSkinRadio::Draw(getCanvasFromInfo(info), obj->node(), rect, false);
     return false;
@@ -342,7 +342,7 @@ void RenderThemeAndroid::adjustTextFieldStyle(CSSStyleSelector*, RenderStyle* st
     addIntrinsicMargins(style);
 }
 
-bool RenderThemeAndroid::paintTextField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&)
+bool RenderThemeAndroid::paintTextField(RenderObject*, const PaintInfo&, const IntRect&)
 {
     return true;    
 }
@@ -352,7 +352,7 @@ void RenderThemeAndroid::adjustTextAreaStyle(CSSStyleSelector*, RenderStyle* sty
     addIntrinsicMargins(style);
 }
 
-bool RenderThemeAndroid::paintTextArea(RenderObject* obj, const RenderObject::PaintInfo& info, const IntRect& rect)
+bool RenderThemeAndroid::paintTextArea(RenderObject* obj, const PaintInfo& info, const IntRect& rect)
 {
     if (!obj->isListBox())
         return true;
@@ -412,7 +412,7 @@ void RenderThemeAndroid::adjustSearchFieldStyle(CSSStyleSelector*, RenderStyle* 
     addIntrinsicMargins(style);
 }
 
-bool RenderThemeAndroid::paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&)
+bool RenderThemeAndroid::paintSearchField(RenderObject*, const PaintInfo&, const IntRect&)
 {
     return true;    
 }
@@ -441,14 +441,14 @@ void RenderThemeAndroid::adjustMenuListStyle(CSSStyleSelector*, RenderStyle* sty
     addIntrinsicMargins(style);
 }
 
-bool RenderThemeAndroid::paintCombo(RenderObject* obj, const RenderObject::PaintInfo& info,  const IntRect& rect)
+bool RenderThemeAndroid::paintCombo(RenderObject* obj, const PaintInfo& info,  const IntRect& rect)
 {
   if (obj->style() && !obj->style()->visitedDependentColor(CSSPropertyBackgroundColor).alpha())
         return true;
     return RenderSkinCombo::Draw(getCanvasFromInfo(info), obj->node(), rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-bool RenderThemeAndroid::paintMenuList(RenderObject* obj, const RenderObject::PaintInfo& info, const IntRect& rect) 
+bool RenderThemeAndroid::paintMenuList(RenderObject* obj, const PaintInfo& info, const IntRect& rect) 
 { 
     return paintCombo(obj, info, rect);
 }
@@ -474,7 +474,7 @@ void RenderThemeAndroid::adjustMenuListButtonStyle(CSSStyleSelector*, RenderStyl
     adjustMenuListStyleCommon(style, e);
 }
 
-bool RenderThemeAndroid::paintMenuListButton(RenderObject* obj, const RenderObject::PaintInfo& info, const IntRect& rect) 
+bool RenderThemeAndroid::paintMenuListButton(RenderObject* obj, const PaintInfo& info, const IntRect& rect) 
 {
     return paintCombo(obj, info, rect);
 }

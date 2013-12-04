@@ -74,45 +74,45 @@ public:
     virtual int minimumMenuListSize(RenderStyle*) const { return 0; }
 
 protected:
-    virtual bool paintCheckbox(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintCheckbox(RenderObject*, const PaintInfo&, const IntRect&);
     virtual void setCheckboxSize(RenderStyle*) const;
 
 #if ENABLE(VIDEO)
     virtual String extraMediaControlsStyleSheet();
     virtual void adjustSliderThumbSize(RenderObject* o) const;
     virtual bool shouldRenderMediaControlPart(ControlPart part, Element* e);
-    bool paintMediaMuteButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r);
-    bool paintMediaPlayButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r);
-    bool paintMediaSeekBackButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r);
-    bool paintMediaSeekForwardButton(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r);
-    bool paintMediaSliderTrack(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r);
-    bool paintMediaSliderThumb(RenderObject* o, const RenderObject::PaintInfo& paintInfo, const IntRect& r);
-    virtual bool paintMediaControlsBackground(RenderObject* object, const RenderObject::PaintInfo& paintInfo, const IntRect& rect);
+    bool paintMediaMuteButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& r);
+    bool paintMediaPlayButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& r);
+    bool paintMediaSeekBackButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& r);
+    bool paintMediaSeekForwardButton(RenderObject* o, const PaintInfo& paintInfo, const IntRect& r);
+    bool paintMediaSliderTrack(RenderObject* o, const PaintInfo& paintInfo, const IntRect& r);
+    bool paintMediaSliderThumb(RenderObject* o, const PaintInfo& paintInfo, const IntRect& r);
+    virtual bool paintMediaControlsBackground(RenderObject* object, const PaintInfo& paintInfo, const IntRect& rect);
 #endif
 
-    virtual bool paintRadio(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintRadio(RenderObject*, const PaintInfo&, const IntRect&);
     virtual void setRadioSize(RenderStyle*) const;
 
     virtual void adjustButtonStyle(CSSStyleSelector*, RenderStyle*, WebCore::Element*) const;
-    virtual bool paintButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintButton(RenderObject*, const PaintInfo&, const IntRect&);
 
     virtual void adjustTextFieldStyle(CSSStyleSelector*, RenderStyle*, WebCore::Element*) const;
-    virtual bool paintTextField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintTextField(RenderObject*, const PaintInfo&, const IntRect&);
 
     virtual void adjustTextAreaStyle(CSSStyleSelector*, RenderStyle*, WebCore::Element*) const;
-    virtual bool paintTextArea(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintTextArea(RenderObject*, const PaintInfo&, const IntRect&);
     
-    bool paintCombo(RenderObject*, const RenderObject::PaintInfo&,  const IntRect&);
+    bool paintCombo(RenderObject*, const PaintInfo&,  const IntRect&);
 
     virtual void adjustListboxStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
     virtual void adjustMenuListStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintMenuList(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintMenuList(RenderObject*, const PaintInfo&, const IntRect&);
 
     virtual void adjustMenuListButtonStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintMenuListButton(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintMenuListButton(RenderObject*, const PaintInfo&, const IntRect&);
     
     virtual void adjustSearchFieldStyle(CSSStyleSelector*, RenderStyle*, Element*) const;
-    virtual bool paintSearchField(RenderObject*, const RenderObject::PaintInfo&, const IntRect&);
+    virtual bool paintSearchField(RenderObject*, const PaintInfo&, const IntRect&);
 
 private:
     RenderThemeAndroid();

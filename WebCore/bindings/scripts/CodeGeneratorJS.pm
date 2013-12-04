@@ -2188,7 +2188,11 @@ sub GenerateCallbackImplementation
 
             foreach my $param (@params) {
                 my $paramName = $param->name;
-                push(@implContent, "    args.append(toJS(exec, ${paramName}));\n");
+                if ($param->type eq "DOMString") {
+                    push(@implContent, "    args.append(jsString(exec, ${paramName}));\n");
+                } else {
+                    push(@implContent, "    args.append(toJS(exec, ${paramName}));\n");
+                }
             }
 
             push(@implContent, "\n    bool raisedException = false;\n");
@@ -2268,6 +2272,7 @@ my %nativeType = (
     "DOMObject" => "ScriptValue",
     "NodeFilter" => "RefPtr<NodeFilter>",
     "SerializedScriptValue" => "RefPtr<SerializedScriptValue>",
+    "IDBKey" => "RefPtr<IDBKey>",
     "SVGAngle" => "SVGAngle",
     "SVGLength" => "SVGLength",
     "SVGMatrix" => "AffineTransform",
@@ -2333,6 +2338,12 @@ sub JSValueToNative
     if ($type eq "SerializedScriptValue" or $type eq "any") {
         $implIncludes{"SerializedScriptValue.h"} = 1;
         return "SerializedScriptValue::create(exec, $value)";
+    }
+
+    if ($type eq "IDBKey") {
+        $implIncludes{"IDBBindingUtilities.h"} = 1;
+        $implIncludes{"IDBKey.h"} = 1;
+        return "createIDBKeyFromValue(exec, $value)";
     }
 
     $implIncludes{"FloatPoint.h"} = 1 if $type eq "SVGPoint";
