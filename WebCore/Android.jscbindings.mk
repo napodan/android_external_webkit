@@ -100,7 +100,6 @@ LOCAL_SRC_FILES += \
 	bindings/js/JSEventListener.cpp \
 	bindings/js/JSEventTarget.cpp \
 	bindings/js/JSExceptionBase.cpp \
-	bindings/js/JSFloat32ArrayConstructor.cpp \
 	bindings/js/JSFloat32ArrayCustom.cpp \
 	bindings/js/JSGeolocationCustom.cpp \
 	bindings/js/JSHTMLAllCollectionCustom.cpp \
@@ -125,7 +124,6 @@ LOCAL_SRC_FILES += \
 	bindings/js/JSLazyEventListener.cpp \
 	bindings/js/JSLocationCustom.cpp \
 	bindings/js/JSMainThreadExecState.cpp \
-	bindings/js/JSMessageChannelConstructor.cpp \
 	bindings/js/JSMessageChannelCustom.cpp \
 	bindings/js/JSMessageEventCustom.cpp \
 	bindings/js/JSMessagePortCustom.cpp \
@@ -150,7 +148,6 @@ LOCAL_SRC_FILES += \
 	bindings/js/JSSVGMatrixCustom.cpp \
 	bindings/js/JSSVGPathSegCustom.cpp \
 	bindings/js/JSSVGPathSegListCustom.cpp \
-	bindings/js/JSSharedWorkerConstructor.cpp \
 	bindings/js/JSSharedWorkerCustom.cpp \
 	bindings/js/JSStorageCustom.cpp \
 	bindings/js/JSStyleSheetCustom.cpp \
@@ -159,16 +156,14 @@ LOCAL_SRC_FILES += \
 	bindings/js/JSTouchCustom.cpp \
 	bindings/js/JSTouchListCustom.cpp \
 	bindings/js/JSTreeWalkerCustom.cpp \
-	bindings/js/JSWebKitCSSMatrixConstructor.cpp \
-	bindings/js/JSWebKitPointConstructor.cpp \
-	bindings/js/JSWorkerConstructor.cpp \
+	bindings/js/JSWebKitCSSMatrixCustom.cpp \
+	bindings/js/JSWebKitPointCustom.cpp \
 	bindings/js/JSWorkerContextBase.cpp \
 	bindings/js/JSWorkerContextCustom.cpp \
 	bindings/js/JSWorkerContextErrorHandler.cpp \
 	bindings/js/JSWorkerCustom.cpp \
 	bindings/js/JSXMLHttpRequestCustom.cpp \
 	bindings/js/JSXMLHttpRequestUploadCustom.cpp \
-	bindings/js/JSXSLTProcessorConstructor.cpp \
 	bindings/js/JSXSLTProcessorCustom.cpp \
 	bindings/js/ScheduledAction.cpp \
 	bindings/js/ScriptArray.cpp \

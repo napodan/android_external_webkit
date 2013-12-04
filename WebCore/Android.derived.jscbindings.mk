@@ -157,6 +157,7 @@ $(patsubst %.h,%.cpp,$(GEN)): $(intermediates)/dom/%.cpp : $(intermediates)/dom/
 # HTML
 GEN := \
     $(intermediates)/html/JSBlob.h \
+    $(intermediates)/html/JSBlobBuilder.h \
     $(intermediates)/html/JSDOMFormData.h \
     $(intermediates)/html/JSDataGridColumn.h \
     $(intermediates)/html/JSDataGridColumnList.h \
@@ -302,6 +303,7 @@ GEN := \
     $(intermediates)/page/JSCoordinates.h \
     $(intermediates)/page/JSDOMSelection.h \
     $(intermediates)/page/JSDOMWindow.h \
+    $(intermediates)/page/JSEventSource.h \
     $(intermediates)/page/JSGeolocation.h \
     $(intermediates)/page/JSGeoposition.h \
     $(intermediates)/page/JSHistory.h \
@@ -345,6 +347,7 @@ GEN := \
     $(intermediates)/storage/JSDatabaseCallback.h \
     $(intermediates)/storage/JSDatabaseSync.h \
     $(intermediates)/storage/JSSQLError.h \
+    $(intermediates)/storage/JSSQLException.h \
     $(intermediates)/storage/JSSQLResultSet.h \
     $(intermediates)/storage/JSSQLResultSetRowList.h \
     $(intermediates)/storage/JSSQLStatementCallback.h \

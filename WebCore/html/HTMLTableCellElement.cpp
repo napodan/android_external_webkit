@@ -58,7 +58,7 @@ inline HTMLTableCellElement::HTMLTableCellElement(const QualifiedName& tagName, 
 
 PassRefPtr<HTMLTableCellElement> HTMLTableCellElement::create(const QualifiedName& tagName, Document* document)
 {
-    return new HTMLTableCellElement(tagName, document);
+    return adoptRef(new HTMLTableCellElement(tagName, document));
 }
 
 int HTMLTableCellElement::cellIndex() const
@@ -102,18 +102,15 @@ void HTMLTableCellElement::parseMappedAttribute(Attribute* attr)
 #ifdef ANDROID_LAYOUT
         if (!(document()->frame()) || document()->frame()->settings()->layoutAlgorithm() != Settings::kLayoutSSR)
 #endif
-        // FIXME: What about removing the property when the attribute becomes null?
         if (!attr->isNull())
             addCSSProperty(attr, CSSPropertyWhiteSpace, CSSValueWebkitNowrap);
     } else if (attr->name() == widthAttr) {
-        // FIXME: What about removing the property when the attribute becomes empty, zero or negative?
         if (!attr->value().isEmpty()) {
             int widthInt = attr->value().toInt();
             if (widthInt > 0) // width="0" is ignored for compatibility with WinIE.
                 addCSSLength(attr, CSSPropertyWidth, attr->value());
         }
     } else if (attr->name() == heightAttr) {
-        // FIXME: What about removing the property when the attribute becomes empty, zero or negative?
         if (!attr->value().isEmpty()) {
             int heightInt = attr->value().toInt();
             if (heightInt > 0) // height="0" is ignored for compatibility with WinIE.

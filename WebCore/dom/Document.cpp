@@ -76,10 +76,10 @@
 #include "HTMLMapElement.h"
 #include "HTMLNameCollection.h"
 #include "HTMLNames.h"
-#include "LegacyHTMLTreeConstructor.h"
+#include "LegacyHTMLTreeBuilder.h"
 #include "HTMLStyleElement.h"
 #include "HTMLTitleElement.h"
-#include "HTMLDocumentParser.h"
+#include "LegacyHTMLDocumentParser.h"
 #include "HTTPParsers.h"
 #include "HistoryItem.h"
 #include "HitTestRequest.h"
@@ -372,7 +372,7 @@ private:
     Document* m_document;
 };
 
-Document::Document(Frame* frame, bool isXHTML, bool isHTML)
+Document::Document(Frame* frame, const KURL& url, bool isXHTML, bool isHTML)
     : ContainerNode(0)
     , m_domtree_version(0)
     , m_styleSheets(StyleSheetList::create(this))
@@ -430,6 +430,9 @@ Document::Document(Frame* frame, bool isXHTML, bool isHTML)
     m_ignoreAutofocus = false;
 
     m_frame = frame;
+
+    if (frame || !url.isEmpty())
+        setURL(url);
 
 #if !PLATFORM(ANDROID)
     m_axObjectCache = 0;
@@ -1536,6 +1539,43 @@ PassRefPtr<RenderStyle> Document::styleForElementIgnoringPendingStylesheets(Elem
     return style.release();
 }
 
+PassRefPtr<RenderStyle> Document::styleForPage(int pageIndex)
+{
+    RefPtr<RenderStyle> style = styleSelector()->styleForPage(pageIndex);
+    return style.release();
+}
+
+bool Document::isPageBoxVisible(int pageIndex)
+{
+    RefPtr<RenderStyle> style = styleForPage(pageIndex);
+    return style->visibility() != HIDDEN; // display property doesn't apply to @page.
+}
+
+IntRect Document::pageAreaRectInPixels(int pageIndex)
+{
+    RefPtr<RenderStyle> style = styleForPage(pageIndex);
+    IntSize pageSize = preferredPageSizeInPixels(pageIndex);
+    // 100% value for margin-{left,right,top,bottom}. This is used also for top and bottom. http://www.w3.org/TR/CSS2/box.html#value-def-margin-width
+    int maxValue = pageSize.width();
+    int surroundLeft = style->marginLeft().calcValue(maxValue) + style->borderLeft().width() + style->paddingLeft().calcValue(maxValue);
+    int surroundRight = style->marginRight().calcValue(maxValue) + style->borderRight().width() + style->paddingRight().calcValue(maxValue);
+    int surroundTop = style->marginTop().calcValue(maxValue) + style->borderTop().width() + style->paddingTop().calcValue(maxValue);
+    int surroundBottom = style->marginBottom().calcValue(maxValue) + style->borderBottom().width() + style->paddingBottom().calcValue(maxValue);
+    int width = pageSize.width() - surroundLeft - surroundRight;
+    int height = pageSize.height() - surroundTop - surroundBottom;
+
+    return IntRect(surroundLeft, surroundTop, width, height);
+}
+
+IntSize Document::preferredPageSizeInPixels(int pageIndex)
+{
+    RefPtr<RenderStyle> style = styleForPage(pageIndex);
+    LengthSize size = style->pageSize();
+    ASSERT(size.width().isFixed());
+    ASSERT(size.height().isFixed());
+    return IntSize(size.width().calcValue(0), size.height().calcValue(0));
+}
+
 void Document::createStyleSelector()
 {
     bool matchAuthorAndUserStyles = true;
@@ -1725,7 +1765,7 @@ void Document::open(Document* ownerDocument)
     }
 
     if (m_frame) {
-        if (m_frame->loader()->isLoadingMainResource() || (parser() && parser()->executingScript()))
+        if (m_frame->loader()->isLoadingMainResource() || (parser() && parser()->isExecutingScript()))
             return;
     
         if (m_frame->loader()->state() == FrameStateProvisional)
@@ -2002,12 +2042,16 @@ void Document::write(const SegmentedString& text, Document* ownerDocument)
         printf("Beginning a document.write at %d\n", elapsedTime());
 #endif
 
-    if (!m_parser)
+    if (!m_parser || m_parser->finishWasCalled())
         open(ownerDocument);
 
     ASSERT(m_parser);
+    // FIXME: forceSynchronous should always be the same as the bool passed to
+    // write().  However LegacyHTMLDocumentParser uses write("", false) to pump
+    // the parser (after running external scripts, etc.) thus necessitating a
+    // separate state for forceSynchronous.
     bool wasForcedSynchronous = false;
-    HTMLDocumentParser* parser = m_parser->asHTMLDocumentParser();
+    LegacyHTMLDocumentParser* parser = m_parser->asHTMLDocumentParser();
     if (parser) {
         wasForcedSynchronous = parser->forceSynchronous();
         parser->setForceSynchronous(true);
@@ -4632,9 +4676,8 @@ void Document::initSecurityContext()
 
     // In the common case, create the security context from the currently
     // loading URL.
-    const KURL& url = m_frame->loader()->url();
-    m_cookieURL = url;
-    ScriptExecutionContext::setSecurityOrigin(SecurityOrigin::create(url, m_frame->loader()->sandboxFlags()));
+    m_cookieURL = m_url;
+    ScriptExecutionContext::setSecurityOrigin(SecurityOrigin::create(m_url, m_frame->loader()->sandboxFlags()));
 
     if (SecurityOrigin::allowSubstituteDataAccessToLocal()) {
         // If this document was loaded with substituteData, then the document can
@@ -4789,6 +4832,17 @@ void Document::executeScriptSoon(ScriptElementData* data, CachedResourceHandle<C
     m_scriptsToExecuteSoon.append(make_pair(data, cachedScript));
     element->ref(); // Balanced by deref()s in executeScriptSoonTimerFired() and ~Document().
     if (!m_executeScriptSoonTimer.isActive())
+        m_executeScriptSoonTimer.startOneShot(0);
+}
+
+void Document::suspendExecuteScriptSoonTimer()
+{
+    m_executeScriptSoonTimer.stop();
+}
+
+void Document::resumeExecuteScriptSoonTimer()
+{
+    if (!m_scriptsToExecuteSoon.isEmpty())
         m_executeScriptSoonTimer.startOneShot(0);
 }
 

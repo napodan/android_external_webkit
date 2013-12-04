@@ -93,7 +93,7 @@ void ResourceHandle::pauseLoad(bool pause)
 }
 #endif
 
-void ResourceHandle::setDefersLoading(bool defers)
+void ResourceHandle::platformSetDefersLoading(bool)
 {
     notImplemented();
 }

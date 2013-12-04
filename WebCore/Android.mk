@@ -168,6 +168,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/SelectElement.cpp \
 	dom/SelectorNodeList.cpp \
 	dom/SpaceSplitString.cpp \
+	dom/StaticHashSetNodeList.cpp \
 	dom/StaticNodeList.cpp \
 	dom/StyleElement.cpp \
 	dom/StyledElement.cpp \
@@ -249,9 +250,11 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	\
 	html/AsyncImageResizer.cpp \
 	html/Blob.cpp \
+	html/BlobBuilder.cpp \
 	html/CollectionCache.cpp \
-	html/DateComponents.cpp \
+	html/CSSPreloadScanner.cpp \
 	html/DOMFormData.cpp \
+	html/DateComponents.cpp \
 	html/File.cpp \
 	html/FileList.cpp \
 	html/FileReader.cpp \
@@ -259,11 +262,11 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/FileStreamProxy.cpp \
 	html/FileThread.cpp \
 	html/FormDataList.cpp \
-	html/HTML5EntityParser.cpp \
-	html/HTML5Lexer.cpp \
-	html/HTML5DocumentParser.cpp \
-	html/HTML5TreeBuilder.cpp \
-	html/HTML5ScriptRunner.cpp \
+	html/HTMLEntityParser.cpp \
+	html/HTMLTokenizer.cpp \
+	html/HTMLPreloadScanner.cpp \
+	html/HTMLScriptRunner.cpp \
+	html/HTMLTreeBuilder.cpp \
 	html/HTMLAllCollection.cpp \
 	html/HTMLCollection.cpp \
 	html/HTMLDataListElement.cpp \
@@ -275,14 +278,16 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/HTMLNameCollection.cpp \
 	html/HTMLOptionsCollection.cpp \
 	html/HTMLParserErrorCodes.cpp \
+	html/HTMLParserScheduler.cpp \
 	html/HTMLTableRowsCollection.cpp \
 	html/HTMLViewSourceDocument.cpp \
 	html/ImageData.cpp \
 	html/ImageResizerThread.cpp \
 	html/LabelsNodeList.cpp \
-	html/LegacyHTMLTreeConstructor.cpp \
-	html/PreloadScanner.cpp \
+	html/LegacyHTMLTreeBuilder.cpp \
 	html/StepRange.cpp \
+	html/LegacyHTMLDocumentParser.cpp \
+	html/LegacyPreloadScanner.cpp \
 	html/TimeRanges.cpp \
 	html/ValidityState.cpp \
 	\
@@ -311,7 +316,9 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	loader/DocumentThreadableLoader.cpp \
 	loader/DocumentWriter.cpp \
 	loader/FormState.cpp \
+	loader/FormSubmission.cpp \
 	loader/FrameLoader.cpp \
+	loader/FrameLoaderStateMachine.cpp \
 	loader/HistoryController.cpp \
 	loader/ImageDocument.cpp \
 	loader/ImageLoader.cpp \
@@ -329,6 +336,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	loader/ResourceLoadNotifier.cpp \
 	loader/ResourceLoader.cpp \
 	loader/SinkDocument.cpp \
+	loader/SubframeLoader.cpp \
 	loader/SubresourceLoader.cpp \
 	loader/TextDocument.cpp \
 	loader/TextResourceDecoder.cpp \
@@ -572,6 +580,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	\
 	platform/text/Base64.cpp \
 	platform/text/BidiContext.cpp \
+	platform/text/Hyphenation.cpp \
 	platform/text/RegularExpression.cpp \
 	platform/text/SegmentedString.cpp \
 	platform/text/String.cpp \
@@ -727,7 +736,9 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/SVGRenderTreeAsText.cpp \
 	rendering/SVGRootInlineBox.cpp \
 	rendering/SVGShadowTreeElements.cpp \
-	rendering/SVGTextLayoutUtilities.cpp
+	rendering/SVGTextChunkLayoutInfo.cpp \
+	rendering/SVGTextLayoutUtilities.cpp \
+	rendering/SVGTextQuery.cpp
 endif
 
 LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
@@ -767,6 +778,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/style/StyleTransformData.cpp \
 	rendering/style/StyleVisualData.cpp \
 	\
+	storage/AbstractDatabase.cpp \
 	storage/ChangeVersionWrapper.cpp \
 	storage/Database.cpp \
 	storage/DatabaseAuthorizer.cpp \
