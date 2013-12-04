@@ -1140,10 +1140,6 @@ void RenderBlock::layoutBlock(bool relayoutChildren)
     int oldWidth = width();
     int oldColumnWidth = desiredColumnWidth();
 
-#ifdef ANDROID_LAYOUT
-    int oldVisibleWidth = m_visibleWidth;
-#endif
-
     calcWidth();
     calcColumnWidth();
 
@@ -1153,11 +1149,7 @@ void RenderBlock::layoutBlock(bool relayoutChildren)
         relayoutChildren = true;
 
 #ifdef ANDROID_LAYOUT
-    const Settings* settings = document()->settings();
-    ASSERT(settings);
-    if (oldVisibleWidth != m_visibleWidth
-            && settings->layoutAlgorithm() == Settings::kLayoutFitColumnToScreen)
-        relayoutChildren = true;
+    checkAndSetRelayoutChildren(&relayoutChildren);
 #endif
 
     clearFloats();
