@@ -6,7 +6,6 @@
  * modify it under the terms of the GNU Library General Public
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
- *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -21,6 +20,7 @@
 #include "config.h"
 #include "Page.h"
 
+#include "BackForwardController.h"
 #include "BackForwardList.h"
 #include "Base64.h"
 #include "CSSStyleSelector.h"
@@ -29,7 +29,7 @@
 #include "ContextMenuClient.h"
 #include "ContextMenuController.h"
 #include "DOMWindow.h"
-#include "DeviceOrientation.h"
+#include "DeviceOrientationController.h"
 #include "DragController.h"
 #include "EditorClient.h"
 #include "Event.h"
@@ -85,6 +85,10 @@
 #include "GeolocationController.h"
 #endif
 
+#if ENABLE(INSPECTOR) && ENABLE(OFFLINE_WEB_APPLICATIONS)
+#include "InspectorApplicationCacheAgent.h"
+#endif
+
 #if PLATFORM(ANDROID) && ENABLE(APPLICATION_INSTALLED)
 #include "PackageNotifier.h"
 #endif
@@ -101,11 +105,19 @@ static void networkStateChanged()
 {
     Vector<RefPtr<Frame> > frames;
     
+#if ENABLE(INSPECTOR) && ENABLE(OFFLINE_WEB_APPLICATIONS)
+    bool isNowOnline = networkStateNotifier().onLine();
+#endif
+
     // Get all the frames of all the pages in all the page groups
     HashSet<Page*>::iterator end = allPages->end();
     for (HashSet<Page*>::iterator it = allPages->begin(); it != end; ++it) {
         for (Frame* frame = (*it)->mainFrame(); frame; frame = frame->tree()->traverseNext())
             frames.append(frame);
+#if ENABLE(INSPECTOR) && ENABLE(OFFLINE_WEB_APPLICATIONS)
+        if (InspectorApplicationCacheAgent* applicationCacheAgent = (*it)->inspectorController()->applicationCacheAgent())
+            applicationCacheAgent->updateNetworkState(isNowOnline);
+#endif
     }
 
     AtomicString eventName = networkStateNotifier().onLine() ? eventNames().onlineEvent : eventNames().offlineEvent;
@@ -124,7 +136,7 @@ static void onPackageResultAvailable()
 }
 #endif
 
-Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, EditorClient* editorClient, DragClient* dragClient, InspectorClient* inspectorClient, PluginHalterClient* pluginHalterClient, GeolocationControllerClient* geolocationControllerClient, DeviceOrientationClient* deviceOrientationClient)
+Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, EditorClient* editorClient, DragClient* dragClient, InspectorClient* inspectorClient, PluginHalterClient* pluginHalterClient, GeolocationControllerClient* geolocationControllerClient, DeviceOrientationClient* deviceOrientationClient, BackForwardControllerClient* backForwardControllerClient)
     : m_chrome(new Chrome(this, chromeClient))
     , m_dragCaretController(new SelectionController(0, true))
 #if ENABLE(DRAG_SUPPORT)
@@ -141,11 +153,11 @@ Page::Page(ChromeClient* chromeClient, ContextMenuClient* contextMenuClient, Edi
     , m_geolocationController(new GeolocationController(this, geolocationControllerClient))
 #endif
 #if ENABLE(DEVICE_ORIENTATION)
-    , m_deviceOrientation(new DeviceOrientation(this, deviceOrientationClient))
+    , m_deviceOrientationController(new DeviceOrientationController(this, deviceOrientationClient))
 #endif
     , m_settings(new Settings(this))
     , m_progress(new ProgressTracker)
-    , m_backForwardList(BackForwardList::create(this))
+    , m_backForwardController(new BackForwardController(this, backForwardControllerClient))
     , m_theme(RenderTheme::themeForPage(this))
     , m_editorClient(editorClient)
     , m_frameCount(0)
@@ -224,7 +236,7 @@ Page::~Page()
     m_inspectorController->inspectedPageDestroyed();
 #endif
 
-    m_backForwardList->close();
+    backForwardList()->close();
 
 #ifndef NDEBUG
     pageCounter.decrement();
@@ -252,14 +264,14 @@ void Page::setOpenedByDOM()
     m_openedByDOM = true;
 }
 
-BackForwardList* Page::backForwardList()
+BackForwardList* Page::backForwardList() const
 {
-    return m_backForwardList.get();
+    return m_backForwardController->list();
 }
 
 bool Page::goBack()
 {
-    HistoryItem* item = m_backForwardList->backItem();
+    HistoryItem* item = backForwardList()->backItem();
     
     if (item) {
         goToItem(item, FrameLoadTypeBack);
@@ -270,7 +282,7 @@ bool Page::goBack()
 
 bool Page::goForward()
 {
-    HistoryItem* item = m_backForwardList->forwardItem();
+    HistoryItem* item = backForwardList()->forwardItem();
     
     if (item) {
         goToItem(item, FrameLoadTypeForward);
@@ -283,9 +295,9 @@ bool Page::canGoBackOrForward(int distance) const
 {
     if (distance == 0)
         return true;
-    if (distance > 0 && distance <= m_backForwardList->forwardListCount())
+    if (distance > 0 && distance <= backForwardList()->forwardListCount())
         return true;
-    if (distance < 0 && -distance <= m_backForwardList->backListCount())
+    if (distance < 0 && -distance <= backForwardList()->backListCount())
         return true;
     return false;
 }
@@ -295,16 +307,16 @@ void Page::goBackOrForward(int distance)
     if (distance == 0)
         return;
 
-    HistoryItem* item = m_backForwardList->itemAtIndex(distance);
+    HistoryItem* item = backForwardList()->itemAtIndex(distance);
     if (!item) {
         if (distance > 0) {
-            int forwardListCount = m_backForwardList->forwardListCount();
+            int forwardListCount = backForwardList()->forwardListCount();
             if (forwardListCount > 0) 
-                item = m_backForwardList->itemAtIndex(forwardListCount);
+                item = backForwardList()->itemAtIndex(forwardListCount);
         } else {
-            int backListCount = m_backForwardList->backListCount();
+            int backListCount = backForwardList()->backListCount();
             if (backListCount > 0)
-                item = m_backForwardList->itemAtIndex(-backListCount);
+                item = backForwardList()->itemAtIndex(-backListCount);
         }
     }
 
@@ -338,7 +350,7 @@ void Page::goToItem(HistoryItem* item, FrameLoadType type)
 
 int Page::getHistoryLength()
 {
-    return m_backForwardList->backListCount() + 1 + m_backForwardList->forwardListCount();
+    return backForwardList()->backListCount() + 1 + backForwardList()->forwardListCount();
 }
 
 void Page::setGlobalHistoryItem(HistoryItem* item)

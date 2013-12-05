@@ -57,7 +57,8 @@ public:
 #if ENABLE(LINK_PREFETCH)
             , m_isLinkPrefetch(false)
 #endif
-            { };
+            { 
+            }
     };
 
     static PassRefPtr<HTMLLinkElement> create(const QualifiedName&, Document*, bool createdByParser);

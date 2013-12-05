@@ -28,18 +28,16 @@
 
 namespace WebCore {
 
+    class DOMMimeTypeArray;
+    class DOMPluginArray;
     class Frame;
     class Geolocation;
-    class MimeTypeArray;
     class PluginData;
-    class PluginArray;
+    class String;
 #if PLATFORM(ANDROID)
     class ApplicationInstalledCallback;
     class Connection;
 #endif
-
-
-    typedef int ExceptionCode;
 
     class Navigator : public NavigatorBase, public RefCounted<Navigator> {
     public:
@@ -51,8 +49,8 @@ namespace WebCore {
 
         String appVersion() const;
         String language() const;
-        PluginArray* plugins() const;
-        MimeTypeArray* mimeTypes() const;
+        DOMPluginArray* plugins() const;
+        DOMMimeTypeArray* mimeTypes() const;
         bool cookieEnabled() const;
         bool javaEnabled() const;
 
@@ -76,14 +74,11 @@ namespace WebCore {
         void getStorageUpdates();
 #endif
 
-        void registerProtocolHandler(const String& scheme, const String& url, const String& title, ExceptionCode& ec);
-        void registerContentHandler(const String& mimeType, const String& url, const String& title, ExceptionCode& ec);
-
     private:
         Navigator(Frame*);
         Frame* m_frame;
-        mutable RefPtr<PluginArray> m_plugins;
-        mutable RefPtr<MimeTypeArray> m_mimeTypes;
+        mutable RefPtr<DOMPluginArray> m_plugins;
+        mutable RefPtr<DOMMimeTypeArray> m_mimeTypes;
         mutable RefPtr<Geolocation> m_geolocation;
 #if PLATFORM(ANDROID)
         mutable RefPtr<Connection> m_connection;

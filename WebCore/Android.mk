@@ -104,7 +104,6 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/BeforeUnloadEvent.cpp \
 	dom/CDATASection.cpp \
 	dom/CSSMappedAttributeDeclaration.cpp \
-	dom/CanvasSurface.cpp \
 	dom/CharacterData.cpp \
 	dom/CheckedRadioButtons.cpp \
 	dom/ChildNodeList.cpp \
@@ -155,7 +154,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/Notation.cpp \
 	dom/OptionElement.cpp \
 	dom/OptionGroupElement.cpp \
-	dom/DeviceOrientation.cpp \
+	dom/DeviceOrientationController.cpp \
 	dom/DeviceOrientationEvent.cpp \
 	dom/OverflowEvent.cpp \
 	dom/PageTransitionEvent.cpp \
@@ -245,7 +244,8 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	editing/markup.cpp \
 	editing/visible_units.cpp \
 	\
-	history/BackForwardList.cpp \
+	history/BackForwardController.cpp \
+	history/BackForwardListImpl.cpp \
 	history/CachedFrame.cpp \
 	history/CachedPage.cpp \
 	history/HistoryItem.cpp \
@@ -274,6 +274,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	html/HTMLTreeBuilder.cpp \
 	html/HTMLAllCollection.cpp \
 	html/HTMLCollection.cpp \
+	html/HTMLConstructionSite.cpp \
 	html/HTMLDataListElement.cpp \
 	html/HTMLDocument.cpp \
 	html/HTMLDocumentParser.cpp \
@@ -612,10 +613,10 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	\
 	platform/text/transcoder/FontTranscoder.cpp \
 	\
-	plugins/MimeType.cpp \
-	plugins/MimeTypeArray.cpp \
-	plugins/Plugin.cpp \
-	plugins/PluginArray.cpp \
+	plugins/DOMMimeType.cpp \
+	plugins/DOMMimeTypeArray.cpp \
+	plugins/DOMPlugin.cpp \
+	plugins/DOMPluginArray.cpp \
 	plugins/PluginData.cpp \
 	plugins/PluginDatabase.cpp \
 	plugins/PluginMainThreadScheduler.cpp \
@@ -803,6 +804,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	storage/IDBEvent.cpp \
 	storage/IDBIndexImpl.cpp \
 	storage/IDBIndexRequest.cpp \
+	storage/IDBKey.cpp \
 	storage/IDBKeyRange.cpp \
 	storage/IDBObjectStoreImpl.cpp \
 	storage/IDBObjectStoreRequest.cpp \

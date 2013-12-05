@@ -35,9 +35,8 @@
 #include "EventListener.h"
 #include "EventTarget.h"
 #include "InspectorCSSStore.h"
+#include "InspectorValues.h"
 #include "NodeList.h"
-#include "ScriptArray.h"
-#include "ScriptObject.h"
 #include "ScriptState.h"
 #include "Timer.h"
 
@@ -57,11 +56,14 @@ namespace WebCore {
     class CSSStyleSheet;
     class Element;
     class Event;
-    class InspectorFrontend;
+    class InspectorDOMAgent;
+    class InspectorFrontend2;
     class MatchJob;
     class NameNodeMap;
     class Node;
     class Page;
+
+#if ENABLE(INSPECTOR)
 
     struct EventListenerInfo {
         EventListenerInfo(Node* node, const AtomicString& eventType, const EventListenerVector& eventListenerVector)
@@ -78,7 +80,7 @@ namespace WebCore {
 
     class InspectorDOMAgent : public EventListener {
     public:
-        static PassRefPtr<InspectorDOMAgent> create(InspectorCSSStore* cssStore, InspectorFrontend* frontend)
+        static PassRefPtr<InspectorDOMAgent> create(InspectorCSSStore* cssStore, InspectorFrontend2* frontend)
         {
             return adoptRef(new InspectorDOMAgent(cssStore, frontend));
         }
@@ -90,7 +92,7 @@ namespace WebCore {
                 : 0;
         }
 
-        InspectorDOMAgent(InspectorCSSStore* cssStore, InspectorFrontend* frontend);
+        InspectorDOMAgent(InspectorCSSStore* cssStore, InspectorFrontend2* frontend);
         ~InspectorDOMAgent();
 
         void reset();
@@ -153,14 +155,14 @@ namespace WebCore {
 
         bool pushDocumentToFrontend();
 
-        ScriptObject buildObjectForAttributeStyles(Element* element);
-        ScriptArray buildArrayForCSSRules(Document* ownerDocument, CSSRuleList*);
-        ScriptArray buildArrayForPseudoElements(Element* element, bool authorOnly);
+        PassRefPtr<InspectorObject> buildObjectForAttributeStyles(Element* element);
+        PassRefPtr<InspectorArray> buildArrayForCSSRules(Document* ownerDocument, CSSRuleList*);
+        PassRefPtr<InspectorArray> buildArrayForPseudoElements(Element* element, bool authorOnly);
 
-        ScriptObject buildObjectForNode(Node* node, int depth, NodeToIdMap* nodesMap);
-        ScriptArray buildArrayForElementAttributes(Element* element);
-        ScriptArray buildArrayForContainerChildren(Node* container, int depth, NodeToIdMap* nodesMap);
-        ScriptObject buildObjectForEventListener(const RegisteredEventListener& registeredEventListener, const AtomicString& eventType, Node* node);
+        PassRefPtr<InspectorObject> buildObjectForNode(Node* node, int depth, NodeToIdMap* nodesMap);
+        PassRefPtr<InspectorArray> buildArrayForElementAttributes(Element* element);
+        PassRefPtr<InspectorArray> buildArrayForContainerChildren(Node* container, int depth, NodeToIdMap* nodesMap);
+        PassRefPtr<InspectorObject> buildObjectForEventListener(const RegisteredEventListener& registeredEventListener, const AtomicString& eventType, Node* node);
 
         // We represent embedded doms as a part of the same hierarchy. Hence we treat children of frame owners differently.
         // We also skip whitespace text nodes conditionally. Following methods encapsulate these specifics.
@@ -178,22 +180,22 @@ namespace WebCore {
         void onMatchJobsTimer(Timer<InspectorDOMAgent>*);
         void reportNodesAsSearchResults(ListHashSet<Node*>& resultCollector);
 
-        ScriptObject buildObjectForStyle(CSSStyleDeclaration*, bool bind);
-        void populateObjectWithStyleProperties(CSSStyleDeclaration*, ScriptObject& result);
-        ScriptArray buildArrayForDisabledStyleProperties(DisabledStyleDeclaration*);
-        ScriptObject buildObjectForRule(Document* ownerDocument, CSSStyleRule*);
-        ScriptObject buildObjectForStyleSheet(Document* ownerDocument, CSSStyleSheet*);
+        PassRefPtr<InspectorObject> buildObjectForStyle(CSSStyleDeclaration*, bool bind);
+        void populateObjectWithStyleProperties(CSSStyleDeclaration*, InspectorObject* result);
+        PassRefPtr<InspectorArray> buildArrayForDisabledStyleProperties(DisabledStyleDeclaration*);
+        PassRefPtr<InspectorObject> buildObjectForRule(Document* ownerDocument, CSSStyleRule*);
+        PassRefPtr<InspectorObject> buildObjectForStyleSheet(Document* ownerDocument, CSSStyleSheet*);
         Vector<String> longhandProperties(CSSStyleDeclaration*, const String& shorthandProperty);
         String shorthandValue(CSSStyleDeclaration*, const String& shorthandProperty);
         String shorthandPriority(CSSStyleDeclaration*, const String& shorthandProperty);
         bool ruleAffectsNode(CSSStyleRule*, Node*);
         Node* nodeForPath(const String& path);
-        ScriptArray toArray(const Vector<String>& data);
+        PassRefPtr<InspectorArray> toArray(const Vector<String>& data);
 
         void discardBindings();
 
         InspectorCSSStore* m_cssStore;
-        InspectorFrontend* m_frontend;
+        InspectorFrontend2* m_frontend;
         NodeToIdMap m_documentNodeToIdMap;
         // Owns node mappings for dangling nodes.
         Vector<NodeToIdMap*> m_danglingNodeToIdMaps;
@@ -207,6 +209,8 @@ namespace WebCore {
         HashSet<RefPtr<Node> > m_searchResults;
         Vector<long> m_inspectedNodes;
     };
+
+#endif
 
 } // namespace WebCore
 

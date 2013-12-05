@@ -691,6 +691,7 @@ PassRefPtr<CSSValue> CSSComputedStyleDeclaration::getPropertyCSSValue(int proper
     if (!style)
         return 0;
 
+    propertyID = CSSProperty::resolveDirectionAwareProperty(propertyID, style->direction());
 #ifdef ANDROID_LAYOUT
     const Settings * settings = node->document()->frame() ? node->document()->frame()->settings() : 0; 
 #endif
@@ -1480,6 +1481,14 @@ PassRefPtr<CSSValue> CSSComputedStyleDeclaration::getPropertyCSSValue(int proper
         case CSSPropertyTextUnderlineWidth:
             break;
 
+        /* Directional properties are resolved by resolveDirectionAwareProperty() before the switch. */
+        case CSSPropertyWebkitMarginEnd:
+        case CSSPropertyWebkitMarginStart:
+        case CSSPropertyWebkitPaddingEnd:
+        case CSSPropertyWebkitPaddingStart:
+            ASSERT_NOT_REACHED();
+            break;
+
         /* Unimplemented @font-face properties */
         case CSSPropertyFontStretch:
         case CSSPropertySrc:
@@ -1505,13 +1514,11 @@ PassRefPtr<CSSValue> CSSComputedStyleDeclaration::getPropertyCSSValue(int proper
         case CSSPropertyWebkitColumns:
         case CSSPropertyWebkitColumnRule:
         case CSSPropertyWebkitMarginCollapse:
-        case CSSPropertyWebkitMarginStart:
         case CSSPropertyWebkitMarquee:
         case CSSPropertyWebkitMarqueeSpeed:
         case CSSPropertyWebkitMask:
         case CSSPropertyWebkitMaskRepeatX:
         case CSSPropertyWebkitMaskRepeatY:
-        case CSSPropertyWebkitPaddingStart:
         case CSSPropertyWebkitPerspectiveOriginX:
         case CSSPropertyWebkitPerspectiveOriginY:
         case CSSPropertyWebkitTextStroke:
