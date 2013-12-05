@@ -1,7 +1,5 @@
 /*
- * Copyright 2009, The Android Open Source Project
- * Copyright (C) 2003, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ * Copyright 2010, The Android Open Source Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,36 +23,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ResourceRequest_h
-#define ResourceRequest_h
+#ifndef WebRequestContext_h
+#define WebRequestContext_h
 
-#include "CachedResource.h"
-#include "ResourceRequestBase.h"
+#include "net/http/http_cache.h"
+#include "net/url_request/url_request_context.h"
 
-namespace WebCore {
+namespace android {
 
-class ResourceRequest : public ResourceRequestBase {
+class WebRequestContext : public URLRequestContext {
 public:
-    ResourceRequest(const String& url)
-        : ResourceRequestBase(KURL(ParsedURLString, url), UseProtocolCachePolicy) { }
-
-    ResourceRequest(const KURL& url) : ResourceRequestBase(url, UseProtocolCachePolicy) { }
-
-    ResourceRequest(const KURL& url, const String& referrer, ResourceRequestCachePolicy policy = UseProtocolCachePolicy)
-        : ResourceRequestBase(url, policy)
-    {
-        setHTTPReferrer(referrer);
-    }
-
-    ResourceRequest() : ResourceRequestBase(KURL(), UseProtocolCachePolicy) { }
-
-    void doUpdatePlatformRequest() { }
-    void doUpdateResourceRequest() { }
-
+    virtual const std::string& GetUserAgent(const GURL& url) const;
+    static WebRequestContext* GetAndroidContext();
 private:
-    friend class ResourceRequestBase;
+    static const std::string* GetDataDirectory();
+    WebRequestContext();
+    ~WebRequestContext();
+
+    // Caching this query from java
+    static std::string* s_dataDirectory;
 };
 
-} // namespace WebCore
+} // namespace android
 
-#endif // ResourceRequest_h
+#endif

@@ -75,6 +75,7 @@
 #include "Settings.h"
 #include "StringBuilder.h"
 #include "SubstituteData.h"
+#include "UserGestureIndicator.h"
 #include "WebCoreJni.h"
 #include "WebCoreResourceLoader.h"
 #include "WebHistory.h"
@@ -481,11 +482,12 @@ WebFrame::startLoadingResource(WebCore::ResourceHandle* loader,
     jstring jPasswordString = loaderInternal->m_pass.isEmpty() ?
             NULL : env->NewString(loaderInternal->m_pass.characters(), loaderInternal->m_pass.length());
 
+    bool isUserGesture = UserGestureIndicator::processingUserGesture();
     jobject jLoadListener =
         env->CallObjectMethod(obj.get(), mJavaFrame->mStartLoadingResource,
                 (int)loader, jUrlStr, jMethodStr, jHeaderMap,
                 jPostDataStr, formdata ? formdata->identifier(): 0,
-                cacheMode, mainResource, request.getUserGesture(),
+                cacheMode, mainResource, isUserGesture,
                 synchronous, jUsernameString, jPasswordString);
 
     env->DeleteLocalRef(jUrlStr);
@@ -761,8 +763,9 @@ WebFrame::canHandleRequest(const WebCore::ResourceRequest& request)
     if (equalIgnoringCase(request.httpMethod(), "POST"))
         return true;
     WebCore::KURL requestUrl = request.url();
-    if (!mUserInitiatedClick && !request.getUserGesture() &&
-        (requestUrl.protocolIs("http") || requestUrl.protocolIs("https") ||
+    bool isUserGesture = UserGestureIndicator::processingUserGesture();
+    if (!mUserInitiatedClick && !isUserGesture && 
+            (requestUrl.protocolIs("http") || requestUrl.protocolIs("https") ||
             requestUrl.protocolIs("file") || requestUrl.protocolIs("about") ||
             WebCore::protocolIsJavaScript(requestUrl.string())))
         return true;

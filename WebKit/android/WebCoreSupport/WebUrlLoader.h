@@ -1,7 +1,5 @@
 /*
- * Copyright 2009, The Android Open Source Project
- * Copyright (C) 2003, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ * Copyright 2010, The Android Open Source Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,36 +23,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ResourceRequest_h
-#define ResourceRequest_h
+#ifndef WebUrlLoader_h
+#define WebUrlLoader_h
 
-#include "CachedResource.h"
-#include "ResourceRequestBase.h"
+#include "ResourceLoaderAndroid.h"
 
-namespace WebCore {
+using namespace WebCore;
 
-class ResourceRequest : public ResourceRequestBase {
+namespace android {
+class WebUrlLoaderClient;
+
+class WebUrlLoader : public ResourceLoaderAndroid {
 public:
-    ResourceRequest(const String& url)
-        : ResourceRequestBase(KURL(ParsedURLString, url), UseProtocolCachePolicy) { }
+    virtual ~WebUrlLoader();
+    static PassRefPtr<WebUrlLoader> start(WebCore::ResourceHandle*, const WebCore::ResourceRequest&, bool sync);
 
-    ResourceRequest(const KURL& url) : ResourceRequestBase(url, UseProtocolCachePolicy) { }
-
-    ResourceRequest(const KURL& url, const String& referrer, ResourceRequestCachePolicy policy = UseProtocolCachePolicy)
-        : ResourceRequestBase(url, policy)
-    {
-        setHTTPReferrer(referrer);
-    }
-
-    ResourceRequest() : ResourceRequestBase(KURL(), UseProtocolCachePolicy) { }
-
-    void doUpdatePlatformRequest() { }
-    void doUpdateResourceRequest() { }
+    virtual void cancel();
+    virtual void downloadFile() {} // Not implemented yet
+    virtual void pauseLoad(bool pause) {} // Android method, does nothing for now
 
 private:
-    friend class ResourceRequestBase;
+    WebUrlLoader(WebCore::ResourceHandle*, const WebCore::ResourceRequest&);
+    static PassRefPtr<WebUrlLoader> create(WebCore::ResourceHandle*, const WebCore::ResourceRequest&);
+
+    OwnPtr<WebUrlLoaderClient> m_loaderClient;
 };
 
-} // namespace WebCore
+} // namespace android
 
-#endif // ResourceRequest_h
+#endif

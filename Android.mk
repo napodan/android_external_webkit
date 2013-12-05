@@ -78,6 +78,12 @@ ifneq ($(JAVASCRIPT_ENGINE),jsc)
   endif
 endif
 
+# Read the HTTP_STACK environment variable, default is android
+HTTP_STACK = $(HTTP)
+ifneq ($(HTTP_STACK),chrome)
+  HTTP_STACK = android
+endif
+
 BASE_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -233,6 +239,13 @@ intermediates := $(base_intermediates)/$d
 include $(LOCAL_PATH)/Android.mk
 WEBKIT_SRC_FILES += $(addprefix $d/,$(LOCAL_SRC_FILES))
 
+ifeq ($(HTTP_STACK),chrome)
+LOCAL_C_INCLUDES := $(LOCAL_C_INCLUDES) \
+	$(LOCAL_PATH)/WebKit/chromium/public \
+	external/chromium \
+	external/chromium/android
+endif # HTTP_STACK == chrome
+
 # Redefine LOCAL_PATH here so the build system is not confused
 LOCAL_PATH := $(BASE_PATH)
 
@@ -241,6 +254,11 @@ LOCAL_CFLAGS += -Wno-endif-labels -Wno-import -Wno-format
 LOCAL_CFLAGS += -fno-strict-aliasing
 LOCAL_CFLAGS += -include "WebCorePrefix.h"
 LOCAL_CFLAGS += -fvisibility=hidden
+ifeq ($(HTTP_STACK),chrome)
+LOCAL_CFLAGS += -DGOOGLEURL
+LOCAL_CFLAGS += -DCHROME_HTTP_STACK
+LOCAL_CFLAGS += -include "assert.h"
+endif # HTTP_STACK == chrome
 
 # Enable JSC JIT if JSC is used and ENABLE_JSC_JIT environment
 # variable is set to true
@@ -254,6 +272,7 @@ ifeq ($(TARGET_ARCH),arm)
 LOCAL_CFLAGS += -Darm
 # remove this warning: "note: the mangling of 'va_list' has changed in GCC 4.4"
 LOCAL_CFLAGS += -Wno-psabi
+LOCAL_CFLAGS += -fno-data-sections
 endif
 
 # need a flag to tell the C side when we're on devices with large memory
@@ -295,6 +314,13 @@ LOCAL_SHARED_LIBRARIES := \
 	libicui18n \
 	libmedia \
 	libsurfaceflinger_client
+
+ifeq ($(HTTP_STACK),chrome)
+LOCAL_SHARED_LIBRARIES := $(LOCAL_SHARED_LIBRARIES) \
+	libssl \
+	libcrypto \
+	libchromium_net
+endif # HTTP_STACK == chrome
 
 ifeq ($(WEBCORE_INSTRUMENTATION),true)
 LOCAL_SHARED_LIBRARIES += libhardware_legacy
@@ -376,13 +402,6 @@ ifeq ($(JAVASCRIPT_ENGINE),jsc)
 LOCAL_STATIC_LIBRARIES += libjs
 endif
 LOCAL_LDFLAGS := -fvisibility=hidden
-
-# Disable ICF for the time being since the browser crahses in tests with
-# ICF enabled.
-ifeq ($(TARGET_ARCH),arm)
-LOCAL_LDFLAGS += -Wl,--icf=none
-endif
-
 LOCAL_CFLAGS := $(WEBKIT_CFLAGS)
 LOCAL_C_INCLUDES := $(WEBKIT_C_INCLUDES)
 LOCAL_PATH := $(BASE_PATH)

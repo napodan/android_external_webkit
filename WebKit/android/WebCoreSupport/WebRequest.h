@@ -1,7 +1,5 @@
 /*
- * Copyright 2009, The Android Open Source Project
- * Copyright (C) 2003, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2006 Samuel Weinig <sam.weinig@gmail.com>
+ * Copyright 2010, The Android Open Source Project
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,36 +23,52 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef ResourceRequest_h
-#define ResourceRequest_h
+#ifndef WebRequest_h
+#define WebRequest_h
 
-#include "CachedResource.h"
-#include "ResourceRequestBase.h"
+#include "WebUrlLoaderClient.h"
+#include "net/base/io_buffer.h"
+#include "net/url_request/url_request.h"
+
+class MessageLoop;
 
 namespace WebCore {
+class ResourceRequest;
+}
 
-class ResourceRequest : public ResourceRequestBase {
+namespace android {
+
+// All methods in this class must be called on the io thread
+class WebRequest : public URLRequest::Delegate, public base::RefCountedThreadSafe<WebRequest> {
 public:
-    ResourceRequest(const String& url)
-        : ResourceRequestBase(KURL(ParsedURLString, url), UseProtocolCachePolicy) { }
+    WebRequest(WebUrlLoaderClient*, WebCore::ResourceRequest&);
+    void start();
+    void cancel();
 
-    ResourceRequest(const KURL& url) : ResourceRequestBase(url, UseProtocolCachePolicy) { }
-
-    ResourceRequest(const KURL& url, const String& referrer, ResourceRequestCachePolicy policy = UseProtocolCachePolicy)
-        : ResourceRequestBase(url, policy)
-    {
-        setHTTPReferrer(referrer);
-    }
-
-    ResourceRequest() : ResourceRequestBase(KURL(), UseProtocolCachePolicy) { }
-
-    void doUpdatePlatformRequest() { }
-    void doUpdateResourceRequest() { }
+    // From URLRequest::Delegate
+    virtual void OnReceivedRedirect(URLRequest*, const GURL&, bool* deferRedirect);
+    virtual void OnResponseStarted(URLRequest*);
+    virtual void OnReadCompleted(URLRequest*, int bytesRead);
+    virtual void OnAuthRequired(URLRequest*, net::AuthChallengeInfo*);
 
 private:
-    friend class ResourceRequestBase;
+    void startReading();
+    bool read(int* bytesRead);
+
+    friend class base::RefCountedThreadSafe<WebRequest>;
+    virtual ~WebRequest();
+    void handleDataURL(GURL);
+    void setUploadData(URLRequest*);
+    void finish(bool success);
+
+    // Not owned
+    WebUrlLoaderClient* m_urlLoader;
+
+    WebCore::ResourceRequest m_resourceRequest;
+    OwnPtr<URLRequest> m_request;
+    scoped_refptr<net::IOBuffer> m_networkBuffer;
 };
 
-} // namespace WebCore
+} // namespace android
 
-#endif // ResourceRequest_h
+#endif

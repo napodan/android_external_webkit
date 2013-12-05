@@ -194,11 +194,6 @@
 // apple-touch-icon support in <link> tags
 #define ANDROID_APPLE_TOUCH_ICON
 
-// The user gesture flag is lost during a scheduled location change. We need to
-// maintain that flag until canHandleRequest to determine if a link was clicked
-// or if javascript tried to change the location.
-#define ANDROID_USER_GESTURE
-
 // Enable prefetching when specified via the rel element of <link> elements.
 #define ENABLE_LINK_PREFETCH 1
 
