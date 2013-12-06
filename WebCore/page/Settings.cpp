@@ -142,6 +142,7 @@ Settings::Settings(Page* page)
     , m_showRepaintCounter(false)
     , m_experimentalNotificationsEnabled(false)
     , m_webGLEnabled(false)
+    , m_acceleratedCanvas2dEnabled(false)
     , m_loadDeferringEnabled(true)
     , m_tiledBackingStoreEnabled(false)
     , m_html5ParserEnabled(true)
@@ -149,6 +150,7 @@ Settings::Settings(Page* page)
     , m_paginateDuringLayoutEnabled(false)
     , m_dnsPrefetchingEnabled(true)
     , m_memoryInfoEnabled(false)
+    , m_interactiveFormValidation(false)
 #ifdef ANDROID_PLUGINS
     , m_pluginsOnDemand(false)
 #endif
@@ -798,6 +800,11 @@ void Settings::setShouldUseHighResolutionTimers(bool shouldUseHighResolutionTime
 void Settings::setWebGLEnabled(bool enabled)
 {
     m_webGLEnabled = enabled;
+}
+
+void Settings::setAccelerated2dCanvasEnabled(bool enabled)
+{
+    m_acceleratedCanvas2dEnabled = enabled;
 }
 
 void Settings::setLoadDeferringEnabled(bool enabled)

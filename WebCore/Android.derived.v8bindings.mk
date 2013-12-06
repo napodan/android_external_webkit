@@ -613,7 +613,6 @@ $(patsubst %.h,%.cpp,$(GEN)): $(intermediates)/bindings/%.cpp : $(intermediates)
 GEN := \
     $(intermediates)/bindings/V8InjectedScriptHost.h \
     $(intermediates)/bindings/V8Inspector.h \
-    $(intermediates)/bindings/V8InspectorBackend.h \
     $(intermediates)/bindings/V8InspectorFrontendHost.h \
     $(intermediates)/bindings/V8ScriptProfile.h
 

@@ -189,6 +189,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/UIEvent.cpp \
 	dom/UIEventWithKeyState.cpp \
 	dom/UserGestureIndicator.cpp \
+	dom/UserTypingGestureIndicator.cpp \
 	dom/ViewportArguments.cpp \
 	dom/WebKitAnimationEvent.cpp \
 	dom/WebKitTransitionEvent.cpp \
@@ -437,6 +438,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	platform/LinkHash.cpp \
 	platform/Logging.cpp \
 	platform/MIMETypeRegistry.cpp \
+	platform/SchemeRegistry.cpp \
 	platform/ScrollView.cpp \
 	platform/Scrollbar.cpp \
 	platform/ScrollbarThemeComposite.cpp \
@@ -701,6 +703,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/RenderSVGModelObject.cpp \
 	rendering/RenderSVGResource.cpp \
 	rendering/RenderSVGResourceClipper.cpp \
+	rendering/RenderSVGResourceContainer.cpp \
 	rendering/RenderSVGResourceFilter.cpp \
 	rendering/RenderSVGResourceGradient.cpp \
 	rendering/RenderSVGResourceLinearGradient.cpp \
@@ -750,6 +753,9 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	rendering/SVGMarkerLayoutInfo.cpp \
 	rendering/SVGRenderSupport.cpp \
 	rendering/SVGRenderTreeAsText.cpp \
+	rendering/SVGResources.cpp \
+	rendering/SVGResourcesCache.cpp \
+	rendering/SVGResourcesCycleSolver.cpp \
 	rendering/SVGRootInlineBox.cpp \
 	rendering/SVGShadowTreeElements.cpp \
 	rendering/SVGTextChunkLayoutInfo.cpp \

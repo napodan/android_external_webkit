@@ -53,6 +53,7 @@ namespace WebCore {
     class FloatRect;
     class Frame;
     class History;
+    class IDBKeyRange;
     class IndexedDatabaseRequest;
     class InspectorTimelineAgent;
     class Location;
@@ -234,6 +235,7 @@ namespace WebCore {
         void pageDestroyed();
 
 #if ENABLE(INDEXED_DATABASE)
+        IDBKeyRange* iDBKeyRange() const;
         IndexedDatabaseRequest* indexedDB() const;
 #endif
 
@@ -425,6 +427,7 @@ namespace WebCore {
         mutable RefPtr<NotificationCenter> m_notifications;
 #endif
 #if ENABLE(INDEXED_DATABASE)
+        mutable RefPtr<IDBKeyRange> m_idb_key_range;
         mutable RefPtr<IndexedDatabaseRequest> m_indexedDatabaseRequest;
 #endif
 
