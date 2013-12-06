@@ -38800,8 +38800,8 @@ t2006-10-29  Darin Adler  <darin@apple.com>
         (WebCore::IconDatabase::imageDataForIconID): Removed unused code
         (WebCore::IconDatabase::imageDataForIconURL): Removed unused code
         (WebCore::IconDatabase::imageDataForPageURL): Removed unused code
-        (WebCore::IconDatabase::isIconExpiredForIconURL): Removed LOG msg
-        (WebCore::IconDatabase::isIconExpiredForPageURL): Removed LOG msg
+        (WebCore::IconDatabase::isIconExpiredForIconURL): Removed ALOG msg
+        (WebCore::IconDatabase::isIconExpiredForPageURL): Removed ALOG msg
         (WebCore::IconDatabase::iconURLForPageURL): Added a hashmap cache to avoid common queries
         (WebCore::IconDatabase::releaseIconForURL): Changed to is isRetained() instead of retainCount()
         (WebCore::IconDatabase::isIconURLRetained): Added - we don't care about the actual retain count

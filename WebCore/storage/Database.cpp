@@ -90,14 +90,14 @@ PassRefPtr<Database> Database::openDatabase(ScriptExecutionContext* context, con
                                             ExceptionCode& e)
 {
     if (!DatabaseTracker::tracker().canEstablishDatabase(context, name, displayName, estimatedSize)) {
-        LOG(StorageAPI, "Database %s for origin %s not allowed to be established", name.ascii().data(), context->securityOrigin()->toString().ascii().data());
+        ALOG(StorageAPI, "Database %s for origin %s not allowed to be established", name.ascii().data(), context->securityOrigin()->toString().ascii().data());
         return 0;
     }
 
     RefPtr<Database> database = adoptRef(new Database(context, name, expectedVersion, displayName, estimatedSize));
 
     if (!database->openAndVerifyVersion(!creationCallback, e)) {
-        LOG(StorageAPI, "Failed to open and verify version (expected %s) of database %s", expectedVersion.ascii().data(), database->databaseDebugName().ascii().data());
+        ALOG(StorageAPI, "Failed to open and verify version (expected %s) of database %s", expectedVersion.ascii().data(), database->databaseDebugName().ascii().data());
         DatabaseTracker::tracker().removeOpenDatabase(database.get());
         return 0;
     }
@@ -119,7 +119,7 @@ PassRefPtr<Database> Database::openDatabase(ScriptExecutionContext* context, con
     // it inside performOpenAndVerify() which is run on the DB thread.
     if (database->isNew() && creationCallback.get()) {
         database->m_expectedVersion = "";
-        LOG(StorageAPI, "Scheduling DatabaseCreationCallbackTask for database %p\n", database.get());
+        ALOG(StorageAPI, "Scheduling DatabaseCreationCallbackTask for database %p\n", database.get());
         database->m_scriptExecutionContext->postTask(DatabaseCreationCallbackTask::create(database, creationCallback));
     }
 
@@ -201,11 +201,11 @@ void Database::markAsDeletedAndClose()
     if (m_deleted || !m_scriptExecutionContext->databaseThread())
         return;
 
-    LOG(StorageAPI, "Marking %s (%p) as deleted", stringIdentifier().ascii().data(), this);
+    ALOG(StorageAPI, "Marking %s (%p) as deleted", stringIdentifier().ascii().data(), this);
     m_deleted = true;
 
     if (m_scriptExecutionContext->databaseThread()->terminationRequested()) {
-        LOG(StorageAPI, "Database handle %p is on a terminated DatabaseThread, cannot be marked for normal closure\n", this);
+        ALOG(StorageAPI, "Database handle %p is on a terminated DatabaseThread, cannot be marked for normal closure\n", this);
         return;
     }
 
@@ -297,7 +297,7 @@ void Database::scheduleTransaction()
 
     if (transaction && m_scriptExecutionContext->databaseThread()) {
         OwnPtr<DatabaseTransactionTask> task = DatabaseTransactionTask::create(transaction);
-        LOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for transaction %p\n", task.get(), task->transaction());
+        ALOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for transaction %p\n", task.get(), task->transaction());
         m_transactionInProgress = true;
         m_scriptExecutionContext->databaseThread()->scheduleTask(task.release());
     } else
@@ -310,7 +310,7 @@ void Database::scheduleTransactionStep(SQLTransaction* transaction, bool immedia
         return;
 
     OwnPtr<DatabaseTransactionTask> task = DatabaseTransactionTask::create(transaction);
-    LOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for the transaction step\n", task.get());
+    ALOG(StorageAPI, "Scheduling DatabaseTransactionTask %p for the transaction step\n", task.get());
     if (immediately)
         m_scriptExecutionContext->databaseThread()->scheduleImmediateTask(task.release());
     else

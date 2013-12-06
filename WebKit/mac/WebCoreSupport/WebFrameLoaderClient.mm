@@ -1489,7 +1489,7 @@ static NSView *pluginView(WebFrame *frame, WebPluginPackage *pluginPackage,
             [NSNumber numberWithBool:!loadManually], WebPlugInShouldLoadMainResourceKey,
             element, WebPlugInContainingElementKey,
             nil];
-        LOG(Plugins, "arguments:\n%@", arguments);
+        ALOG(Plugins, "arguments:\n%@", arguments);
     } else if ([viewFactory respondsToSelector:@selector(pluginViewWithArguments:)]) {
         arguments = [NSDictionary dictionaryWithObjectsAndKeys:
             baseURL, WebPluginBaseURLKey,
@@ -1497,7 +1497,7 @@ static NSView *pluginView(WebFrame *frame, WebPluginPackage *pluginPackage,
             pluginController, WebPluginContainerKey,
             element, WebPlugInContainingElementKey,
             nil];
-        LOG(Plugins, "arguments:\n%@", arguments);
+        ALOG(Plugins, "arguments:\n%@", arguments);
     }
 
     view = [WebPluginController plugInViewWithArguments:arguments fromPluginPackage:pluginPackage];

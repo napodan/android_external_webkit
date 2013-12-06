@@ -73,7 +73,7 @@ static JNINativeMethod gMockGeolocationMethods[] = {
 int register_mock_geolocation(JNIEnv* env)
 {
     jclass mockGeolocation = env->FindClass(javaMockGeolocationClass);
-    LOG_ASSERT(mockGeolocation, "Unable to find class");
+    ALOG_ASSERT(mockGeolocation, "Unable to find class");
     return jniRegisterNativeMethods(env, javaMockGeolocationClass, gMockGeolocationMethods, NELEM(gMockGeolocationMethods));
 }
 

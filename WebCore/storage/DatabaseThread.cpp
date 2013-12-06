@@ -71,7 +71,7 @@ void DatabaseThread::requestTermination(DatabaseTaskSynchronizer *cleanupSync)
 {
     ASSERT(!m_cleanupSync);
     m_cleanupSync = cleanupSync;
-    LOG(StorageAPI, "DatabaseThread %p was asked to terminate\n", this);
+    ALOG(StorageAPI, "DatabaseThread %p was asked to terminate\n", this);
     m_queue.kill();
 }
 
@@ -91,7 +91,7 @@ void* DatabaseThread::databaseThread()
     {
         // Wait for DatabaseThread::start() to complete.
         MutexLocker lock(m_threadCreationMutex);
-        LOG(StorageAPI, "Started DatabaseThread %p", this);
+        ALOG(StorageAPI, "Started DatabaseThread %p", this);
     }
 
     AutodrainedPool pool;
@@ -103,7 +103,7 @@ void* DatabaseThread::databaseThread()
     // Clean up the list of all pending transactions on this database thread
     m_transactionCoordinator->shutdown();
 
-    LOG(StorageAPI, "About to detach thread %i and clear the ref to DatabaseThread %p, which currently has %i ref(s)", m_threadID, this, refCount());
+    ALOG(StorageAPI, "About to detach thread %i and clear the ref to DatabaseThread %p, which currently has %i ref(s)", m_threadID, this, refCount());
 
     // Close the databases that we ran transactions on. This ensures that if any transactions are still open, they are rolled back and we don't leave the database in an
     // inconsistent or locked state.

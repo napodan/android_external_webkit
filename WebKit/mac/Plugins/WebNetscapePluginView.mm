@@ -995,19 +995,19 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
         switch (drawingModel) {
 #ifndef NP_NO_QUICKDRAW
             case NPDrawingModelQuickDraw:
-                LOG(Plugins, "NPP_SetWindow (QuickDraw): %d, port=0x%08x, window.x:%d window.y:%d window.width:%d window.height:%d",
+                ALOG(Plugins, "NPP_SetWindow (QuickDraw): %d, port=0x%08x, window.x:%d window.y:%d window.width:%d window.height:%d",
                 npErr, (int)nPort.qdPort.port, (int)window.x, (int)window.y, (int)window.width, (int)window.height);
             break;
 #endif /* NP_NO_QUICKDRAW */
             
             case NPDrawingModelCoreGraphics:
-                LOG(Plugins, "NPP_SetWindow (CoreGraphics): %d, window=%p, context=%p, window.x:%d window.y:%d window.width:%d window.height:%d window.clipRect size:%dx%d",
+                ALOG(Plugins, "NPP_SetWindow (CoreGraphics): %d, window=%p, context=%p, window.x:%d window.y:%d window.width:%d window.height:%d window.clipRect size:%dx%d",
                 npErr, nPort.cgPort.window, nPort.cgPort.context, (int)window.x, (int)window.y, (int)window.width, (int)window.height, 
                     window.clipRect.right - window.clipRect.left, window.clipRect.bottom - window.clipRect.top);
             break;
 
             case NPDrawingModelCoreAnimation:
-                LOG(Plugins, "NPP_SetWindow (CoreAnimation): %d, window=%p window.x:%d window.y:%d window.width:%d window.height:%d",
+                ALOG(Plugins, "NPP_SetWindow (CoreAnimation): %d, window=%p window.x:%d window.y:%d window.width:%d window.height:%d",
                 npErr, window.window, nPort.cgPort.context, (int)window.x, (int)window.y, (int)window.width, (int)window.height);
             break;
 
@@ -1072,7 +1072,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
 
 #ifndef NP_NO_CARBON
     if (eventModel == NPEventModelCocoa && isDrawingModelQuickDraw(drawingModel)) {
-        LOG(Plugins, "Plugin can't use use Cocoa event model with QuickDraw drawing model: %@", _pluginPackage.get());
+        ALOG(Plugins, "Plugin can't use use Cocoa event model with QuickDraw drawing model: %@", _pluginPackage.get());
         [self _destroyPlugin];
         [_pluginPackage.get() close];
         
@@ -1113,7 +1113,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
             } else
                 [self setWantsLayer:YES];
 
-            LOG(Plugins, "%@ is using Core Animation drawing model with layer %@", _pluginPackage.get(), _pluginLayer.get());
+            ALOG(Plugins, "%@ is using Core Animation drawing model with layer %@", _pluginPackage.get(), _pluginLayer.get());
         }
 
         ASSERT(_pluginLayer);
@@ -1252,7 +1252,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
         }
         cAttributes[argsCount] = strdup([key UTF8String]);
         cValues[argsCount] = strdup([value UTF8String]);
-        LOG(Plugins, "%@ = %@", key, value);
+        ALOG(Plugins, "%@ = %@", key, value);
         argsCount++;
     }
 }
@@ -1763,7 +1763,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
 
 -(NPError)getURLNotify:(const char *)URLCString target:(const char *)cTarget notifyData:(void *)notifyData
 {
-    LOG(Plugins, "NPN_GetURLNotify: %s target: %s", URLCString, cTarget);
+    ALOG(Plugins, "NPN_GetURLNotify: %s target: %s", URLCString, cTarget);
 
     NSMutableURLRequest *request = [self requestWithURLCString:URLCString];
     return [self loadRequest:request inTarget:cTarget withNotifyData:notifyData sendNotification:YES];
@@ -1771,7 +1771,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
 
 -(NPError)getURL:(const char *)URLCString target:(const char *)cTarget
 {
-    LOG(Plugins, "NPN_GetURL: %s target: %s", URLCString, cTarget);
+    ALOG(Plugins, "NPN_GetURL: %s target: %s", URLCString, cTarget);
 
     NSMutableURLRequest *request = [self requestWithURLCString:URLCString];
     return [self loadRequest:request inTarget:cTarget withNotifyData:NULL sendNotification:NO];
@@ -1868,7 +1868,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
                     file:(NPBool)file
               notifyData:(void *)notifyData
 {
-    LOG(Plugins, "NPN_PostURLNotify: %s", URLCString);
+    ALOG(Plugins, "NPN_PostURLNotify: %s", URLCString);
     return [self _postURL:URLCString target:target len:len buf:buf file:file notifyData:notifyData sendNotification:YES allowHeaders:YES];
 }
 
@@ -1878,31 +1878,31 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
               buf:(const char *)buf
              file:(NPBool)file
 {
-    LOG(Plugins, "NPN_PostURL: %s", URLCString);        
+    ALOG(Plugins, "NPN_PostURL: %s", URLCString);        
     // As documented, only allow headers to be specified via NPP_PostURL when using a file.
     return [self _postURL:URLCString target:target len:len buf:buf file:file notifyData:NULL sendNotification:NO allowHeaders:file];
 }
 
 -(NPError)newStream:(NPMIMEType)type target:(const char *)target stream:(NPStream**)stream
 {
-    LOG(Plugins, "NPN_NewStream");
+    ALOG(Plugins, "NPN_NewStream");
     return NPERR_GENERIC_ERROR;
 }
 
 -(NPError)write:(NPStream*)stream len:(SInt32)len buffer:(void *)buffer
 {
-    LOG(Plugins, "NPN_Write");
+    ALOG(Plugins, "NPN_Write");
     return NPERR_GENERIC_ERROR;
 }
 
 -(NPError)destroyStream:(NPStream*)stream reason:(NPReason)reason
 {
-    LOG(Plugins, "NPN_DestroyStream");
+    ALOG(Plugins, "NPN_DestroyStream");
     // This function does a sanity check to ensure that the NPStream provided actually
     // belongs to the plug-in that provided it, which fixes a crash in the DivX 
     // plug-in: <rdar://problem/5093862> | http://bugs.webkit.org/show_bug.cgi?id=13203
     if (!stream || WebNetscapePluginStream::ownerForStream(stream) != plugin) {
-        LOG(Plugins, "Invalid NPStream passed to NPN_DestroyStream: %p", stream);
+        ALOG(Plugins, "Invalid NPStream passed to NPN_DestroyStream: %p", stream);
         return NPERR_INVALID_INSTANCE_ERROR;
     }
     
@@ -1934,7 +1934,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
         return;
     }
     
-    LOG(Plugins, "NPN_Status: %@", status);
+    ALOG(Plugins, "NPN_Status: %@", status);
     WebView *wv = [self webView];
     [[wv _UIDelegateForwarder] webView:wv setStatusText:(NSString *)status];
     CFRelease(status);
@@ -1942,14 +1942,14 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
 
 -(void)invalidateRect:(NPRect *)invalidRect
 {
-    LOG(Plugins, "NPN_InvalidateRect");
+    ALOG(Plugins, "NPN_InvalidateRect");
     [self invalidatePluginContentRect:NSMakeRect(invalidRect->left, invalidRect->top,
         (float)invalidRect->right - invalidRect->left, (float)invalidRect->bottom - invalidRect->top)];
 }
 
 - (void)invalidateRegion:(NPRegion)invalidRegion
 {
-    LOG(Plugins, "NPN_InvalidateRegion");
+    ALOG(Plugins, "NPN_InvalidateRegion");
     NSRect invalidRect = NSZeroRect;
     switch (drawingModel) {
 #ifndef NP_NO_QUICKDRAW
@@ -1978,7 +1978,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
 
 -(void)forceRedraw
 {
-    LOG(Plugins, "forceRedraw");
+    ALOG(Plugins, "forceRedraw");
     [self invalidatePluginContentRect:[self bounds]];
     [[self window] displayIfNeeded];
 }
@@ -2119,7 +2119,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
 
                 // Unsupported (or unknown) drawing models:
                 default:
-                    LOG(Plugins, "Plugin %@ uses unsupported drawing model: %d", _eventHandler.get(), drawingModel);
+                    ALOG(Plugins, "Plugin %@ uses unsupported drawing model: %d", _eventHandler.get(), drawingModel);
                     return NPERR_GENERIC_ERROR;
             }
         }
@@ -2143,7 +2143,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
                     
                     // Unsupported (or unknown) event models:
                 default:
-                    LOG(Plugins, "Plugin %@ uses unsupported event model: %d", _eventHandler.get(), eventModel);
+                    ALOG(Plugins, "Plugin %@ uses unsupported event model: %d", _eventHandler.get(), eventModel);
                     return NPERR_GENERIC_ERROR;
             }
         }
@@ -2379,7 +2379,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
     [[self class] setCurrentPluginView:nil];
     if (_isSilverlight)
         [self _workaroundSilverlightFullscreenBug:YES];
-    LOG(Plugins, "NPP_New: %d", npErr);
+    ALOG(Plugins, "NPP_New: %d", npErr);
     return npErr;
 }
 
@@ -2392,7 +2392,7 @@ static inline void getNPRect(const NSRect& nr, NPRect& npr)
     
     NPError npErr;
     npErr = ![_pluginPackage.get() pluginFuncs]->destroy(plugin, NULL);
-    LOG(Plugins, "NPP_Destroy: %d", npErr);
+    ALOG(Plugins, "NPP_Destroy: %d", npErr);
     
     if (Frame* frame = core([self webFrame]))
         frame->script()->cleanupScriptObjectsForPlugin(self);

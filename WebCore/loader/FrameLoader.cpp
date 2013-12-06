@@ -773,7 +773,7 @@ void FrameLoader::iconLoadDecisionAvailable()
 {
     if (!m_mayLoadIconLater)
         return;
-    LOG(IconDatabase, "FrameLoader %p was told a load decision is available for its icon", this);
+    ALOG(IconDatabase, "FrameLoader %p was told a load decision is available for its icon", this);
     startIconLoader();
     m_mayLoadIconLater = false;
 }
@@ -797,7 +797,7 @@ void FrameLoader::startIconLoader()
     if (loadType() != FrameLoadTypeReload && loadType() != FrameLoadTypeReloadFromOrigin) {
         IconLoadDecision decision = iconDatabase()->loadDecisionForIconURL(urlString, m_documentLoader.get());
         if (decision == IconLoadNo) {
-            LOG(IconDatabase, "FrameLoader::startIconLoader() - Told not to load this icon, committing iconURL %s to database for pageURL mapping", urlString.ascii().data());
+            ALOG(IconDatabase, "FrameLoader::startIconLoader() - Told not to load this icon, committing iconURL %s to database for pageURL mapping", urlString.ascii().data());
             commitIconURLToIconDatabase(url);
             
             // We were told not to load this icon - that means this icon is already known by the database
@@ -805,7 +805,7 @@ void FrameLoader::startIconLoader()
             // has done it.  This is after registering for the notification so the WebView can call the appropriate delegate method.
             // Otherwise if the icon data *is* available, notify the delegate
             if (!iconDatabase()->iconDataKnownForIconURL(urlString)) {
-                LOG(IconDatabase, "Told not to load icon %s but icon data is not yet available - registering for notification and requesting load from disk", urlString.ascii().data());
+                ALOG(IconDatabase, "Told not to load icon %s but icon data is not yet available - registering for notification and requesting load from disk", urlString.ascii().data());
                 m_client->registerForIconNotification();
                 iconDatabase()->iconForPageURL(m_URL.string(), IntSize(0, 0));
                 iconDatabase()->iconForPageURL(originalRequestURL().string(), IntSize(0, 0));
@@ -820,7 +820,7 @@ void FrameLoader::startIconLoader()
             // just in case we don't end up loading later - if we commit the mapping a second time after the load, that's no big deal
             // We also tell the client to register for the notification that the icon is received now so it isn't missed in case the 
             // icon is later read in from disk
-            LOG(IconDatabase, "FrameLoader %p might load icon %s later", this, urlString.ascii().data());
+            ALOG(IconDatabase, "FrameLoader %p might load icon %s later", this, urlString.ascii().data());
             m_mayLoadIconLater = true;    
             m_client->registerForIconNotification();
             commitIconURLToIconDatabase(url);
@@ -844,7 +844,7 @@ void FrameLoader::startIconLoader()
 void FrameLoader::commitIconURLToIconDatabase(const KURL& icon)
 {
     ASSERT(iconDatabase());
-    LOG(IconDatabase, "Committing iconURL %s to database for pageURLs %s and %s", icon.string().ascii().data(), m_URL.string().ascii().data(), originalRequestURL().string().ascii().data());
+    ALOG(IconDatabase, "Committing iconURL %s to database for pageURLs %s and %s", icon.string().ascii().data(), m_URL.string().ascii().data(), originalRequestURL().string().ascii().data());
     iconDatabase()->setIconURLForPageURL(icon.string(), m_URL.string());
     iconDatabase()->setIconURLForPageURL(icon.string(), originalRequestURL().string());
 }
@@ -1923,7 +1923,7 @@ void FrameLoader::commitProvisionalLoad()
     RefPtr<CachedPage> cachedPage = m_loadingFromCachedPage ? pageCache()->get(history()->provisionalItem()) : 0;
     RefPtr<DocumentLoader> pdl = m_provisionalDocumentLoader;
 
-    LOG(PageCache, "WebCoreLoading %s: About to commit provisional load from previous URL '%s' to new URL '%s'", m_frame->tree()->name().string().utf8().data(), m_URL.string().utf8().data(), 
+    ALOG(PageCache, "WebCoreLoading %s: About to commit provisional load from previous URL '%s' to new URL '%s'", m_frame->tree()->name().string().utf8().data(), m_URL.string().utf8().data(), 
         pdl ? pdl->url().string().utf8().data() : "<no provisional DocumentLoader>");
 
     // Check to see if we need to cache the page we are navigating away from into the back/forward cache.
@@ -1963,7 +1963,7 @@ void FrameLoader::commitProvisionalLoad()
         didOpenURL(url);
     }
 
-    LOG(Loading, "WebCoreLoading %s: Finished committing provisional load to URL %s", m_frame->tree()->name().string().utf8().data(), m_URL.string().utf8().data());
+    ALOG(Loading, "WebCoreLoading %s: Finished committing provisional load to URL %s", m_frame->tree()->name().string().utf8().data(), m_URL.string().utf8().data());
 
     if (m_loadType == FrameLoadTypeStandard && m_documentLoader->isClientRedirect())
         history()->updateForClientRedirect();
@@ -3184,7 +3184,7 @@ bool FrameLoader::shouldInterruptLoadForXFrameOptions(const String& content, con
 void FrameLoader::loadProvisionalItemFromCachedPage()
 {
     DocumentLoader* provisionalLoader = provisionalDocumentLoader();
-    LOG(PageCache, "WebCorePageCache: Loading provisional DocumentLoader %p with URL '%s' from CachedPage", provisionalDocumentLoader(), provisionalDocumentLoader()->url().string().utf8().data());
+    ALOG(PageCache, "WebCorePageCache: Loading provisional DocumentLoader %p with URL '%s' from CachedPage", provisionalDocumentLoader(), provisionalDocumentLoader()->url().string().utf8().data());
 
     provisionalLoader->prepareForLoadStart();
 

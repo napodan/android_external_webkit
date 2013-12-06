@@ -446,7 +446,7 @@ static WebIconDatabaseClient* defaultClient()
     
 #if !LOG_DISABLED
     double duration = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "scaling icon took %f seconds.", duration);
+    ALOG(Timing, "scaling icon took %f seconds.", duration);
 #endif
 }
 
@@ -510,13 +510,13 @@ static id objectFromPathForKey(NSString *databasePath, id key)
                         // Decoded objects go away when the unarchiver does, so we need to
                         // retain this so we can return it to our caller.
                         result = [[object retain] autorelease];
-                        LOG(IconDatabase, "read disk cache file - %@", key);
+                        ALOG(IconDatabase, "read disk cache file - %@", key);
                     }
                 }
             }
         }
     } @catch (NSException *localException) {
-        LOG(IconDatabase, "cannot unarchive cache file - %@", key);
+        ALOG(IconDatabase, "cannot unarchive cache file - %@", key);
         result = nil;
     }
 

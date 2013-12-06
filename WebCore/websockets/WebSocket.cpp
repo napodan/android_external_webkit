@@ -110,7 +110,7 @@ void WebSocket::connect(const KURL& url, ExceptionCode& ec)
 
 void WebSocket::connect(const KURL& url, const String& protocol, ExceptionCode& ec)
 {
-    LOG(Network, "WebSocket %p connect to %s protocol=%s", this, url.string().utf8().data(), protocol.utf8().data());
+    ALOG(Network, "WebSocket %p connect to %s protocol=%s", this, url.string().utf8().data(), protocol.utf8().data());
     m_url = url;
     m_protocol = protocol;
 
@@ -153,7 +153,7 @@ void WebSocket::connect(const KURL& url, const String& protocol, ExceptionCode& 
 
 bool WebSocket::send(const String& message, ExceptionCode& ec)
 {
-    LOG(Network, "WebSocket %p send %s", this, message.utf8().data());
+    ALOG(Network, "WebSocket %p send %s", this, message.utf8().data());
     if (m_state == CONNECTING) {
         ec = INVALID_STATE_ERR;
         return false;
@@ -170,7 +170,7 @@ bool WebSocket::send(const String& message, ExceptionCode& ec)
 
 void WebSocket::close()
 {
-    LOG(Network, "WebSocket %p close", this);
+    ALOG(Network, "WebSocket %p close", this);
     if (m_state == CLOSED)
         return;
     m_state = CLOSED;
@@ -205,7 +205,7 @@ ScriptExecutionContext* WebSocket::scriptExecutionContext() const
 
 void WebSocket::contextDestroyed()
 {
-    LOG(Network, "WebSocket %p scriptExecutionContext destroyed", this);
+    ALOG(Network, "WebSocket %p scriptExecutionContext destroyed", this);
     ASSERT(!m_channel);
     ASSERT(m_state == CLOSED);
     ActiveDOMObject::contextDestroyed();
@@ -242,7 +242,7 @@ void WebSocket::stop()
 
 void WebSocket::didConnect()
 {
-    LOG(Network, "WebSocket %p didConnect", this);
+    ALOG(Network, "WebSocket %p didConnect", this);
     if (m_state != CONNECTING) {
         didClose(0);
         return;
@@ -254,7 +254,7 @@ void WebSocket::didConnect()
 
 void WebSocket::didReceiveMessage(const String& msg)
 {
-    LOG(Network, "WebSocket %p didReceiveMessage %s", this, msg.utf8().data());
+    ALOG(Network, "WebSocket %p didReceiveMessage %s", this, msg.utf8().data());
     if (m_state != OPEN)
         return;
     ASSERT(scriptExecutionContext());
@@ -265,7 +265,7 @@ void WebSocket::didReceiveMessage(const String& msg)
 
 void WebSocket::didReceiveMessageError()
 {
-    LOG(Network, "WebSocket %p didReceiveErrorMessage", this);
+    ALOG(Network, "WebSocket %p didReceiveErrorMessage", this);
     if (m_state != OPEN)
         return;
     ASSERT(scriptExecutionContext());
@@ -274,7 +274,7 @@ void WebSocket::didReceiveMessageError()
 
 void WebSocket::didClose(unsigned long unhandledBufferedAmount)
 {
-    LOG(Network, "WebSocket %p didClose", this);
+    ALOG(Network, "WebSocket %p didClose", this);
     if (!m_channel)
         return;
     m_state = CLOSED;

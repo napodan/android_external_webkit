@@ -51,14 +51,14 @@ PassRefPtr<DatabaseSync> DatabaseSync::openDatabaseSync(ScriptExecutionContext* 
     ASSERT(context->isContextThread());
 
     if (!DatabaseTracker::tracker().canEstablishDatabase(context, name, displayName, estimatedSize)) {
-        LOG(StorageAPI, "Database %s for origin %s not allowed to be established", name.ascii().data(), context->securityOrigin()->toString().ascii().data());
+        ALOG(StorageAPI, "Database %s for origin %s not allowed to be established", name.ascii().data(), context->securityOrigin()->toString().ascii().data());
         return 0;
     }
 
     RefPtr<DatabaseSync> database = adoptRef(new DatabaseSync(context, name, expectedVersion, displayName, estimatedSize));
 
     if (!database->performOpenAndVerify(!creationCallback, ec)) {
-        LOG(StorageAPI, "Failed to open and verify version (expected %s) of database %s", expectedVersion.ascii().data(), database->databaseDebugName().ascii().data());
+        ALOG(StorageAPI, "Failed to open and verify version (expected %s) of database %s", expectedVersion.ascii().data(), database->databaseDebugName().ascii().data());
         DatabaseTracker::tracker().removeOpenDatabase(database.get());
         return 0;
     }
@@ -67,7 +67,7 @@ PassRefPtr<DatabaseSync> DatabaseSync::openDatabaseSync(ScriptExecutionContext* 
 
     if (database->isNew() && creationCallback.get()) {
         database->m_expectedVersion = "";
-        LOG(StorageAPI, "Invoking the creation callback for database %p\n", database.get());
+        ALOG(StorageAPI, "Invoking the creation callback for database %p\n", database.get());
         creationCallback->handleEvent(context, database.get());
     }
 

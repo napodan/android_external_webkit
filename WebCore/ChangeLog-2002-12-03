@@ -5987,7 +5987,7 @@ b2002-11-08  Darin Adler  <darin@apple.com>
         * kwq/KWQbrowserinterface.mm:
         * kwq/KWQtextstream.mm:
         * kwq/KWQxml.mm:
-	Change various LOG(NotYetImplemented) to ERROR, FATAL, or removed them entirely.
+	Change various ALOG(NotYetImplemented) to ERROR, FATAL, or removed them entirely.
 	This will help us with the task of getting every last one either "not implemented
 	on purpose" or implemented. I'm not sure the NotYetImplemented log channel is
 	useful, because it's chock full of continuous "direction not implemented" messages.

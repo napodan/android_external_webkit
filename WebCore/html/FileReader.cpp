@@ -89,7 +89,7 @@ void FileReader::readAsBinaryString(Blob* fileBlob)
         return;
 
     // FIXME: needs to handle non-file blobs.
-    LOG(FileAPI, "FileReader: reading as binary: %s\n", fileBlob->path().utf8().data());
+    ALOG(FileAPI, "FileReader: reading as binary: %s\n", fileBlob->path().utf8().data());
 
     readInternal(fileBlob, ReadFileAsBinaryString);
 }
@@ -100,7 +100,7 @@ void FileReader::readAsText(Blob* fileBlob, const String& encoding)
         return;
 
     // FIXME: needs to handle non-file blobs.
-    LOG(FileAPI, "FileReader: reading as text: %s\n", fileBlob->path().utf8().data());
+    ALOG(FileAPI, "FileReader: reading as text: %s\n", fileBlob->path().utf8().data());
 
     if (!encoding.isEmpty())
         m_encoding = TextEncoding(encoding);
@@ -112,7 +112,7 @@ void FileReader::readAsDataURL(File* file)
     if (!file)
         return;
 
-    LOG(FileAPI, "FileReader: reading as data URL: %s\n", file->path().utf8().data());
+    ALOG(FileAPI, "FileReader: reading as data URL: %s\n", file->path().utf8().data());
 
     m_fileType = file->type();
     readInternal(file, ReadFileAsDataURL);
@@ -136,7 +136,7 @@ void FileReader::readInternal(Blob* fileBlob, ReadType type)
 
 void FileReader::abort()
 {
-    LOG(FileAPI, "FileReader: aborting\n");
+    ALOG(FileAPI, "FileReader: aborting\n");
 
     terminate();
 

@@ -92,20 +92,20 @@ void V8Counters::initCounters()
 // static
 void V8Counters::dumpCounters()
 {
-    LOGD("+----------------------------------------+-------------+\n");
-    LOGD("| Name                                   | Value       |\n");
-    LOGD("+----------------------------------------+-------------+\n");
+    ALOGD("+----------------------------------------+-------------+\n");
+    ALOGD("| Name                                   | Value       |\n");
+    ALOGD("+----------------------------------------+-------------+\n");
     typedef HashMap<String, V8Counters::Counter*>::iterator CounterIterator;
     for (CounterIterator iter = m_counters.begin(); iter != m_counters.end(); ++iter) {
         Counter* counter = iter->second;
         if (counter->isHistogram()) {
-            LOGD("| c:%-36s | %11i |\n", iter->first.latin1().data(), counter->count());
-            LOGD("| t:%-36s | %11i |\n", iter->first.latin1().data(), counter->sampleTotal());
+            ALOGD("| c:%-36s | %11i |\n", iter->first.latin1().data(), counter->count());
+            ALOGD("| t:%-36s | %11i |\n", iter->first.latin1().data(), counter->sampleTotal());
           } else {
-            LOGD("| %-38s | %11i |\n", iter->first.latin1().data(), counter->count());
+            ALOGD("| %-38s | %11i |\n", iter->first.latin1().data(), counter->count());
           }
     }
-    LOGD("+----------------------------------------+-------------+\n");
+    ALOGD("+----------------------------------------+-------------+\n");
 }
 
 }

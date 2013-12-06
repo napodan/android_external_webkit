@@ -63,7 +63,7 @@ SocketStreamHandle::SocketStreamHandle(const KURL& url, SocketStreamHandleClient
     , m_connectionType(Unknown)
     , m_sentStoredCredentials(false)
 {
-    LOG(Network, "SocketStreamHandle %p new client %p", this, m_client);
+    ALOG(Network, "SocketStreamHandle %p new client %p", this, m_client);
 
     ASSERT(url.protocolIs("ws") || url.protocolIs("wss"));
 
@@ -584,7 +584,7 @@ void SocketStreamHandle::writeStreamCallback(CFStreamEventType type)
 
 SocketStreamHandle::~SocketStreamHandle()
 {
-    LOG(Network, "SocketStreamHandle %p dtor", this);
+    ALOG(Network, "SocketStreamHandle %p dtor", this);
 
 #ifndef BUILDING_ON_TIGER
     ASSERT(!m_pacRunLoopSource);
@@ -601,7 +601,7 @@ int SocketStreamHandle::platformSend(const char* data, int length)
 
 void SocketStreamHandle::platformClose()
 {
-    LOG(Network, "SocketStreamHandle %p platformClose", this);
+    ALOG(Network, "SocketStreamHandle %p platformClose", this);
 
 #ifndef BUILDING_ON_TIGER
     if (m_pacRunLoopSource) 

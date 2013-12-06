@@ -504,7 +504,7 @@ void DatabaseTracker::addOpenDatabase(AbstractDatabase* database)
 
         databaseSet->add(database);
 
-        LOG(StorageAPI, "Added open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
+        ALOG(StorageAPI, "Added open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
 
         Locker<OriginQuotaManager> quotaManagerLocker(originQuotaManager());
         if (!originQuotaManager().tracksOrigin(database->securityOrigin())) {
@@ -545,7 +545,7 @@ void DatabaseTracker::removeOpenDatabase(AbstractDatabase* database)
 
         databaseSet->remove(database);
 
-        LOG(StorageAPI, "Removed open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
+        ALOG(StorageAPI, "Removed open Database %s (%p)\n", database->stringIdentifier().ascii().data(), database);
 
         if (!databaseSet->isEmpty())
             return;

@@ -38,7 +38,7 @@ namespace android {
 AutoJObject getRealObject(JNIEnv* env, jobject obj)
 {
     jobject real = env->NewLocalRef(obj);
-    LOG_ASSERT(real, "The real object has been deleted!");
+    ALOG_ASSERT(real, "The real object has been deleted!");
     return AutoJObject(env, real);
 }
 
@@ -50,7 +50,7 @@ bool checkException(JNIEnv* env)
 {
     if (env->ExceptionCheck() != 0)
     {
-        LOGE("*** Uncaught exception returned from Java call!\n");
+        ALOGE("*** Uncaught exception returned from Java call!\n");
         env->ExceptionDescribe();
         return true;
     }

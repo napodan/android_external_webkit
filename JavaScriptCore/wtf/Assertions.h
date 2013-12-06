@@ -299,16 +299,16 @@ while (0)
 #define LOG_ERROR(...) WTFReportError(__FILE__, __LINE__, WTF_PRETTY_FUNCTION, __VA_ARGS__)
 #endif
 
-/* LOG */
+/* ALOG */
 
 #if COMPILER(MSVC7_OR_LOWER)
-#define LOG() ((void)0)
+#define ALOG() ((void)0)
 #elif COMPILER(WINSCW)
-#define LOG(arg...) ((void)0)
+#define ALOG(arg...) ((void)0)
 #elif LOG_DISABLED
-#define LOG(channel, ...) ((void)0)
+#define ALOG(channel, ...) ((void)0)
 #else
-#define LOG(channel, ...) WTFLog(&JOIN_LOG_CHANNEL_WITH_PREFIX(LOG_CHANNEL_PREFIX, channel), __VA_ARGS__)
+#define ALOG(channel, ...) WTFLog(&JOIN_LOG_CHANNEL_WITH_PREFIX(LOG_CHANNEL_PREFIX, channel), __VA_ARGS__)
 #define JOIN_LOG_CHANNEL_WITH_PREFIX(prefix, channel) JOIN_LOG_CHANNEL_WITH_PREFIX_LEVEL_2(prefix, channel)
 #define JOIN_LOG_CHANNEL_WITH_PREFIX_LEVEL_2(prefix, channel) prefix ## channel
 #endif

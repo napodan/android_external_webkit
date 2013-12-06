@@ -148,7 +148,7 @@ void ResourceHandle::forceContentSniffing()
 
 void ResourceHandle::setDefersLoading(bool defers)
 {
-    LOG(Network, "Handle %p setDefersLoading(%s)", this, defers ? "true" : "false");
+    ALOG(Network, "Handle %p setDefersLoading(%s)", this, defers ? "true" : "false");
 
     ASSERT(d->m_defersLoading != defers); // Deferring is not counted, so calling setDefersLoading() repeatedly is likely to be in error.
     d->m_defersLoading = defers;

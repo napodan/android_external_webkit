@@ -70,7 +70,7 @@ static String& pageCacheLogPrefix(int indentLevel)
 
 static void pageCacheLog(const String& prefix, const String& message)
 {
-    LOG(PageCache, "%s%s", prefix.utf8().data(), message.utf8().data());
+    ALOG(PageCache, "%s%s", prefix.utf8().data(), message.utf8().data());
 }
     
 #define PCLOG(...) pageCacheLog(pageCacheLogPrefix(indentLevel), String::format(__VA_ARGS__))
@@ -357,7 +357,7 @@ CachedPage* PageCache::get(HistoryItem* item)
         if (currentTime() - cachedPage->timeStamp() <= 1800)
             return cachedPage;
         
-        LOG(PageCache, "Not restoring page for %s from back/forward cache because cache entry has expired", item->url().string().ascii().data());
+        ALOG(PageCache, "Not restoring page for %s from back/forward cache because cache entry has expired", item->url().string().ascii().data());
         pageCache()->remove(item);
     }
     return 0;
@@ -426,12 +426,12 @@ void PageCache::releaseAutoreleasedPagesNowOrReschedule(Timer<PageCache>* timer)
     
     // FIXME: <rdar://problem/5211190> This limit of 42 risks growing the page cache far beyond its nominal capacity.
     if ((userDelta < 0.5 || loadDelta < 1.25) && m_autoreleaseSet.size() < 42) {
-        LOG(PageCache, "WebCorePageCache: Postponing releaseAutoreleasedPagesNowOrReschedule() - %f since last load, %f since last input, %i objects pending release", loadDelta, userDelta, m_autoreleaseSet.size());
+        ALOG(PageCache, "WebCorePageCache: Postponing releaseAutoreleasedPagesNowOrReschedule() - %f since last load, %f since last input, %i objects pending release", loadDelta, userDelta, m_autoreleaseSet.size());
         timer->startOneShot(autoreleaseInterval);
         return;
     }
 
-    LOG(PageCache, "WebCorePageCache: Releasing page caches - %f seconds since last load, %f since last input, %i objects pending release", loadDelta, userDelta, m_autoreleaseSet.size());
+    ALOG(PageCache, "WebCorePageCache: Releasing page caches - %f seconds since last load, %f since last input, %i objects pending release", loadDelta, userDelta, m_autoreleaseSet.size());
     releaseAutoreleasedPagesNow();
 }
 

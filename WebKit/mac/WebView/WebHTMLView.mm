@@ -1272,7 +1272,7 @@ static void _updateMouseoverTimerCallback(CFRunLoopTimerRef timer, void *info)
 - (void)didAddSubview:(NSView *)subview
 {
     if (_private->enumeratingSubviews)
-        LOG(View, "A view of class %s was added during subview enumeration for layout or printing mode change. This view might paint without first receiving layout.", object_getClassName([subview class]));
+        ALOG(View, "A view of class %s was added during subview enumeration for layout or printing mode change. This view might paint without first receiving layout.", object_getClassName([subview class]));
 }
 #endif
 
@@ -3096,7 +3096,7 @@ WEBCORE_COMMAND(yankAndSelect)
     
 #ifdef LOG_TIMES        
     double thisTime = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "%s apply style seconds = %f", [self URL], thisTime);
+    ALOG(Timing, "%s apply style seconds = %f", [self URL], thisTime);
 #endif
 
     _private->needsToApplyStyles = NO;
@@ -3115,7 +3115,7 @@ WEBCORE_COMMAND(yankAndSelect)
     double start = CFAbsoluteTimeGetCurrent();
 #endif
 
-    LOG(View, "%@ doing layout", self);
+    ALOG(View, "%@ doing layout", self);
 
     Frame* coreFrame = core([self _frame]);
     if (!coreFrame)
@@ -3133,7 +3133,7 @@ WEBCORE_COMMAND(yankAndSelect)
     
 #ifdef LOG_TIMES        
     double thisTime = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "%s layout seconds = %f", [self URL], thisTime);
+    ALOG(Timing, "%s layout seconds = %f", [self URL], thisTime);
 #endif
 }
 
@@ -3231,7 +3231,7 @@ WEBCORE_COMMAND(yankAndSelect)
 #if !LOG_DISABLED
 - (void)setNeedsDisplay:(BOOL)flag
 {
-    LOG(View, "%@ setNeedsDisplay:%@", self, flag ? @"YES" : @"NO");
+    ALOG(View, "%@ setNeedsDisplay:%@", self, flag ? @"YES" : @"NO");
     [super setNeedsDisplay:flag];
 }
 #endif
@@ -3254,7 +3254,7 @@ WEBCORE_COMMAND(yankAndSelect)
 
 - (void)setNeedsLayout: (BOOL)flag
 {
-    LOG(View, "%@ setNeedsLayout:%@", self, flag ? @"YES" : @"NO");
+    ALOG(View, "%@ setNeedsLayout:%@", self, flag ? @"YES" : @"NO");
     if (!flag)
         return; // There's no way to say you don't need a layout.
     if (Frame* frame = core([self _frame])) {
@@ -3267,7 +3267,7 @@ WEBCORE_COMMAND(yankAndSelect)
 
 - (void)setNeedsToApplyStyles: (BOOL)flag
 {
-    LOG(View, "%@ setNeedsToApplyStyles:%@", self, flag ? @"YES" : @"NO");
+    ALOG(View, "%@ setNeedsToApplyStyles:%@", self, flag ? @"YES" : @"NO");
     _private->needsToApplyStyles = flag;
 }
 
@@ -3314,7 +3314,7 @@ WEBCORE_COMMAND(yankAndSelect)
 - (void)drawRect:(NSRect)rect
 {
     ASSERT_MAIN_THREAD();
-    LOG(View, "%@ drawing", self);
+    ALOG(View, "%@ drawing", self);
 
     const NSRect *rects;
     NSInteger count;
@@ -3337,7 +3337,7 @@ WEBCORE_COMMAND(yankAndSelect)
 
 #ifdef LOG_TIMES
     double thisTime = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "%s draw seconds = %f", widget->part()->baseURL().URL().latin1(), thisTime);
+    ALOG(Timing, "%s draw seconds = %f", widget->part()->baseURL().URL().latin1(), thisTime);
 #endif
 
     if (subviewsWereSetAside)
@@ -5617,7 +5617,7 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
         //     NSBackgroundColorAttributeName, NSLanguageAttributeName.
         CFRetain(validAttributes);
     }
-    LOG(TextInput, "validAttributesForMarkedText -> (...)");
+    ALOG(TextInput, "validAttributesForMarkedText -> (...)");
     return validAttributes;
 }
 
@@ -5629,12 +5629,12 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
 - (NSAttributedString *)textStorage
 {
     if (!_private->exposeInputContext) {
-        LOG(TextInput, "textStorage -> nil");
+        ALOG(TextInput, "textStorage -> nil");
         return nil;
     }
     NSAttributedString *result = [self attributedSubstringFromRange:NSMakeRange(0, UINT_MAX)];
     
-    LOG(TextInput, "textStorage -> \"%@\"", result ? [result string] : @"");
+    ALOG(TextInput, "textStorage -> \"%@\"", result ? [result string] : @"");
     
     // We have to return an empty string rather than null to prevent TSM from calling -string
     return result ? result : [[[NSAttributedString alloc] initWithString:@""] autorelease];
@@ -5651,12 +5651,12 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
 
     DOMRange *range = [frame _characterRangeAtPoint:thePoint];
     if (!range) {
-        LOG(TextInput, "characterIndexForPoint:(%f, %f) -> NSNotFound", thePoint.x, thePoint.y);
+        ALOG(TextInput, "characterIndexForPoint:(%f, %f) -> NSNotFound", thePoint.x, thePoint.y);
         return NSNotFound;
     }
     
     unsigned result = [frame _convertDOMRangeToNSRange:range].location;
-    LOG(TextInput, "characterIndexForPoint:(%f, %f) -> %u", thePoint.x, thePoint.y, result);
+    ALOG(TextInput, "characterIndexForPoint:(%f, %f) -> %u", thePoint.x, thePoint.y, result);
     return result;
 }
 
@@ -5672,7 +5672,7 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
     
     DOMRange *range = [frame _convertNSRangeToDOMRange:theRange];
     if (!range) {
-        LOG(TextInput, "firstRectForCharacterRange:(%u, %u) -> (0, 0, 0, 0)", theRange.location, theRange.length);
+        ALOG(TextInput, "firstRectForCharacterRange:(%u, %u) -> (0, 0, 0, 0)", theRange.location, theRange.length);
         return NSMakeRect(0, 0, 0, 0);
     }
     
@@ -5686,19 +5686,19 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
     if (window)
         resultRect.origin = [window convertBaseToScreen:resultRect.origin];
     
-    LOG(TextInput, "firstRectForCharacterRange:(%u, %u) -> (%f, %f, %f, %f)", theRange.location, theRange.length, resultRect.origin.x, resultRect.origin.y, resultRect.size.width, resultRect.size.height);
+    ALOG(TextInput, "firstRectForCharacterRange:(%u, %u) -> (%f, %f, %f, %f)", theRange.location, theRange.length, resultRect.origin.x, resultRect.origin.y, resultRect.size.width, resultRect.size.height);
     return resultRect;
 }
 
 - (NSRange)selectedRange
 {
     if (!isTextInput(core([self _frame]))) {
-        LOG(TextInput, "selectedRange -> (NSNotFound, 0)");
+        ALOG(TextInput, "selectedRange -> (NSNotFound, 0)");
         return NSMakeRange(NSNotFound, 0);
     }
     NSRange result = [[self _frame] _selectedNSRange];
 
-    LOG(TextInput, "selectedRange -> (%u, %u)", result.location, result.length);
+    ALOG(TextInput, "selectedRange -> (%u, %u)", result.location, result.length);
     return result;
 }
 
@@ -5710,7 +5710,7 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
         return NSMakeRange(0, 0);
     NSRange result = [webFrame _convertToNSRange:coreFrame->editor()->compositionRange().get()];
 
-    LOG(TextInput, "markedRange -> (%u, %u)", result.location, result.length);
+    ALOG(TextInput, "markedRange -> (%u, %u)", result.location, result.length);
     return result;
 }
 
@@ -5719,12 +5719,12 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
     WebFrame *frame = [self _frame];
     Frame* coreFrame = core(frame);
     if (!isTextInput(coreFrame) || isInPasswordField(coreFrame)) {
-        LOG(TextInput, "attributedSubstringFromRange:(%u, %u) -> nil", nsRange.location, nsRange.length);
+        ALOG(TextInput, "attributedSubstringFromRange:(%u, %u) -> nil", nsRange.location, nsRange.length);
         return nil;
     }
     DOMRange *domRange = [frame _convertNSRangeToDOMRange:nsRange];
     if (!domRange) {
-        LOG(TextInput, "attributedSubstringFromRange:(%u, %u) -> nil", nsRange.location, nsRange.length);
+        ALOG(TextInput, "attributedSubstringFromRange:(%u, %u) -> nil", nsRange.location, nsRange.length);
         return nil;
     }
 
@@ -5738,7 +5738,7 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
         ASSERT([[result string] characterAtIndex:nsRange.length] == '\n' || [[result string] characterAtIndex:nsRange.length] == ' ');
         result = [result attributedSubstringFromRange:NSMakeRange(0, nsRange.length)];
     }
-    LOG(TextInput, "attributedSubstringFromRange:(%u, %u) -> \"%@\"", nsRange.location, nsRange.length, [result string]);
+    ALOG(TextInput, "attributedSubstringFromRange:(%u, %u) -> \"%@\"", nsRange.location, nsRange.length, [result string]);
     return result;
 }
 
@@ -5759,13 +5759,13 @@ static CGPoint coreGraphicsScreenPointForAppKitScreenPoint(NSPoint point)
 {
     Frame* coreFrame = core([self _frame]);
     BOOL result = coreFrame && coreFrame->editor()->hasComposition();
-    LOG(TextInput, "hasMarkedText -> %u", result);
+    ALOG(TextInput, "hasMarkedText -> %u", result);
     return result;
 }
 
 - (void)unmarkText
 {
-    LOG(TextInput, "unmarkText");
+    ALOG(TextInput, "unmarkText");
 
     // Use pointer to get parameters passed to us by the caller of interpretKeyEvents.
     WebHTMLViewInterpretKeyEventsParameters* parameters = _private->interpretKeyEventsParameters;
@@ -5804,7 +5804,7 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
 {
     BOOL isAttributedString = [string isKindOfClass:[NSAttributedString class]]; // Otherwise, NSString
 
-    LOG(TextInput, "setMarkedText:\"%@\" selectedRange:(%u, %u)", isAttributedString ? [string string] : string, newSelRange.location, newSelRange.length);
+    ALOG(TextInput, "setMarkedText:\"%@\" selectedRange:(%u, %u)", isAttributedString ? [string string] : string, newSelRange.location, newSelRange.length);
 
     // Use pointer to get parameters passed to us by the caller of interpretKeyEvents.
     WebHTMLViewInterpretKeyEventsParameters* parameters = _private->interpretKeyEventsParameters;
@@ -5828,7 +5828,7 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
     if (isAttributedString) {
         unsigned markedTextLength = [(NSString *)string length];
         NSString *rangeString = [string attribute:NSTextInputReplacementRangeAttributeName atIndex:0 longestEffectiveRange:NULL inRange:NSMakeRange(0, markedTextLength)];
-        LOG(TextInput, "    ReplacementRange: %@", rangeString);
+        ALOG(TextInput, "    ReplacementRange: %@", rangeString);
         // The AppKit adds a 'secret' property to the string that contains the replacement range.
         // The replacement range is the range of the the text that should be replaced with the new string.
         if (rangeString)
@@ -5843,7 +5843,7 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
 
 - (void)doCommandBySelector:(SEL)selector
 {
-    LOG(TextInput, "doCommandBySelector:\"%s\"", sel_getName(selector));
+    ALOG(TextInput, "doCommandBySelector:\"%s\"", sel_getName(selector));
 
     // Use pointer to get parameters passed to us by the caller of interpretKeyEvents.
     // The same call to interpretKeyEvents can do more than one command.
@@ -5903,7 +5903,7 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
 {
     BOOL isAttributedString = [string isKindOfClass:[NSAttributedString class]]; // Otherwise, NSString
 
-    LOG(TextInput, "insertText:\"%@\"", isAttributedString ? [string string] : string);
+    ALOG(TextInput, "insertText:\"%@\"", isAttributedString ? [string string] : string);
 
     WebHTMLViewInterpretKeyEventsParameters* parameters = _private->interpretKeyEventsParameters;
     _private->interpretKeyEventsParameters = 0;
@@ -5921,7 +5921,7 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
         // event in TSM.  This behaviour matches that of -[WebHTMLView setMarkedText:selectedRange:] when it receives an
         // NSAttributedString
         NSString *rangeString = [string attribute:NSTextInputReplacementRangeAttributeName atIndex:0 longestEffectiveRange:NULL inRange:NSMakeRange(0, [text length])];
-        LOG(TextInput, "    ReplacementRange: %@", rangeString);
+        ALOG(TextInput, "    ReplacementRange: %@", rangeString);
         if (rangeString) {
             [[self _frame] _selectNSRange:NSRangeFromString(rangeString)];
             isFromInputMethod = YES;
@@ -6094,7 +6094,7 @@ static void extractUnderlines(NSAttributedString *string, Vector<CompositionUnde
     attributedString = [[[NSAttributedString alloc] _initWithDOMRange:range] autorelease];
 #if !LOG_DISABLED
     double duration = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Timing, "creating attributed string from selection took %f seconds.", duration);
+    ALOG(Timing, "creating attributed string from selection took %f seconds.", duration);
 #endif
     return attributedString;
 }

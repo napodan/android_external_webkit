@@ -115,7 +115,7 @@ static bool loadArchiveResourceField(xmlNodePtr resourceNode, const xmlChar* fie
         }
     }
     if (!base64Data) {
-        LOGD("loadWebArchive: Failed to load field.");
+        ALOGD("loadWebArchive: Failed to load field.");
         return false;
     }
 
@@ -123,7 +123,7 @@ static bool loadArchiveResourceField(xmlNodePtr resourceNode, const xmlChar* fie
 
     const int result = base64Decode(base64Data, base64Size, *outputData);
     if (!result) {
-        LOGD("loadWebArchive: Failed to decode field.");
+        ALOGD("loadWebArchive: Failed to decode field.");
         return false;
     }
 
@@ -163,37 +163,37 @@ static KURL loadArchiveResourceFieldURL(xmlNodePtr resourceNode, const xmlChar* 
 static PassRefPtr<ArchiveResource> loadArchiveResource(xmlNodePtr resourceNode)
 {
     if (!xmlStrEqual(resourceNode->name, archiveResourceTag)) {
-        LOGD("loadWebArchive: Malformed resource.");
+        ALOGD("loadWebArchive: Malformed resource.");
         return 0;
     }
 
     KURL url = loadArchiveResourceFieldURL(resourceNode, urlFieldTag);
     if (url.isNull()) {
-        LOGD("loadWebArchive: Failed to load resource.");
+        ALOGD("loadWebArchive: Failed to load resource.");
         return 0;
     }
 
     String mimeType = loadArchiveResourceFieldString(resourceNode, mimeFieldTag);
     if (mimeType.isNull()) {
-        LOGD("loadWebArchive: Failed to load resource.");
+        ALOGD("loadWebArchive: Failed to load resource.");
         return 0;
     }
 
     String textEncoding = loadArchiveResourceFieldString(resourceNode, encodingFieldTag);
     if (textEncoding.isNull()) {
-        LOGD("loadWebArchive: Failed to load resource.");
+        ALOGD("loadWebArchive: Failed to load resource.");
         return 0;
     }
 
     String frameName = loadArchiveResourceFieldString(resourceNode, frameFieldTag);
     if (frameName.isNull()) {
-        LOGD("loadWebArchive: Failed to load resource.");
+        ALOGD("loadWebArchive: Failed to load resource.");
         return 0;
     }
 
     PassRefPtr<SharedBuffer> data = loadArchiveResourceFieldBuffer(resourceNode, dataFieldTag);
     if (!data) {
-        LOGD("loadWebArchive: Failed to load resource.");
+        ALOGD("loadWebArchive: Failed to load resource.");
         return 0;
     }
 
@@ -209,7 +209,7 @@ static PassRefPtr<WebArchiveAndroid> loadArchive(xmlNodePtr archiveNode)
     Vector<PassRefPtr<Archive> > subframes;
 
     if (!xmlStrEqual(archiveNode->name, archiveTag)) {
-        LOGD("loadWebArchive: Malformed archive.");
+        ALOGD("loadWebArchive: Malformed archive.");
         return 0;
     }
 
@@ -225,7 +225,7 @@ static PassRefPtr<WebArchiveAndroid> loadArchive(xmlNodePtr archiveNode)
         }
     }
     if (!mainResource) {
-        LOGD("saveWebArchive: Failed to load main resource.");
+        ALOGD("saveWebArchive: Failed to load main resource.");
         return 0;
     }
 
@@ -238,7 +238,7 @@ static PassRefPtr<WebArchiveAndroid> loadArchive(xmlNodePtr archiveNode)
                  resourceNode = resourceNode->next) {
                 PassRefPtr<ArchiveResource> subresource = loadArchiveResource(resourceNode);
                 if (!subresource) {
-                    LOGD("saveWebArchive: Failed to load subresource.");
+                    ALOGD("saveWebArchive: Failed to load subresource.");
                     break;
                 }
                 subresources.append(subresource);
@@ -256,7 +256,7 @@ static PassRefPtr<WebArchiveAndroid> loadArchive(xmlNodePtr archiveNode)
                  resourceNode = resourceNode->next) {
                 PassRefPtr<WebArchiveAndroid> subframe = loadArchive(resourceNode);
                 if (!subframe) {
-                    LOGD("saveWebArchive: Failed to load subframe.");
+                    ALOGD("saveWebArchive: Failed to load subframe.");
                     break;
                 }
                 subframes.append(subframe);
@@ -288,20 +288,20 @@ PassRefPtr<WebArchiveAndroid> WebArchiveAndroid::create(SharedBuffer* buffer)
 
     xmlDocPtr doc = xmlReadMemory(buffer->data(), buffer->size(), noBaseUrl, defaultEncoding, noParserOptions);
     if (!doc) {
-        LOGD("loadWebArchive: Failed to parse document.");
+        ALOGD("loadWebArchive: Failed to parse document.");
         return createArchiveForError();
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
-        LOGD("loadWebArchive: Empty document.");
+        ALOGD("loadWebArchive: Empty document.");
         xmlFreeDoc(doc);
         return createArchiveForError();
     }
 
     RefPtr<WebArchiveAndroid> archive = loadArchive(root);
     if (!archive) {
-        LOGD("loadWebArchive: Failed to load archive.");
+        ALOGD("loadWebArchive: Failed to load archive.");
         xmlFreeDoc(doc);
         return createArchiveForError();
     }
@@ -314,7 +314,7 @@ static bool saveArchiveResourceField(xmlTextWriterPtr writer, const xmlChar* tag
 {
     int result = xmlTextWriterStartElement(writer, tag);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start element.");
+        ALOGD("saveWebArchive: Failed to start element.");
         return false;
     }
 
@@ -322,20 +322,20 @@ static bool saveArchiveResourceField(xmlTextWriterPtr writer, const xmlChar* tag
         Vector<char> base64Data;
         base64Encode(data, size, base64Data, false);
         if (base64Data.isEmpty()) {
-            LOGD("saveWebArchive: Failed to base64 encode data.");
+            ALOGD("saveWebArchive: Failed to base64 encode data.");
             return false;
         }
 
         result = xmlTextWriterWriteRawLen(writer, BAD_CAST base64Data.data(), base64Data.size());
         if (result < 0) {
-            LOGD("saveWebArchive: Failed to write data.");
+            ALOGD("saveWebArchive: Failed to write data.");
             return false;
         }
     }
 
     result = xmlTextWriterEndElement(writer);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to end element.");
+        ALOGD("saveWebArchive: Failed to end element.");
         return false;
     }
 
@@ -358,7 +358,7 @@ static bool saveArchiveResource(xmlTextWriterPtr writer, PassRefPtr<ArchiveResou
 {
     int result = xmlTextWriterStartElement(writer, archiveResourceTag);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start element.");
+        ALOGD("saveWebArchive: Failed to start element.");
         return false;
     }
 
@@ -371,7 +371,7 @@ static bool saveArchiveResource(xmlTextWriterPtr writer, PassRefPtr<ArchiveResou
 
     result = xmlTextWriterEndElement(writer);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to end element.");
+        ALOGD("saveWebArchive: Failed to end element.");
         return false;
     }
 
@@ -382,13 +382,13 @@ static bool saveArchive(xmlTextWriterPtr writer, PassRefPtr<Archive> archive)
 {
     int result = xmlTextWriterStartElement(writer, archiveTag);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start element.");
+        ALOGD("saveWebArchive: Failed to start element.");
         return false;
     }
 
     result = xmlTextWriterStartElement(writer, mainResourceTag);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start element.");
+        ALOGD("saveWebArchive: Failed to start element.");
         return false;
     }
 
@@ -397,13 +397,13 @@ static bool saveArchive(xmlTextWriterPtr writer, PassRefPtr<Archive> archive)
 
     result = xmlTextWriterEndElement(writer);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to end element.");
+        ALOGD("saveWebArchive: Failed to end element.");
         return false;
     }
 
     result = xmlTextWriterStartElement(writer, subresourcesTag);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start element.");
+        ALOGD("saveWebArchive: Failed to start element.");
         return false;
     }
 
@@ -416,13 +416,13 @@ static bool saveArchive(xmlTextWriterPtr writer, PassRefPtr<Archive> archive)
 
     result = xmlTextWriterEndElement(writer);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to end element.");
+        ALOGD("saveWebArchive: Failed to end element.");
         return false;
     }
 
     result = xmlTextWriterStartElement(writer, subframesTag);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start element.");
+        ALOGD("saveWebArchive: Failed to start element.");
         return false;
     }
 
@@ -435,7 +435,7 @@ static bool saveArchive(xmlTextWriterPtr writer, PassRefPtr<Archive> archive)
 
     result = xmlTextWriterEndElement(writer);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to end element.");
+        ALOGD("saveWebArchive: Failed to end element.");
         return true;
     }
 
@@ -450,7 +450,7 @@ bool WebArchiveAndroid::saveWebArchive(xmlTextWriterPtr writer)
 
     int result = xmlTextWriterStartDocument(writer, defaultXmlVersion, defaultEncoding, defaultStandalone);
     if (result < 0) {
-        LOGD("saveWebArchive: Failed to start document.");
+        ALOGD("saveWebArchive: Failed to start document.");
         return false;
     }
 
@@ -459,7 +459,7 @@ bool WebArchiveAndroid::saveWebArchive(xmlTextWriterPtr writer)
 
     result = xmlTextWriterEndDocument(writer);
     if (result< 0) {
-        LOGD("saveWebArchive: Failed to end document.");
+        ALOGD("saveWebArchive: Failed to end document.");
         return false;
     }
 

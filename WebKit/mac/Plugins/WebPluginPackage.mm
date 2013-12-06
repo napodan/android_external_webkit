@@ -103,7 +103,7 @@ NSString *WebPlugInContainingElementKey =       @"WebPlugInContainingElementKey"
     
 #if !LOG_DISABLED
     CFAbsoluteTime duration = CFAbsoluteTimeGetCurrent() - start;
-    LOG(Plugins, "principalClass took %f seconds for: %@", duration, (NSString *)[self pluginInfo].name);
+    ALOG(Plugins, "principalClass took %f seconds for: %@", duration, (NSString *)[self pluginInfo].name);
 #endif
     return [super load];
 }

@@ -261,9 +261,9 @@ bool AbstractDatabase::performOpenAndVerify(bool shouldSetVersionInNewDatabase, 
         if (entry != guidToVersionMap().end()) {
             // Map null string to empty string (see updateGuidVersionMap()).
             currentVersion = entry->second.isNull() ? String("") : entry->second;
-            LOG(StorageAPI, "Current cached version for guid %i is %s", m_guid, currentVersion.ascii().data());
+            ALOG(StorageAPI, "Current cached version for guid %i is %s", m_guid, currentVersion.ascii().data());
         } else {
-            LOG(StorageAPI, "No cached version for guid %i", m_guid);
+            ALOG(StorageAPI, "No cached version for guid %i", m_guid);
 
             if (!m_sqliteDatabase.tableExists(databaseInfoTableName())) {
                 m_new = true;
@@ -285,9 +285,9 @@ bool AbstractDatabase::performOpenAndVerify(bool shouldSetVersionInNewDatabase, 
                 return false;
             }
             if (currentVersion.length()) {
-                LOG(StorageAPI, "Retrieved current version %s from database %s", currentVersion.ascii().data(), databaseDebugName().ascii().data());
+                ALOG(StorageAPI, "Retrieved current version %s from database %s", currentVersion.ascii().data(), databaseDebugName().ascii().data());
             } else if (!m_new || shouldSetVersionInNewDatabase) {
-                LOG(StorageAPI, "Setting version %s in database %s that was just created", m_expectedVersion.ascii().data(), databaseDebugName().ascii().data());
+                ALOG(StorageAPI, "Setting version %s in database %s that was just created", m_expectedVersion.ascii().data(), databaseDebugName().ascii().data());
                 if (!setVersionInDatabase(m_expectedVersion)) {
                     LOG_ERROR("Failed to set version %s in database %s", m_expectedVersion.ascii().data(), databaseDebugName().ascii().data());
                     ec = INVALID_STATE_ERR;
@@ -303,14 +303,14 @@ bool AbstractDatabase::performOpenAndVerify(bool shouldSetVersionInNewDatabase, 
     }
 
     if (currentVersion.isNull()) {
-        LOG(StorageAPI, "Database %s does not have its version set", databaseDebugName().ascii().data());
+        ALOG(StorageAPI, "Database %s does not have its version set", databaseDebugName().ascii().data());
         currentVersion = "";
     }
 
     // If the expected version isn't the empty string, ensure that the current database version we have matches that version. Otherwise, set an exception.
     // If the expected version is the empty string, then we always return with whatever version of the database we have.
     if ((!m_new || shouldSetVersionInNewDatabase) && m_expectedVersion.length() && m_expectedVersion != currentVersion) {
-        LOG(StorageAPI, "page expects version %s from database %s, which actually has version name %s - openDatabase() call will fail", m_expectedVersion.ascii().data(),
+        ALOG(StorageAPI, "page expects version %s from database %s, which actually has version name %s - openDatabase() call will fail", m_expectedVersion.ascii().data(),
             databaseDebugName().ascii().data(), currentVersion.ascii().data());
         ec = INVALID_STATE_ERR;
         // Close the handle to the database file.

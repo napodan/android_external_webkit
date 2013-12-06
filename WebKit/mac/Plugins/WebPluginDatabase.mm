@@ -288,9 +288,9 @@ static NSArray *additionalWebPlugInPaths;
 
 #if !LOG_DISABLED
     if ([newPlugins count] > 0)
-        LOG(Plugins, "New plugins:\n%@", newPlugins);
+        ALOG(Plugins, "New plugins:\n%@", newPlugins);
     if ([pluginsToRemove count] > 0)
-        LOG(Plugins, "Removed plugins:\n%@", pluginsToRemove);
+        ALOG(Plugins, "Removed plugins:\n%@", pluginsToRemove);
 #endif
 
     // Remove plugins from database

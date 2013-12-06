@@ -124,7 +124,7 @@ static void printMessageSourceAndLevelPrefix(MessageSource source, MessageLevel 
         levelString = "TIP";
         break;
     case LogMessageLevel:
-        levelString = "LOG";
+        levelString = "ALOG";
         break;
     case WarningMessageLevel:
         levelString = "WARN";
