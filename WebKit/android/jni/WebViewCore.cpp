@@ -2375,6 +2375,59 @@ void WebViewCore::touchUp(int touchGeneration,
     handleMouseClick(frame, node);
 }
 
+// Return the RenderLayer for the given RenderObject only if the layer is
+// composited and it contains a scrollable content layer.
+static WebCore::RenderLayer* getLayerFromRenderer(WebCore::RenderObject* renderer)
+{
+    if (!renderer)
+        return 0;
+    WebCore::RenderLayer* layer = renderer->enclosingSelfPaintingLayer();
+    if (!layer || !layer->backing())
+        return 0;
+    GraphicsLayerAndroid* graphicsLayer =
+            static_cast<GraphicsLayerAndroid*>(layer->backing()->graphicsLayer());
+    if (!graphicsLayer)
+        return 0;
+    LayerAndroid* aLayer = graphicsLayer->contentLayer();
+    if (!aLayer || !aLayer->contentIsScrollable())
+        return 0;
+    return layer;
+}
+
+// Scroll the RenderLayer associated with a scrollable div element.  This is
+// done so that the node is visible when it is clicked.
+static void scrollLayer(WebCore::RenderObject* renderer, WebCore::IntPoint* pos)
+{
+    WebCore::RenderLayer* layer = getLayerFromRenderer(renderer);
+    if (!layer)
+        return;
+    WebCore::IntRect absBounds = renderer->absoluteBoundingBoxRect();
+    WebCore::IntRect layerBounds = layer->absoluteBoundingBox();
+
+    // Move the node's bounds into the layer's coordinates.
+    absBounds.move(-layerBounds.x(), -layerBounds.y());
+
+    // Scroll the layer to the node's position.  The false parameters tell the
+    // layer not to invalidate.
+    layer->scrollToOffset(absBounds.x(), absBounds.y(), false, false);
+
+    // Update the mouse position to the layer offset.
+    pos->move(-layer->scrollXOffset(), -layer->scrollYOffset());
+}
+
+static void restoreScrolledLayer(WebCore::RenderObject* renderer,
+        WebCore::IntPoint* pos)
+{
+    WebCore::RenderLayer* layer = getLayerFromRenderer(renderer);
+    if (!layer)
+        return;
+    // Move the mouse position back to it's original position.
+    pos->move(layer->scrollXOffset(), layer->scrollYOffset());
+
+    // Scroll the layer back to 0,0.
+    layer->scrollToOffset(0, 0, false, false);
+}
+
 // Common code for both clicking with the trackball and touchUp
 bool WebViewCore::handleMouseClick(WebCore::Frame* framePtr, WebCore::Node* nodePtr)
 {
@@ -2391,6 +2444,7 @@ bool WebViewCore::handleMouseClick(WebCore::Frame* framePtr, WebCore::Node* node
             DBG_NAV_LOG("area");
             return true;
         }
+
         WebCore::RenderObject* renderer = nodePtr->renderer();
         if (renderer && (renderer->isMenuList() || renderer->isListBox())) {
             WebCore::HTMLSelectElement* select = static_cast<WebCore::HTMLSelectElement*>(nodePtr);
@@ -2433,6 +2487,8 @@ bool WebViewCore::handleMouseClick(WebCore::Frame* framePtr, WebCore::Node* node
     }
     if (!valid || !framePtr)
         framePtr = m_mainFrame;
+    if (nodePtr && valid)
+        scrollLayer(nodePtr->renderer(), &m_mousePos);
     webFrame->setUserInitiatedClick(true);
     WebCore::PlatformMouseEvent mouseDown(m_mousePos, m_mousePos, WebCore::LeftButton,
             WebCore::MouseEventPressed, 1, false, false, false, false,
@@ -2469,6 +2525,8 @@ bool WebViewCore::handleMouseClick(WebCore::Frame* framePtr, WebCore::Node* node
             requestKeyboard(true);
         }
     }
+    if (nodePtr && valid)
+        restoreScrolledLayer(nodePtr->renderer(), &m_mousePos);
     return handled;
 }
 
@@ -2831,6 +2889,15 @@ static jstring RequestLabel(JNIEnv *env, jobject obj, int framePointer,
 {
     return WebCoreStringToJString(env, GET_NATIVE_VIEW(env, obj)->requestLabel(
             (WebCore::Frame*) framePointer, (WebCore::Node*) nodePointer));
+}
+
+static void ClearContent(JNIEnv *env, jobject obj)
+{
+#ifdef ANDROID_INSTRUMENT
+    TimeCounterAuto counter(TimeCounter::WebViewCoreTimeCounter);
+#endif
+    WebViewCore* viewImpl = GET_NATIVE_VIEW(env, obj);
+    viewImpl->clearContent();
 }
 
 static void UpdateFrameCacheIfLoading(JNIEnv *env, jobject obj)
@@ -3446,6 +3513,8 @@ static jobject GetTouchHighlightRects(JNIEnv* env, jobject obj, jint x, jint y, 
  * JNI registration.
  */
 static JNINativeMethod gJavaWebViewCoreMethods[] = {
+    { "nativeClearContent", "()V",
+            (void*) ClearContent },
     { "nativeFocusBoundsChanged", "()Z",
         (void*) FocusBoundsChanged } ,
     { "nativeKey", "(IIIZZZZ)Z",
