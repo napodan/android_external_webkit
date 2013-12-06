@@ -81,7 +81,6 @@ LOCAL_SRC_FILES += \
 	bindings/js/JSCustomPositionErrorCallback.cpp \
 	bindings/js/JSCustomSQLStatementErrorCallback.cpp \
 	bindings/js/JSCustomVoidCallback.cpp \
-	bindings/js/JSDesktopNotificationsCustom.cpp \
 	bindings/js/JSDOMApplicationCacheCustom.cpp \
 	bindings/js/JSDOMBinding.cpp \
 	bindings/js/JSDOMFormDataCustom.cpp \
@@ -99,6 +98,8 @@ LOCAL_SRC_FILES += \
 	bindings/js/JSDatabaseCustom.cpp \
 	bindings/js/JSDatabaseSyncCustom.cpp \
 	bindings/js/JSDedicatedWorkerContextCustom.cpp \
+	bindings/js/JSDesktopNotificationsCustom.cpp \
+	bindings/js/JSDeviceOrientationEventCustom.cpp \
 	bindings/js/JSDocumentCustom.cpp \
 	bindings/js/JSElementCustom.cpp \
 	bindings/js/JSEventCustom.cpp \

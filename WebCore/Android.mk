@@ -25,6 +25,7 @@
 
 LOCAL_SRC_FILES := \
 	bindings/generic/BindingSecurityBase.cpp \
+	bindings/generic/RuntimeEnabledFeatures.cpp \
 	\
 	css/CSSBorderImageValue.cpp \
 	css/CSSCanvasValue.cpp \
@@ -154,6 +155,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	dom/Notation.cpp \
 	dom/OptionElement.cpp \
 	dom/OptionGroupElement.cpp \
+	dom/DeviceOrientation.cpp \
 	dom/DeviceOrientationController.cpp \
 	dom/DeviceOrientationEvent.cpp \
 	dom/OverflowEvent.cpp \
@@ -400,6 +402,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	page/SecurityOrigin.cpp \
 	page/Settings.cpp \
 	page/SpatialNavigation.cpp \
+	page/SpeechInput.cpp \
 	page/SuspendableTimer.cpp \
 	page/Timing.cpp \
 	page/UserContentURLPattern.cpp \
@@ -494,6 +497,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	platform/graphics/GraphicsLayer.cpp \
 	platform/graphics/GraphicsTypes.cpp \
 	platform/graphics/Image.cpp \
+	platform/graphics/ImageBuffer.cpp \
 	platform/graphics/IntRect.cpp \
 	platform/graphics/MediaPlayer.cpp \
 	platform/graphics/Path.cpp \
@@ -591,6 +595,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	\
 	platform/text/Base64.cpp \
 	platform/text/BidiContext.cpp \
+	platform/text/LineEnding.cpp \
 	platform/text/RegularExpression.cpp \
 	platform/text/SegmentedString.cpp \
 	platform/text/String.cpp \
@@ -820,6 +825,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	storage/SQLResultSet.cpp \
 	storage/SQLResultSetRowList.cpp \
 	storage/SQLStatement.cpp \
+	storage/SQLStatementSync.cpp \
 	storage/SQLTransaction.cpp \
 	storage/SQLTransactionClient.cpp \
 	storage/SQLTransactionCoordinator.cpp \
@@ -918,7 +924,9 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	svg/SVGNumberList.cpp \
 	svg/SVGPaint.cpp \
 	svg/SVGParserUtilities.cpp \
+	svg/SVGPathBuilder.cpp \
 	svg/SVGPathElement.cpp \
+	svg/SVGPathParser.cpp \
 	svg/SVGPathSegArc.cpp \
 	svg/SVGPathSegClosePath.cpp \
 	svg/SVGPathSegCurvetoCubic.cpp \
@@ -929,6 +937,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) \
 	svg/SVGPathSegLinetoHorizontal.cpp \
 	svg/SVGPathSegLinetoVertical.cpp \
 	svg/SVGPathSegList.cpp \
+	svg/SVGPathSegListBuilder.cpp \
 	svg/SVGPathSegMoveto.cpp \
 	svg/SVGPatternElement.cpp \
 	svg/SVGPointList.cpp \

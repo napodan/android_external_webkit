@@ -73,6 +73,7 @@ sub new
 
     $codeGenerator = shift;
     $outputDir = shift;
+    shift; # $outputHeadersDir
     shift; # $useLayerOnTop
     shift; # $preprocessor
     $writeDependencies = shift;
@@ -1250,6 +1251,8 @@ sub GenerateImplementation
         $object->GenerateHashTable($hashName, $hashSize,
                                    \@hashKeys, \@hashSpecials,
                                    \@hashValue1, \@hashValue2);
+
+        push(@implContent, $codeGenerator->GenerateCompileTimeCheckForEnumsIfNeeded($dataNode));
 
         my $protoClassName = "${className}Prototype";
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Apple Inc.  All rights reserved.
+ * Copyright (C) 2009, 2010 Apple Inc. All rights reserved.
  * Copyright (C) Research In Motion Limited 2010. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,9 +67,12 @@ RenderObject* RenderObjectChildList::removeChildNode(RenderObject* owner, Render
     // disappears gets repainted properly.
     if (!owner->documentBeingDestroyed() && fullRemove && oldChild->m_everHadLayout) {
         oldChild->setNeedsLayoutAndPrefWidthsRecalc();
-        oldChild->repaint();
+        if (oldChild->isBody())
+            owner->view()->repaint();
+        else
+            oldChild->repaint();
     }
-        
+
     // If we have a line box wrapper, delete it.
     if (oldChild->isBox())
         toRenderBox(oldChild)->deleteLineBoxWrapper();

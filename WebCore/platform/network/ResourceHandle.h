@@ -110,8 +110,8 @@ private:
 public:
     // FIXME: should not need the Frame
     static PassRefPtr<ResourceHandle> create(const ResourceRequest&, ResourceHandleClient*, Frame*, bool defersLoading, bool shouldContentSniff);
-
     static void loadResourceSynchronously(const ResourceRequest&, StoredCredentials, ResourceError&, ResourceResponse&, Vector<char>& data, Frame* frame);
+
     static void prepareForURL(const KURL&);
     static bool willLoadFromCache(ResourceRequest&, Frame*);
     static void cacheMetadata(const ResourceResponse&, const Vector<char>&);
@@ -187,7 +187,8 @@ public:
 
     // Used to work around the fact that you don't get any more NSURLConnection callbacks until you return from the one you're in.
     static bool loadsBlocked();    
-    
+
+    bool hasAuthenticationChallenge() const;
     void clearAuthentication();
     void cancel();
 
@@ -200,8 +201,8 @@ public:
 // TODO: this needs upstreaming.
     void pauseLoad(bool);
 #endif
-
-    const ResourceRequest& request() const;
+      
+    ResourceRequest& firstRequest();
     const String& lastHTTPMethod() const;
 
     void fireFailure(Timer<ResourceHandle>*);
@@ -218,6 +219,12 @@ private:
 
     virtual void refAuthenticationClient() { ref(); }
     virtual void derefAuthenticationClient() { deref(); }
+
+#if PLATFORM(MAC)
+    void createNSURLConnection(id delegate, bool shouldUseCredentialStorage, bool shouldContentSniff);
+#elif PLATFORM(CF)
+    void createCFURLConnection(bool shouldUseCredentialStorage, bool shouldContentSniff);
+#endif
 
     friend class ResourceHandleInternal;
     OwnPtr<ResourceHandleInternal> d;

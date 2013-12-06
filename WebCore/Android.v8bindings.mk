@@ -43,8 +43,6 @@ BINDING_C_INCLUDES := \
 LOCAL_SRC_FILES += \
 	bindings/ScriptControllerBase.cpp \
 	\
-	bindings/generic/RuntimeEnabledFeatures.cpp \
-	\
 	bindings/v8/ChildThreadDOMData.cpp \
 	bindings/v8/DateExtension.cpp \
 	bindings/v8/DOMData.cpp \
@@ -119,6 +117,7 @@ LOCAL_SRC_FILES += \
 	bindings/v8/custom/V8DatabaseCustom.cpp \
 	bindings/v8/custom/V8DatabaseSyncCustom.cpp \
 	bindings/v8/custom/V8DedicatedWorkerContextCustom.cpp \
+	bindings/v8/custom/V8DeviceOrientationEventCustom.cpp \
 	bindings/v8/custom/V8DocumentCustom.cpp \
 	bindings/v8/custom/V8DocumentLocationCustom.cpp \
 	bindings/v8/custom/V8ElementCustom.cpp \

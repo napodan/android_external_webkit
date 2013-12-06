@@ -98,11 +98,12 @@ namespace WebCore {
 
     private:
         void addVisitedLink(LinkHash stringHash);
+        void resetUserStyleCacheInAllFrames();
 
 #if ENABLE(DOM_STORAGE) && defined(ANDROID)
         void removeLocalStorage();
 #endif
-
+  
         String m_name;
 
         HashSet<Page*> m_pages;

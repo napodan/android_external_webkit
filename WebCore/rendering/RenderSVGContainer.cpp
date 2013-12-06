@@ -27,6 +27,7 @@
 #include "RenderSVGContainer.h"
 
 #include "GraphicsContext.h"
+#include "RenderSVGResource.h"
 #include "RenderSVGResourceFilter.h"
 #include "RenderView.h"
 #include "SVGRenderSupport.h"
@@ -50,12 +51,16 @@ void RenderSVGContainer::layout()
     // Allow RenderSVGViewportContainer to update its viewport.
     calcViewport();
 
-    LayoutRepainter repainter(*this, checkForRepaintDuringLayout() || selfWillPaint());
+    LayoutRepainter repainter(*this, m_everHadLayout && checkForRepaintDuringLayout());
 
     // Allow RenderSVGTransformableContainer to update its transform.
     calculateLocalTransform();
 
     SVGRenderSupport::layoutChildren(this, selfNeedsLayout());
+
+    // Invalidate all resources of this client, if we changed something.
+    if (m_everHadLayout && selfNeedsLayout())
+        RenderSVGResource::invalidateAllResourcesOfRenderer(this);
 
     repainter.repaintAfterLayout();
     setNeedsLayout(false);
